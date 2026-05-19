@@ -46,4 +46,28 @@ describe('CategoryService', () => {
     const result = await service.create(dto);
     expect(result).toEqual(category);
   });
+
+  it('update should update a category', async () => {
+    const id = '1';
+    const dto = { name: 'Updated' };
+    const category = { id, name: 'Updated', slug: 'test', parentId: null };
+    mockPrismaService.category.update.mockResolvedValue(category);
+    const result = await service.update(id, dto);
+    expect(result).toEqual(category);
+    expect(mockPrismaService.category.update).toHaveBeenCalledWith({
+      where: { id },
+      data: dto,
+    });
+  });
+
+  it('delete should delete a category', async () => {
+    const id = '1';
+    const category = { id, name: 'Test', slug: 'test', parentId: null };
+    mockPrismaService.category.delete.mockResolvedValue(category);
+    const result = await service.delete(id);
+    expect(result).toEqual(category);
+    expect(mockPrismaService.category.delete).toHaveBeenCalledWith({
+      where: { id },
+    });
+  });
 });

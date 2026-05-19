@@ -1,5 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
+import { CreateCategoryDto } from './dto/create-category.dto';
+import { UpdateCategoryDto } from './dto/update-category.dto';
 
 @Injectable()
 export class CategoryService {
@@ -9,11 +11,11 @@ export class CategoryService {
     return this.prisma.category.findMany();
   }
 
-  async create(data: { name: string; slug: string; parentId?: string }) {
+  async create(data: CreateCategoryDto) {
     return this.prisma.category.create({ data });
   }
 
-  async update(id: string, data: { name?: string; slug?: string; parentId?: string }) {
+  async update(id: string, data: UpdateCategoryDto) {
     return this.prisma.category.update({ where: { id }, data });
   }
 

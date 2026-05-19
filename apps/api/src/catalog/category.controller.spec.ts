@@ -36,4 +36,32 @@ describe('CategoryController', () => {
     const result = await controller.findAll();
     expect(result).toEqual(categories);
   });
+
+  it('create should create a category', async () => {
+    const dto = { name: 'New', slug: 'new' };
+    const category = { id: '1', ...dto, parentId: null };
+    mockCategoryService.create.mockResolvedValue(category);
+    const result = await controller.create(dto);
+    expect(result).toEqual(category);
+    expect(mockCategoryService.create).toHaveBeenCalledWith(dto);
+  });
+
+  it('update should update a category', async () => {
+    const id = '1';
+    const dto = { name: 'Updated' };
+    const category = { id, name: 'Updated', slug: 'test', parentId: null };
+    mockCategoryService.update.mockResolvedValue(category);
+    const result = await controller.update(id, dto);
+    expect(result).toEqual(category);
+    expect(mockCategoryService.update).toHaveBeenCalledWith(id, dto);
+  });
+
+  it('remove should delete a category', async () => {
+    const id = '1';
+    const category = { id, name: 'Test', slug: 'test', parentId: null };
+    mockCategoryService.delete.mockResolvedValue(category);
+    const result = await controller.remove(id);
+    expect(result).toEqual(category);
+    expect(mockCategoryService.delete).toHaveBeenCalledWith(id);
+  });
 });
