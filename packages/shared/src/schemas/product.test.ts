@@ -5,6 +5,7 @@ describe('CreateProductSchema', () => {
   it('should validate a valid product', () => {
     const validProduct = {
       name: 'iPhone 15',
+      slug: 'iphone-15',
       price: 999,
       brand: 'Apple',
       stock: 50,
@@ -17,6 +18,7 @@ describe('CreateProductSchema', () => {
   it('should fail if name is empty', () => {
     const invalidProduct = {
       name: '',
+      slug: 'iphone-15',
       price: 999,
       brand: 'Apple',
       stock: 50,
@@ -29,6 +31,7 @@ describe('CreateProductSchema', () => {
   it('should fail if price is not positive', () => {
     const invalidProduct = {
       name: 'iPhone 15',
+      slug: 'iphone-15',
       price: 0,
       brand: 'Apple',
       stock: 50,
