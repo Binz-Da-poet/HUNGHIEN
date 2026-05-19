@@ -4,16 +4,20 @@
   "private": true,
   "scripts": {
     "dev": "nest start --watch",
-    "build": "nest build"
+    "build": "nest build",
+    "test": "vitest run"
   },
   "dependencies": {
     "@nestjs/common": "^10.0.0",
     "@nestjs/core": "^10.0.0",
+    "@nestjs/platform-express": "^10.0.0",
     "@prisma/client": "^5.0.0",
     "reflect-metadata": "^0.1.13"
   },
   "devDependencies": {
     "@nestjs/cli": "^10.0.0",
-    "prisma": "^5.0.0"
+    "@nestjs/testing": "^10.0.0",
+    "prisma": "^5.0.0",
+    "vitest": "^4.1.6"
   }
 }
