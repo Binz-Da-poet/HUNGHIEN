@@ -1,10 +1,27 @@
 import { Injectable, BadRequestException, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateOrderDto } from './dto/create-order.dto';
+import { OrderQueryDto } from './dto/order-query.dto';
+import { UpdateOrderStatusDto } from './dto/update-order-status.dto';
 
 @Injectable()
 export class OrdersService {
   constructor(private prisma: PrismaService) {}
+
+  async findAll(query: OrderQueryDto) {
+    const { status, skip = 0, take = 10 } = query;
+    return this.prisma.order.findMany({
+      where: status ? { status } : {},
+      skip,
+      take,
+      include: {
+        items: true,
+      },
+      orderBy: {
+        createdAt: 'desc',
+      },
+    });
+  }
 
   async create(createOrderDto: CreateOrderDto) {
     return this.prisma.$transaction(async (tx) => {
@@ -58,6 +75,21 @@ export class OrdersService {
       });
 
       return order;
+    });
+  }
+
+  async updateStatus(id: string, updateOrderStatusDto: UpdateOrderStatusDto) {
+    const order = await this.prisma.order.findUnique({
+      where: { id },
+    });
+
+    if (!order) {
+      throw new NotFoundException(`Order with ID ${id} not found`);
+    }
+
+    return this.prisma.order.update({
+      where: { id },
+      data: { status: updateOrderStatusDto.status },
     });
   }
 }

@@ -17,6 +17,9 @@ describe('OrdersService', () => {
     },
     order: {
       create: vi.fn(),
+      findMany: vi.fn(),
+      findUnique: vi.fn(),
+      update: vi.fn(),
     },
   };
 
@@ -87,6 +90,74 @@ describe('OrdersService', () => {
       mockPrismaService.product.findUnique.mockResolvedValue({ id: 'prod1', name: 'Product 1', stock: 1, price: 100 });
 
       await expect(service.create(createOrderDto)).rejects.toThrow(BadRequestException);
+    });
+  });
+
+  describe('findAll', () => {
+    it('should find all orders with pagination and filter', async () => {
+      const query = { status: 'PENDING', skip: 0, take: 10 };
+      const mockOrders = [{ id: '1', status: 'PENDING' }];
+      mockPrismaService.order.findMany.mockResolvedValue(mockOrders);
+
+      const result = await service.findAll(query);
+
+      expect(mockPrismaService.order.findMany).toHaveBeenCalledWith({
+        where: { status: 'PENDING' },
+        skip: 0,
+        take: 10,
+        include: { items: true },
+        orderBy: { createdAt: 'desc' },
+      });
+      expect(result).toEqual(mockOrders);
+    });
+
+    it('should find all orders without status filter', async () => {
+      const query = { skip: 10, take: 5 };
+      mockPrismaService.order.findMany.mockResolvedValue([]);
+
+      // @ts-ignore
+      await service.findAll(query);
+
+      expect(mockPrismaService.order.findMany).toHaveBeenCalledWith({
+        where: {},
+        skip: 10,
+        take: 5,
+        include: { items: true },
+        orderBy: { createdAt: 'desc' },
+      });
+    });
+  });
+
+  describe('updateStatus', () => {
+    it('should update order status successfully', async () => {
+      const orderId = 'order1';
+      const updateStatusDto = { status: 'SHIPPING' };
+      const mockOrder = { id: orderId, status: 'PENDING' };
+
+      mockPrismaService.order.findUnique.mockResolvedValue(mockOrder);
+      mockPrismaService.order.update.mockResolvedValue({
+        ...mockOrder,
+        status: 'SHIPPING',
+      });
+
+      const result = await service.updateStatus(orderId, updateStatusDto);
+
+      expect(mockPrismaService.order.findUnique).toHaveBeenCalledWith({
+        where: { id: orderId },
+      });
+      expect(mockPrismaService.order.update).toHaveBeenCalledWith({
+        where: { id: orderId },
+        data: { status: 'SHIPPING' },
+      });
+      expect(result.status).toBe('SHIPPING');
+    });
+
+    it('should throw NotFoundException if order not found', async () => {
+      mockPrismaService.order.findUnique.mockResolvedValue(null);
+
+      await expect(
+        service.updateStatus('invalid-id', { status: 'SUCCESS' }),
+      ).rejects.toThrow(NotFoundException);
     });
   });
 });
