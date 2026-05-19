@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { Plus } from 'lucide-react';
 import { CategoryTable } from '@/components/categories/category-table';
 import { CategoryForm } from '@/components/categories/category-form';
+import { Dialog } from '@/components/ui/dialog';
 
 interface Category {
   id: string;
@@ -100,15 +101,17 @@ export default function CategoriesPage() {
         </button>
       </div>
 
-      {isFormOpen && (
-        <div className="mb-6">
-          <CategoryForm
-            initialData={editingCategory}
-            onSubmit={handleSubmit}
-            onCancel={() => setIsFormOpen(false)}
-          />
-        </div>
-      )}
+      <Dialog
+        isOpen={isFormOpen}
+        onClose={() => setIsFormOpen(false)}
+        title={editingCategory ? 'Edit Category' : 'Add Category'}
+      >
+        <CategoryForm
+          initialData={editingCategory}
+          onSubmit={handleSubmit}
+          onCancel={() => setIsFormOpen(false)}
+        />
+      </Dialog>
 
       {error && (
         <div className="rounded-md bg-red-50 p-4 text-sm text-red-700">
