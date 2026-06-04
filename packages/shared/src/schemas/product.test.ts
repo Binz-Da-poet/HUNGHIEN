@@ -40,6 +40,33 @@ describe('CreateProductSchema', () => {
     const result = CreateProductSchema.safeParse(invalidProduct);
     expect(result.success).toBe(false);
   });
+
+  it('should reject decimal prices', () => {
+    const result = CreateProductSchema.safeParse({
+      name: 'Test',
+      slug: 'test',
+      price: 99.5,
+      brand: 'Brand',
+      stock: 1,
+      categoryId: 'cat-1',
+    });
+
+    expect(result.success).toBe(false);
+  });
+
+  it('should accept whole-number VND prices', () => {
+    const result = CreateProductSchema.safeParse({
+      name: 'Test',
+      slug: 'test',
+      price: 22990000,
+      originalPrice: 24990000,
+      brand: 'Brand',
+      stock: 1,
+      categoryId: 'cat-1',
+    });
+
+    expect(result.success).toBe(true);
+  });
 });
 
 it('should validate product image metadata', () => {
