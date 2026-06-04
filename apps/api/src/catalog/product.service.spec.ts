@@ -288,6 +288,36 @@ describe('ProductService', () => {
       });
     });
 
+    it('uses max existing sortOrder plus one when existing sort orders have gaps', async () => {
+      const existingImages = [
+        { id: 'img1', productId: 'prod1', sortOrder: 0, isPrimary: true },
+        { id: 'img2', productId: 'prod1', sortOrder: 2, isPrimary: false },
+      ];
+      const savedImages = [
+        { url: '/uploads/products/prod1/3-back.jpg', altText: 'back.jpg', sortOrder: 0 },
+      ];
+      const returnedImages = [
+        ...existingImages,
+        { id: 'img3', productId: 'prod1', ...savedImages[0], sortOrder: 3, isPrimary: false },
+      ];
+      mockPrismaService.product.findUnique.mockResolvedValue({ id: 'prod1' });
+      mockPrismaService.productImage.findMany
+        .mockResolvedValueOnce(existingImages)
+        .mockResolvedValueOnce(returnedImages);
+      mockImageStorageService.saveProductImages.mockResolvedValue(savedImages);
+
+      const result = await service.addImages('prod1', [
+        { originalname: 'back.jpg', mimetype: 'image/jpeg', buffer: Buffer.from('a'), size: 1 },
+      ]);
+
+      expect(result).toEqual(returnedImages);
+      expect(mockPrismaService.productImage.createMany).toHaveBeenCalledWith({
+        data: [
+          { productId: 'prod1', ...savedImages[0], sortOrder: 3, isPrimary: false },
+        ],
+      });
+    });
+
     it('does not clean up stored files when metadata was created but final read fails', async () => {
       const savedImages = [
         { url: '/uploads/products/prod1/1-front.jpg', altText: 'front.jpg', sortOrder: 0 },

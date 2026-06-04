@@ -82,7 +82,10 @@ export class ProductService {
       orderBy: productImageOrderBy,
     });
     const savedImages = await this.imageStorage.saveProductImages(productId, files);
-    const nextSortOrder = existingImages.length;
+    const nextSortOrder =
+      existingImages.length === 0
+        ? 0
+        : Math.max(...existingImages.map((image) => image.sortOrder)) + 1;
     const imageData = savedImages.map((image, index) => ({
       productId,
       ...image,
