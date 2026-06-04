@@ -10,16 +10,18 @@ export default function EditProductPage({ params }: { params: { id: string } }) 
   const router = useRouter();
   const [product, setProduct] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchProduct = async () => {
       try {
         const res = await fetch(`http://localhost:3001/api/products/${params.id}`);
-        if (!res.ok) throw new Error('Lỗi tải sản phẩm');
+        if (!res.ok) throw new Error('Không thể tải thông tin sản phẩm.');
         const data = await res.json();
         setProduct(data);
-      } catch (error) {
-        console.error('Failed to fetch product:', error);
+      } catch (err) {
+        console.error('Failed to fetch product:', err);
+        setError(err instanceof Error ? err.message : 'Lỗi tải sản phẩm.');
       } finally {
         setLoading(false);
       }
@@ -29,6 +31,7 @@ export default function EditProductPage({ params }: { params: { id: string } }) 
   }, [params.id]);
 
   const handleSubmit = async (data: any) => {
+    setError(null);
     try {
       const res = await fetch(`http://localhost:3001/api/products/${params.id}`, {
         method: 'PATCH',
@@ -37,25 +40,32 @@ export default function EditProductPage({ params }: { params: { id: string } }) 
       });
 
       if (!res.ok) {
-        throw new Error('Lỗi cập nhật sản phẩm');
+        const body = await res.json().catch(() => null);
+        throw new Error(body?.message || 'Không thể cập nhật sản phẩm.');
       }
 
       router.push('/products');
       router.refresh();
-    } catch (error) {
-      console.error(error);
-      alert('Lỗi cập nhật sản phẩm. Kiểm tra console để biết chi tiết.');
+    } catch (err) {
+      console.error(err);
+      setError(err instanceof Error ? err.message : 'Lỗi cập nhật sản phẩm.');
     }
   };
 
   return (
     <div className="space-y-6">
       <div className="flex items-center space-x-4">
-        <Link href="/products" className="text-gray-500 hover:text-gray-900">
+        <Link href="/products" className="text-slate-500 hover:text-slate-900">
           <ArrowLeft className="h-5 w-5" />
         </Link>
-        <h1 className="text-2xl font-bold text-gray-900">Sửa sản phẩm</h1>
+        <h1 className="text-2xl font-bold text-slate-900">Sửa sản phẩm</h1>
       </div>
+
+      {error && (
+        <div className="rounded-md bg-red-50 p-3 text-sm text-red-700">
+          {error}
+        </div>
+      )}
 
       {loading ? (
         <div className="text-center py-10">Đang tải...</div>
