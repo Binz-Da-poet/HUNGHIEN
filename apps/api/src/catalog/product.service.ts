@@ -82,24 +82,27 @@ export class ProductService {
       orderBy: productImageOrderBy,
     });
     const savedImages = await this.imageStorage.saveProductImages(productId, files);
+    const nextSortOrder = existingImages.length;
+    const imageData = savedImages.map((image, index) => ({
+      productId,
+      ...image,
+      sortOrder: nextSortOrder + index,
+      isPrimary: existingImages.length === 0 && index === 0,
+    }));
 
     try {
       await this.prisma.productImage.createMany({
-        data: savedImages.map((image, index) => ({
-          productId,
-          ...image,
-          isPrimary: existingImages.length === 0 && index === 0,
-        })),
-      });
-
-      return await this.prisma.productImage.findMany({
-        where: { productId },
-        orderBy: productImageOrderBy,
+        data: imageData,
       });
     } catch (error) {
       await Promise.allSettled(savedImages.map((image) => this.imageStorage.deleteByUrl(image.url)));
       throw error;
     }
+
+    return this.prisma.productImage.findMany({
+      where: { productId },
+      orderBy: productImageOrderBy,
+    });
   }
 
   async updateImage(

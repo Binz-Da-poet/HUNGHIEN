@@ -42,7 +42,7 @@ describe('ProductService', () => {
   };
 
   beforeEach(async () => {
-    vi.clearAllMocks();
+    vi.resetAllMocks();
     mockPrismaService.$transaction.mockImplementation((callback) => callback(mockPrismaService));
 
     const module: TestingModule = await Test.createTestingModule({
@@ -252,6 +252,61 @@ describe('ProductService', () => {
 
       expect(mockImageStorageService.deleteByUrl).toHaveBeenCalledWith(savedImages[0].url);
       expect(mockImageStorageService.deleteByUrl).toHaveBeenCalledWith(savedImages[1].url);
+    });
+
+    it('offsets new image sortOrder when the product already has images', async () => {
+      const existingImages = [
+        { id: 'img1', productId: 'prod1', sortOrder: 0, isPrimary: true },
+        { id: 'img2', productId: 'prod1', sortOrder: 1, isPrimary: false },
+      ];
+      const savedImages = [
+        { url: '/uploads/products/prod1/3-back.jpg', altText: 'back.jpg', sortOrder: 0 },
+        { url: '/uploads/products/prod1/4-box.jpg', altText: 'box.jpg', sortOrder: 1 },
+      ];
+      const returnedImages = [
+        ...existingImages,
+        { id: 'img3', productId: 'prod1', ...savedImages[0], sortOrder: 2, isPrimary: false },
+        { id: 'img4', productId: 'prod1', ...savedImages[1], sortOrder: 3, isPrimary: false },
+      ];
+      mockPrismaService.product.findUnique.mockResolvedValue({ id: 'prod1' });
+      mockPrismaService.productImage.findMany
+        .mockResolvedValueOnce(existingImages)
+        .mockResolvedValueOnce(returnedImages);
+      mockImageStorageService.saveProductImages.mockResolvedValue(savedImages);
+
+      const result = await service.addImages('prod1', [
+        { originalname: 'back.jpg', mimetype: 'image/jpeg', buffer: Buffer.from('a'), size: 1 },
+        { originalname: 'box.jpg', mimetype: 'image/jpeg', buffer: Buffer.from('b'), size: 1 },
+      ]);
+
+      expect(result).toEqual(returnedImages);
+      expect(mockPrismaService.productImage.createMany).toHaveBeenCalledWith({
+        data: [
+          { productId: 'prod1', ...savedImages[0], sortOrder: 2, isPrimary: false },
+          { productId: 'prod1', ...savedImages[1], sortOrder: 3, isPrimary: false },
+        ],
+      });
+    });
+
+    it('does not clean up stored files when metadata was created but final read fails', async () => {
+      const savedImages = [
+        { url: '/uploads/products/prod1/1-front.jpg', altText: 'front.jpg', sortOrder: 0 },
+      ];
+      mockPrismaService.product.findUnique.mockResolvedValue({ id: 'prod1' });
+      mockPrismaService.productImage.findMany
+        .mockResolvedValueOnce([])
+        .mockRejectedValueOnce(new Error('read failed'));
+      mockImageStorageService.saveProductImages.mockResolvedValue(savedImages);
+      mockPrismaService.productImage.createMany.mockResolvedValue({ count: 1 });
+
+      await expect(
+        service.addImages('prod1', [
+          { originalname: 'front.jpg', mimetype: 'image/jpeg', buffer: Buffer.from('a'), size: 1 },
+        ]),
+      ).rejects.toThrow('read failed');
+
+      expect(mockPrismaService.productImage.createMany).toHaveBeenCalled();
+      expect(mockImageStorageService.deleteByUrl).not.toHaveBeenCalled();
     });
   });
 
