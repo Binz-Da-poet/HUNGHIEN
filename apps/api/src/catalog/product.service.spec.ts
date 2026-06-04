@@ -2,11 +2,19 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { ProductService } from './product.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { ImageStorageService } from './image-storage.service';
 
 describe('ProductService', () => {
   let service: ProductService;
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   let prisma: PrismaService;
+  let imageStorage: ImageStorageService;
+
+  const imageOrderBy = [
+    { isPrimary: 'desc' },
+    { sortOrder: 'asc' },
+    { createdAt: 'asc' },
+  ];
 
   const mockPrismaService = {
     product: {
@@ -16,18 +24,35 @@ describe('ProductService', () => {
       update: vi.fn(),
       delete: vi.fn(),
     },
+    productImage: {
+      findMany: vi.fn(),
+      findFirst: vi.fn(),
+      createMany: vi.fn(),
+      updateMany: vi.fn(),
+      update: vi.fn(),
+      delete: vi.fn(),
+    },
+  };
+
+  const mockImageStorageService = {
+    saveProductImages: vi.fn(),
+    deleteByUrl: vi.fn(),
   };
 
   beforeEach(async () => {
+    vi.clearAllMocks();
+
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         ProductService,
         { provide: PrismaService, useValue: mockPrismaService },
+        { provide: ImageStorageService, useValue: mockImageStorageService },
       ],
     }).compile();
 
     service = module.get<ProductService>(ProductService);
     prisma = module.get<PrismaService>(PrismaService);
+    imageStorage = module.get<ImageStorageService>(ImageStorageService);
   });
 
   it('should be defined', () => {
@@ -52,7 +77,7 @@ describe('ProductService', () => {
       
       expect(mockPrismaService.product.findMany).toHaveBeenCalledWith({
         where: { categoryId: 'cat1' },
-        include: { category: true, images: true },
+        include: { category: true, images: { orderBy: imageOrderBy } },
       });
     });
 
@@ -66,7 +91,7 @@ describe('ProductService', () => {
             { description: { contains: 'phone', mode: 'insensitive' } },
           ],
         },
-        include: { category: true, images: true },
+        include: { category: true, images: { orderBy: imageOrderBy } },
       });
     });
   });
@@ -81,7 +106,7 @@ describe('ProductService', () => {
       expect(result).toEqual(product);
       expect(mockPrismaService.product.findUnique).toHaveBeenCalledWith({
         where: { id: '1' },
-        include: { category: true, images: true },
+        include: { category: true, images: { orderBy: imageOrderBy } },
       });
     });
   });
@@ -148,6 +173,106 @@ describe('ProductService', () => {
       expect(result).toEqual({ id });
       expect(mockPrismaService.product.delete).toHaveBeenCalledWith({
         where: { id },
+      });
+    });
+  });
+
+  describe('addImages', () => {
+    it('marks the first uploaded image primary when the product has no images', async () => {
+      const files = [
+        { originalname: 'front.jpg', mimetype: 'image/jpeg', buffer: Buffer.from('a'), size: 1 },
+        { originalname: 'side.jpg', mimetype: 'image/jpeg', buffer: Buffer.from('b'), size: 1 },
+      ];
+      const savedImages = [
+        { url: '/uploads/products/prod1/1-front.jpg', altText: 'front.jpg', sortOrder: 0 },
+        { url: '/uploads/products/prod1/2-side.jpg', altText: 'side.jpg', sortOrder: 1 },
+      ];
+      const returnedImages = [
+        { id: 'img1', productId: 'prod1', ...savedImages[0], isPrimary: true },
+        { id: 'img2', productId: 'prod1', ...savedImages[1], isPrimary: false },
+      ];
+      mockPrismaService.productImage.findMany
+        .mockResolvedValueOnce([])
+        .mockResolvedValueOnce(returnedImages);
+      mockImageStorageService.saveProductImages.mockResolvedValue(savedImages);
+
+      const result = await service.addImages('prod1', files);
+
+      expect(result).toEqual(returnedImages);
+      expect(imageStorage.saveProductImages).toHaveBeenCalledWith('prod1', files);
+      expect(mockPrismaService.productImage.createMany).toHaveBeenCalledWith({
+        data: [
+          { productId: 'prod1', ...savedImages[0], isPrimary: true },
+          { productId: 'prod1', ...savedImages[1], isPrimary: false },
+        ],
+      });
+      expect(mockPrismaService.productImage.findMany).toHaveBeenLastCalledWith({
+        where: { productId: 'prod1' },
+        orderBy: imageOrderBy,
+      });
+    });
+  });
+
+  describe('setPrimaryImage', () => {
+    it('clears existing primary images before marking the target image primary', async () => {
+      const targetImage = { id: 'img2', productId: 'prod1', isPrimary: false };
+      mockPrismaService.productImage.findFirst.mockResolvedValue(targetImage);
+      mockPrismaService.productImage.update.mockResolvedValue({
+        ...targetImage,
+        isPrimary: true,
+      });
+
+      const result = await service.setPrimaryImage('prod1', 'img2');
+
+      expect(result).toEqual({ ...targetImage, isPrimary: true });
+      expect(mockPrismaService.productImage.findFirst).toHaveBeenCalledWith({
+        where: { id: 'img2', productId: 'prod1' },
+      });
+      expect(mockPrismaService.productImage.updateMany).toHaveBeenCalledWith({
+        where: { productId: 'prod1', isPrimary: true },
+        data: { isPrimary: false },
+      });
+      expect(mockPrismaService.productImage.update).toHaveBeenCalledWith({
+        where: { id: 'img2' },
+        data: { isPrimary: true },
+      });
+    });
+  });
+
+  describe('deleteImage', () => {
+    it('promotes the next image when deleting the primary image', async () => {
+      const deletedImage = {
+        id: 'img1',
+        productId: 'prod1',
+        url: '/uploads/products/prod1/img1.jpg',
+        isPrimary: true,
+      };
+      const nextImage = { id: 'img2', productId: 'prod1', isPrimary: false };
+      mockPrismaService.productImage.findFirst
+        .mockResolvedValueOnce(deletedImage)
+        .mockResolvedValueOnce(nextImage);
+      mockPrismaService.productImage.delete.mockResolvedValue(deletedImage);
+      mockPrismaService.productImage.update.mockResolvedValue({
+        ...nextImage,
+        isPrimary: true,
+      });
+
+      await service.deleteImage('prod1', 'img1');
+
+      expect(mockPrismaService.productImage.findFirst).toHaveBeenNthCalledWith(1, {
+        where: { id: 'img1', productId: 'prod1' },
+      });
+      expect(mockPrismaService.productImage.delete).toHaveBeenCalledWith({
+        where: { id: 'img1' },
+      });
+      expect(mockImageStorageService.deleteByUrl).toHaveBeenCalledWith(deletedImage.url);
+      expect(mockPrismaService.productImage.findFirst).toHaveBeenNthCalledWith(2, {
+        where: { productId: 'prod1' },
+        orderBy: [{ sortOrder: 'asc' }, { createdAt: 'asc' }],
+      });
+      expect(mockPrismaService.productImage.update).toHaveBeenCalledWith({
+        where: { id: 'img2' },
+        data: { isPrimary: true },
       });
     });
   });
