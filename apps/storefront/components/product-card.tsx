@@ -4,6 +4,7 @@ import React from 'react';
 import Link from 'next/link';
 import { ShoppingCart } from 'lucide-react';
 import { useCart } from '@/store/use-cart';
+import { formatVnd } from '@/lib/format';
 
 interface ProductCardProps {
   product: {
@@ -49,11 +50,11 @@ export function ProductCard({ product }: ProductCardProps) {
         
         <div className="mt-2 flex items-baseline gap-2">
           <span className="text-lg font-bold text-accent">
-            ${Number(product.price).toFixed(2)}
+            {formatVnd(product.price)}
           </span>
           {product.originalPrice && (
             <span className="text-sm text-gray-500 line-through">
-              ${Number(product.originalPrice).toFixed(2)}
+              {formatVnd(product.originalPrice)}
             </span>
           )}
         </div>

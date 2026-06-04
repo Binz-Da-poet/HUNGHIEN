@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useCart } from '@/store/use-cart';
 import Link from 'next/link';
+import { formatVnd } from '@/lib/format';
 
 export default function CheckoutPage() {
   const router = useRouter();
@@ -148,7 +149,7 @@ export default function CheckoutPage() {
                   <span className="text-gray-600 truncate pr-2">
                     {item.quantity}x {item.name}
                   </span>
-                  <span className="font-medium">${(item.price * item.quantity).toFixed(2)}</span>
+                  <span className="font-medium">{formatVnd(item.price * item.quantity)}</span>
                 </li>
               ))}
             </ul>
@@ -156,7 +157,7 @@ export default function CheckoutPage() {
             <div className="space-y-2 border-t pt-4 text-gray-600">
               <div className="flex justify-between font-bold text-gray-900 text-lg">
                 <span>Tổng cộng</span>
-                <span>${getTotal().toFixed(2)}</span>
+                <span>{formatVnd(getTotal())}</span>
               </div>
             </div>
 

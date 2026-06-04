@@ -4,6 +4,7 @@ import React from 'react';
 import Link from 'next/link';
 import { useCart } from '@/store/use-cart';
 import { Trash2, Minus, Plus, ArrowRight } from 'lucide-react';
+import { formatVnd } from '@/lib/format';
 
 export default function CartPage() {
   const { items, updateQuantity, removeItem, getTotal } = useCart();
@@ -39,7 +40,7 @@ export default function CartPage() {
                       <Link href={`/products/${item.productId}`} className="font-semibold text-gray-900 hover:text-primary">
                         {item.name}
                       </Link>
-                      <p className="font-bold text-gray-900">${(item.price * item.quantity).toFixed(2)}</p>
+                      <p className="font-bold text-gray-900">{formatVnd(item.price * item.quantity)}</p>
                     </div>
                     
                     <div className="mt-4 flex items-center justify-between">
@@ -80,7 +81,7 @@ export default function CartPage() {
             <div className="space-y-4 text-sm text-gray-600">
               <div className="flex justify-between">
                 <span>Tạm tính</span>
-                <span>${getTotal().toFixed(2)}</span>
+                <span>{formatVnd(getTotal())}</span>
               </div>
               <div className="flex justify-between">
                 <span>Phí giao hàng</span>
@@ -88,7 +89,7 @@ export default function CartPage() {
               </div>
               <div className="border-t pt-4 flex justify-between font-bold text-gray-900 text-lg">
                 <span>Tổng cộng</span>
-                <span>${getTotal().toFixed(2)}</span>
+                <span>{formatVnd(getTotal())}</span>
               </div>
             </div>
 

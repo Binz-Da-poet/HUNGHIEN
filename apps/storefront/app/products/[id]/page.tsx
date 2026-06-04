@@ -5,6 +5,7 @@ import { notFound } from 'next/navigation';
 import { ShoppingCart, Check, Shield, ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
 import { useCart } from '@/store/use-cart';
+import { formatVnd } from '@/lib/format';
 
 export default function ProductDetailPage({ params }: { params: { id: string } }) {
   const [product, setProduct] = useState<any>(null);
@@ -83,11 +84,11 @@ export default function ProductDetailPage({ params }: { params: { id: string } }
           
           <div className="mb-6 flex items-end gap-4">
             <span className="text-4xl font-bold text-accent">
-              ${Number(product.price).toFixed(2)}
+              {formatVnd(product.price)}
             </span>
             {product.originalPrice && (
               <span className="text-xl text-gray-500 line-through">
-                ${Number(product.originalPrice).toFixed(2)}
+                {formatVnd(product.originalPrice)}
               </span>
             )}
           </div>
