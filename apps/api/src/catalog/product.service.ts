@@ -1,7 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { PrismaService } from '../prisma/prisma.service';
 import { CreateProductSchema } from '@repo/shared';
 import { ImageStorageService, UploadedImageFile } from './image-storage.service';
+import { PrismaService } from '../prisma/prisma.service';
 
 const productImageOrderBy = [
   { isPrimary: 'desc' as const },
@@ -48,7 +48,6 @@ export class ProductService {
   }
 
   async create(data: any) {
-    // Validate with Zod and get sanitized data
     const validatedData = CreateProductSchema.parse(data);
 
     return this.prisma.product.create({
@@ -70,24 +69,37 @@ export class ProductService {
   }
 
   async addImages(productId: string, files: UploadedImageFile[]) {
+    const product = await this.prisma.product.findUnique({
+      where: { id: productId },
+      select: { id: true },
+    });
+    if (!product) {
+      throw new NotFoundException('Khong tim thay san pham');
+    }
+
     const existingImages = await this.prisma.productImage.findMany({
       where: { productId },
       orderBy: productImageOrderBy,
     });
     const savedImages = await this.imageStorage.saveProductImages(productId, files);
 
-    await this.prisma.productImage.createMany({
-      data: savedImages.map((image, index) => ({
-        productId,
-        ...image,
-        isPrimary: existingImages.length === 0 && index === 0,
-      })),
-    });
+    try {
+      await this.prisma.productImage.createMany({
+        data: savedImages.map((image, index) => ({
+          productId,
+          ...image,
+          isPrimary: existingImages.length === 0 && index === 0,
+        })),
+      });
 
-    return this.prisma.productImage.findMany({
-      where: { productId },
-      orderBy: productImageOrderBy,
-    });
+      return await this.prisma.productImage.findMany({
+        where: { productId },
+        orderBy: productImageOrderBy,
+      });
+    } catch (error) {
+      await Promise.allSettled(savedImages.map((image) => this.imageStorage.deleteByUrl(image.url)));
+      throw error;
+    }
   }
 
   async updateImage(
@@ -100,7 +112,7 @@ export class ProductService {
     });
 
     if (!image) {
-      throw new NotFoundException('Không tìm thấy hình ảnh sản phẩm');
+      throw new NotFoundException('Khong tim thay hinh anh san pham');
     }
 
     const updateData: { altText?: string; sortOrder?: number } = {};
@@ -127,51 +139,69 @@ export class ProductService {
   }
 
   async setPrimaryImage(productId: string, imageId: string) {
-    const image = await this.prisma.productImage.findFirst({
-      where: { id: imageId, productId },
-    });
+    return this.prisma.$transaction(async (tx) => {
+      const image = await tx.productImage.findFirst({
+        where: { id: imageId, productId },
+      });
 
-    if (!image) {
-      throw new NotFoundException('Không tìm thấy hình ảnh sản phẩm');
-    }
+      if (!image) {
+        throw new NotFoundException('Khong tim thay hinh anh san pham');
+      }
 
-    await this.prisma.productImage.updateMany({
-      where: { productId, isPrimary: true },
-      data: { isPrimary: false },
-    });
+      await tx.productImage.updateMany({
+        where: { productId, isPrimary: true },
+        data: { isPrimary: false },
+      });
 
-    return this.prisma.productImage.update({
-      where: { id: imageId },
-      data: { isPrimary: true },
+      const updateResult = await tx.productImage.updateMany({
+        where: { id: imageId, productId },
+        data: { isPrimary: true },
+      });
+      if (updateResult.count !== 1) {
+        throw new NotFoundException('Khong tim thay hinh anh san pham');
+      }
+
+      return tx.productImage.findFirst({
+        where: { id: imageId, productId },
+      });
     });
   }
 
   async deleteImage(productId: string, imageId: string) {
-    const image = await this.prisma.productImage.findFirst({
-      where: { id: imageId, productId },
-    });
-
-    if (!image) {
-      throw new NotFoundException('Không tìm thấy hình ảnh sản phẩm');
-    }
-
-    await this.prisma.productImage.delete({
-      where: { id: imageId },
-    });
-    await this.imageStorage.deleteByUrl(image.url);
-
-    if (image.isPrimary) {
-      const nextImage = await this.prisma.productImage.findFirst({
-        where: { productId },
-        orderBy: [{ sortOrder: 'asc' }, { createdAt: 'asc' }],
+    const image = await this.prisma.$transaction(async (tx) => {
+      const imageToDelete = await tx.productImage.findFirst({
+        where: { id: imageId, productId },
       });
 
-      if (nextImage) {
-        await this.prisma.productImage.update({
-          where: { id: nextImage.id },
-          data: { isPrimary: true },
-        });
+      if (!imageToDelete) {
+        throw new NotFoundException('Khong tim thay hinh anh san pham');
       }
+
+      await tx.productImage.delete({
+        where: { id: imageId },
+      });
+
+      if (imageToDelete.isPrimary) {
+        const nextImage = await tx.productImage.findFirst({
+          where: { productId },
+          orderBy: [{ sortOrder: 'asc' }, { createdAt: 'asc' }],
+        });
+
+        if (nextImage) {
+          await tx.productImage.updateMany({
+            where: { id: nextImage.id, productId },
+            data: { isPrimary: true },
+          });
+        }
+      }
+
+      return imageToDelete;
+    });
+
+    try {
+      await this.imageStorage.deleteByUrl(image.url);
+    } catch {
+      // Storage cleanup is best-effort after the DB transaction has committed.
     }
   }
 }

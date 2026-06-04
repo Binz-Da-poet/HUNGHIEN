@@ -34,26 +34,38 @@ export class ImageStorageService {
       throw new BadRequestException('Vui lòng chọn ít nhất một hình ảnh');
     }
 
+    this.validateProductId(productId);
     files.forEach((file) => this.validateFile(file));
 
-    const uploadDir = join(process.cwd(), 'uploads', 'products', productId);
+    const uploadRoot = resolve(process.cwd(), 'uploads', 'products');
+    const uploadDir = resolve(uploadRoot, productId);
+    if (!uploadDir.startsWith(`${uploadRoot}${sep}`)) {
+      throw new BadRequestException('Ma san pham khong hop le');
+    }
+
     await mkdir(uploadDir, { recursive: true });
 
-    return Promise.all(
-      files.map(async (file, index) => {
+    const savedImages: SavedProductImage[] = [];
+    try {
+      for (const [index, file] of files.entries()) {
         const extension = this.allowedMimeTypes.get(file.mimetype) ?? this.getOriginalExtension(file);
         const filename = `${Date.now()}-${randomUUID()}.${extension}`;
         const filePath = join(uploadDir, filename);
 
         await writeFile(filePath, file.buffer);
 
-        return {
+        savedImages.push({
           url: `/uploads/products/${productId}/${filename}`,
           altText: file.originalname,
           sortOrder: index,
-        };
-      }),
-    );
+        });
+      }
+    } catch (error) {
+      await Promise.allSettled(savedImages.map((image) => this.deleteByUrl(image.url)));
+      throw error;
+    }
+
+    return savedImages;
   }
 
   async deleteByUrl(url: string): Promise<void> {
@@ -85,6 +97,12 @@ export class ImageStorageService {
 
     if (file.size > this.maxFileSize) {
       throw new BadRequestException('Kích thước hình ảnh không được vượt quá 5MB');
+    }
+  }
+
+  private validateProductId(productId: string) {
+    if (productId.includes('..') || productId.includes('/') || productId.includes('\\')) {
+      throw new BadRequestException('Ma san pham khong hop le');
     }
   }
 

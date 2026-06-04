@@ -3,6 +3,7 @@ import { ProductService } from './product.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { ImageStorageService } from './image-storage.service';
+import { BadRequestException } from '@nestjs/common';
 
 describe('ProductService', () => {
   let service: ProductService;
@@ -17,6 +18,7 @@ describe('ProductService', () => {
   ];
 
   const mockPrismaService = {
+    $transaction: vi.fn(),
     product: {
       findMany: vi.fn(),
       findUnique: vi.fn(),
@@ -41,6 +43,7 @@ describe('ProductService', () => {
 
   beforeEach(async () => {
     vi.clearAllMocks();
+    mockPrismaService.$transaction.mockImplementation((callback) => callback(mockPrismaService));
 
     const module: TestingModule = await Test.createTestingModule({
       providers: [
@@ -191,6 +194,7 @@ describe('ProductService', () => {
         { id: 'img1', productId: 'prod1', ...savedImages[0], isPrimary: true },
         { id: 'img2', productId: 'prod1', ...savedImages[1], isPrimary: false },
       ];
+      mockPrismaService.product.findUnique.mockResolvedValue({ id: 'prod1' });
       mockPrismaService.productImage.findMany
         .mockResolvedValueOnce([])
         .mockResolvedValueOnce(returnedImages);
@@ -199,6 +203,10 @@ describe('ProductService', () => {
       const result = await service.addImages('prod1', files);
 
       expect(result).toEqual(returnedImages);
+      expect(mockPrismaService.product.findUnique).toHaveBeenCalledWith({
+        where: { id: 'prod1' },
+        select: { id: true },
+      });
       expect(imageStorage.saveProductImages).toHaveBeenCalledWith('prod1', files);
       expect(mockPrismaService.productImage.createMany).toHaveBeenCalledWith({
         data: [
@@ -211,36 +219,72 @@ describe('ProductService', () => {
         orderBy: imageOrderBy,
       });
     });
+
+    it('does not store files when the product does not exist', async () => {
+      mockPrismaService.product.findUnique.mockResolvedValue(null);
+
+      await expect(
+        service.addImages('missing', [
+          { originalname: 'front.jpg', mimetype: 'image/jpeg', buffer: Buffer.from('a'), size: 1 },
+        ]),
+      ).rejects.toThrow();
+
+      expect(mockImageStorageService.saveProductImages).not.toHaveBeenCalled();
+      expect(mockPrismaService.productImage.createMany).not.toHaveBeenCalled();
+    });
+
+    it('cleans up stored files when metadata creation fails', async () => {
+      const savedImages = [
+        { url: '/uploads/products/prod1/1-front.jpg', altText: 'front.jpg', sortOrder: 0 },
+        { url: '/uploads/products/prod1/2-side.jpg', altText: 'side.jpg', sortOrder: 1 },
+      ];
+      mockPrismaService.product.findUnique.mockResolvedValue({ id: 'prod1' });
+      mockPrismaService.productImage.findMany.mockResolvedValueOnce([]);
+      mockImageStorageService.saveProductImages.mockResolvedValue(savedImages);
+      mockPrismaService.productImage.createMany.mockRejectedValue(new Error('db failed'));
+
+      await expect(
+        service.addImages('prod1', [
+          { originalname: 'front.jpg', mimetype: 'image/jpeg', buffer: Buffer.from('a'), size: 1 },
+          { originalname: 'side.jpg', mimetype: 'image/jpeg', buffer: Buffer.from('b'), size: 1 },
+        ]),
+      ).rejects.toThrow('db failed');
+
+      expect(mockImageStorageService.deleteByUrl).toHaveBeenCalledWith(savedImages[0].url);
+      expect(mockImageStorageService.deleteByUrl).toHaveBeenCalledWith(savedImages[1].url);
+    });
   });
 
   describe('setPrimaryImage', () => {
-    it('clears existing primary images before marking the target image primary', async () => {
+    it('clears existing primary images and marks the target image primary in a transaction', async () => {
       const targetImage = { id: 'img2', productId: 'prod1', isPrimary: false };
-      mockPrismaService.productImage.findFirst.mockResolvedValue(targetImage);
-      mockPrismaService.productImage.update.mockResolvedValue({
-        ...targetImage,
-        isPrimary: true,
-      });
+      mockPrismaService.productImage.findFirst
+        .mockResolvedValueOnce(targetImage)
+        .mockResolvedValueOnce({ ...targetImage, isPrimary: true });
+      mockPrismaService.productImage.updateMany
+        .mockResolvedValueOnce({ count: 1 })
+        .mockResolvedValueOnce({ count: 1 });
 
       const result = await service.setPrimaryImage('prod1', 'img2');
 
       expect(result).toEqual({ ...targetImage, isPrimary: true });
-      expect(mockPrismaService.productImage.findFirst).toHaveBeenCalledWith({
+      expect(mockPrismaService.$transaction).toHaveBeenCalled();
+      expect(mockPrismaService.productImage.findFirst).toHaveBeenNthCalledWith(1, {
         where: { id: 'img2', productId: 'prod1' },
       });
-      expect(mockPrismaService.productImage.updateMany).toHaveBeenCalledWith({
+      expect(mockPrismaService.productImage.updateMany).toHaveBeenNthCalledWith(1, {
         where: { productId: 'prod1', isPrimary: true },
         data: { isPrimary: false },
       });
-      expect(mockPrismaService.productImage.update).toHaveBeenCalledWith({
-        where: { id: 'img2' },
+      expect(mockPrismaService.productImage.updateMany).toHaveBeenNthCalledWith(2, {
+        where: { id: 'img2', productId: 'prod1' },
         data: { isPrimary: true },
       });
     });
   });
 
   describe('deleteImage', () => {
-    it('promotes the next image when deleting the primary image', async () => {
+    it('promotes the next image in the deletion transaction', async () => {
       const deletedImage = {
         id: 'img1',
         productId: 'prod1',
@@ -252,28 +296,61 @@ describe('ProductService', () => {
         .mockResolvedValueOnce(deletedImage)
         .mockResolvedValueOnce(nextImage);
       mockPrismaService.productImage.delete.mockResolvedValue(deletedImage);
-      mockPrismaService.productImage.update.mockResolvedValue({
-        ...nextImage,
-        isPrimary: true,
-      });
+      mockPrismaService.productImage.updateMany.mockResolvedValue({ count: 1 });
 
       await service.deleteImage('prod1', 'img1');
 
+      expect(mockPrismaService.$transaction).toHaveBeenCalled();
       expect(mockPrismaService.productImage.findFirst).toHaveBeenNthCalledWith(1, {
         where: { id: 'img1', productId: 'prod1' },
       });
       expect(mockPrismaService.productImage.delete).toHaveBeenCalledWith({
         where: { id: 'img1' },
       });
-      expect(mockImageStorageService.deleteByUrl).toHaveBeenCalledWith(deletedImage.url);
       expect(mockPrismaService.productImage.findFirst).toHaveBeenNthCalledWith(2, {
         where: { productId: 'prod1' },
         orderBy: [{ sortOrder: 'asc' }, { createdAt: 'asc' }],
       });
-      expect(mockPrismaService.productImage.update).toHaveBeenCalledWith({
-        where: { id: 'img2' },
+      expect(mockPrismaService.productImage.updateMany).toHaveBeenCalledWith({
+        where: { id: 'img2', productId: 'prod1' },
         data: { isPrimary: true },
       });
+      expect(mockImageStorageService.deleteByUrl).toHaveBeenCalledWith(deletedImage.url);
     });
+
+    it('does not reject when storage cleanup fails after image deletion', async () => {
+      const deletedImage = {
+        id: 'img1',
+        productId: 'prod1',
+        url: '/uploads/products/prod1/img1.jpg',
+        isPrimary: false,
+      };
+      mockPrismaService.productImage.findFirst.mockResolvedValue(deletedImage);
+      mockPrismaService.productImage.delete.mockResolvedValue(deletedImage);
+      mockImageStorageService.deleteByUrl.mockRejectedValue(new Error('disk failed'));
+
+      await expect(service.deleteImage('prod1', 'img1')).resolves.toBeUndefined();
+
+      expect(mockPrismaService.productImage.delete).toHaveBeenCalledWith({
+        where: { id: 'img1' },
+      });
+      expect(mockImageStorageService.deleteByUrl).toHaveBeenCalledWith(deletedImage.url);
+    });
+  });
+});
+
+describe('ImageStorageService', () => {
+  let service: ImageStorageService;
+
+  beforeEach(() => {
+    service = new ImageStorageService();
+  });
+
+  it('rejects product IDs with path traversal characters', async () => {
+    await expect(
+      service.saveProductImages('../outside', [
+        { originalname: 'front.jpg', mimetype: 'image/jpeg', buffer: Buffer.from('a'), size: 1 },
+      ]),
+    ).rejects.toBeInstanceOf(BadRequestException);
   });
 });
