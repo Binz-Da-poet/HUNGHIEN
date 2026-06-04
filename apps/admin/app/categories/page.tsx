@@ -5,14 +5,13 @@ import { Plus } from 'lucide-react';
 import { CategoryTable } from '@/components/categories/category-table';
 import { CategoryForm } from '@/components/categories/category-form';
 import { Dialog } from '@/components/ui/dialog';
+import { API_BASE_URL } from '@/lib/api';
 
 interface Category {
   id: string;
   name: string;
   slug: string;
 }
-
-const API_URL = 'http://localhost:3001/api/categories';
 
 export default function CategoriesPage() {
   const [categories, setCategories] = useState<Category[]>([]);
@@ -25,10 +24,10 @@ export default function CategoriesPage() {
     setLoading(true);
     setError(null);
     try {
-      const res = await fetch(API_URL);
+      const res = await fetch(`${API_BASE_URL}/categories`);
       if (!res.ok) throw new Error('Không thể tải danh mục.');
       const data = await res.json();
-      setCategories(data);
+      setCategories(Array.isArray(data) ? data : []);
     } catch (err) {
       console.error('Failed to fetch categories:', err);
       setError(err instanceof Error ? err.message : 'Lỗi tải danh mục.');
@@ -54,7 +53,7 @@ export default function CategoriesPage() {
   const handleDelete = async (id: string) => {
     if (!confirm('Bạn có chắc chắn muốn xóa danh mục này không?')) return;
     try {
-      const res = await fetch(`${API_URL}/${id}`, { method: 'DELETE' });
+      const res = await fetch(`${API_BASE_URL}/categories/${id}`, { method: 'DELETE' });
       if (!res.ok) throw new Error('Xóa danh mục thất bại.');
       fetchCategories();
     } catch (err) {
@@ -66,7 +65,7 @@ export default function CategoriesPage() {
   const handleSubmit = async (data: Omit<Category, 'id'>) => {
     try {
       if (editingCategory) {
-        const res = await fetch(`${API_URL}/${editingCategory.id}`, {
+        const res = await fetch(`${API_BASE_URL}/categories/${editingCategory.id}`, {
           method: 'PATCH',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(data),
@@ -76,7 +75,7 @@ export default function CategoriesPage() {
           throw new Error(body?.message || 'Cập nhật danh mục thất bại.');
         }
       } else {
-        const res = await fetch(API_URL, {
+        const res = await fetch(`${API_BASE_URL}/categories`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(data),

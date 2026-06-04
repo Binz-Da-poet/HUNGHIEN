@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { Plus, Search } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { ProductTable } from '@/components/products/product-table';
+import { API_BASE_URL } from '@/lib/api';
 
 interface Product {
   id: string;
@@ -15,8 +16,6 @@ interface Product {
   images?: any[];
 }
 
-const API_URL = 'http://localhost:3001/api/products';
-
 export default function ProductsPage() {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
@@ -27,12 +26,14 @@ export default function ProductsPage() {
   const fetchProducts = async () => {
     setLoading(true);
     try {
-      const res = await fetch(API_URL);
+      const res = await fetch(`${API_BASE_URL}/products`);
       if (!res.ok) throw new Error('Lỗi tải dữ liệu');
       const data = await res.json();
-      setProducts(data);
+      // Ensure data is an array
+      setProducts(Array.isArray(data) ? data : []);
     } catch (error) {
       console.error('Failed to fetch products:', error);
+      setProducts([]);
     } finally {
       setLoading(false);
     }

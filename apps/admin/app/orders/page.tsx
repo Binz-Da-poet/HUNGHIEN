@@ -2,8 +2,8 @@
 
 import React, { useState, useEffect } from 'react';
 import { OrderList } from '@/components/orders/order-list';
+import { API_BASE_URL } from '@/lib/api';
 
-const API_URL = 'http://localhost:3001/api/orders';
 const AVAILABLE_STATUSES = ['ALL', 'PENDING', 'SHIPPING', 'SUCCESS', 'CANCELLED'];
 
 const statusDisplayMap: Record<string, string> = {
@@ -24,14 +24,15 @@ export default function OrdersPage() {
     setLoading(true);
     setError(null);
     try {
-      const url = status !== 'ALL' ? `${API_URL}?status=${status}` : API_URL;
+      const url = status !== 'ALL' ? `${API_BASE_URL}/orders?status=${status}` : `${API_BASE_URL}/orders`;
       const res = await fetch(url);
       if (!res.ok) throw new Error('Không thể tải dữ liệu đơn hàng.');
       const data = await res.json();
-      setOrders(data);
+      setOrders(Array.isArray(data) ? data : []);
     } catch (err) {
       console.error('Failed to fetch orders:', err);
       setError(err instanceof Error ? err.message : 'Lỗi tải đơn hàng.');
+      setOrders([]);
     } finally {
       setLoading(false);
     }
@@ -43,7 +44,7 @@ export default function OrdersPage() {
 
   const handleStatusChange = async (id: string, newStatus: string) => {
     try {
-      const res = await fetch(`${API_URL}/${id}/status`, {
+      const res = await fetch(`${API_BASE_URL}/orders/${id}/status`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ status: newStatus }),

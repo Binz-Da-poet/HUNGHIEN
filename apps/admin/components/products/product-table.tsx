@@ -1,9 +1,8 @@
-'use client';
-
 import React from 'react';
 import { Edit, Trash2 } from 'lucide-react';
 import { formatVnd } from '@/lib/format';
 import { ProductImage } from './product-image-manager';
+import { UPLOAD_BASE_URL } from '@/lib/api';
 
 interface Product {
   id: string;
@@ -21,7 +20,19 @@ interface ProductTableProps {
   onDelete: (id: string) => void;
 }
 
+function getImageUrl(url: string) {
+  return url.startsWith('http') ? url : `${UPLOAD_BASE_URL}${url}`;
+}
+
 export function ProductTable({ products, onEdit, onDelete }: ProductTableProps) {
+  if (products.length === 0) {
+    return (
+      <div className="rounded-md border border-dashed border-slate-200 bg-white py-12 text-center text-slate-500">
+        Không tìm thấy sản phẩm nào.
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-4">
       <div className="space-y-3 md:hidden">
@@ -30,7 +41,7 @@ export function ProductTable({ products, onEdit, onDelete }: ProductTableProps) 
             <div className="flex gap-3">
               <div className="h-16 w-16 flex-shrink-0 overflow-hidden rounded-md bg-slate-100">
                 {product.images?.[0]?.url ? (
-                  <img src={product.images[0].url} alt={product.name} className="h-full w-full object-cover" />
+                  <img src={getImageUrl(product.images[0].url)} alt={product.name} className="h-full w-full object-cover" />
                 ) : (
                   <div className="flex h-full w-full items-center justify-center text-xs text-slate-400">Ảnh</div>
                 )}
@@ -67,7 +78,8 @@ export function ProductTable({ products, onEdit, onDelete }: ProductTableProps) 
         <table className="min-w-full divide-y divide-slate-200 bg-white">
           <thead className="bg-slate-50">
             <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-slate-500">Tên</th>
+              <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-slate-500">Ảnh</th>
+              <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-slate-500">Tên sản phẩm</th>
               <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-slate-500">Giá</th>
               <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-slate-500">Tồn kho</th>
               <th className="px-6 py-3 text-right text-xs font-medium uppercase tracking-wider text-slate-500">Thao tác</th>
@@ -76,7 +88,16 @@ export function ProductTable({ products, onEdit, onDelete }: ProductTableProps) 
           <tbody className="divide-y divide-slate-200">
             {products.map((product) => (
               <tr key={product.id}>
-                <td className="whitespace-nowrap px-6 py-4 text-sm text-slate-900">{product.name}</td>
+                <td className="whitespace-nowrap px-6 py-4">
+                  <div className="h-10 w-10 overflow-hidden rounded-md border border-slate-100 bg-slate-50">
+                    {product.images?.[0]?.url ? (
+                      <img src={getImageUrl(product.images[0].url)} alt={product.name} className="h-full w-full object-cover" />
+                    ) : (
+                      <div className="flex h-full w-full items-center justify-center text-[10px] text-slate-400">N/A</div>
+                    )}
+                  </div>
+                </td>
+                <td className="whitespace-nowrap px-6 py-4 text-sm font-medium text-slate-900">{product.name}</td>
                 <td className="whitespace-nowrap px-6 py-4 text-sm text-slate-500">{formatVnd(product.price)}</td>
                 <td className="whitespace-nowrap px-6 py-4 text-sm text-slate-500">{product.stock}</td>
                 <td className="whitespace-nowrap px-6 py-4 text-right text-sm font-medium">
