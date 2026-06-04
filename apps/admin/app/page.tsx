@@ -1,43 +1,43 @@
-import React from 'react';
+import Link from 'next/link';
+import {
+  AlertTriangle,
+  ListTree,
+  PackagePlus,
+  ShoppingCart,
+} from 'lucide-react';
+
+const shortcuts = [
+  { label: 'Thêm sản phẩm', href: '/products/new', icon: PackagePlus },
+  { label: 'Xem đơn hàng', href: '/orders', icon: ShoppingCart },
+  { label: 'Quản lý danh mục', href: '/categories', icon: ListTree },
+  { label: 'Kiểm tra tồn kho', href: '/products?stock=low', icon: AlertTriangle },
+];
 
 export default function DashboardPage() {
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-bold tracking-tight text-gray-900">Dashboard Overview</h1>
-      </div>
-      
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <div className="rounded-lg border bg-white p-6 shadow-sm">
-          <div className="text-sm font-medium text-gray-500">Total Sales</div>
-          <div className="mt-2 text-2xl font-bold">$12,345</div>
-          <div className="mt-1 text-xs text-green-600">+12% from last month</div>
-        </div>
-        
-        <div className="rounded-lg border bg-white p-6 shadow-sm">
-          <div className="text-sm font-medium text-gray-500">Active Orders</div>
-          <div className="mt-2 text-2xl font-bold">45</div>
-          <div className="mt-1 text-xs text-blue-600">5 pending shipping</div>
-        </div>
-        
-        <div className="rounded-lg border bg-white p-6 shadow-sm">
-          <div className="text-sm font-medium text-gray-500">Total Products</div>
-          <div className="mt-2 text-2xl font-bold">156</div>
-          <div className="mt-1 text-xs text-gray-500">Across 12 categories</div>
-        </div>
-        
-        <div className="rounded-lg border bg-white p-6 shadow-sm">
-          <div className="text-sm font-medium text-gray-500">Out of Stock</div>
-          <div className="mt-2 text-2xl font-bold text-red-600">3</div>
-          <div className="mt-1 text-xs text-red-500">Action required</div>
-        </div>
+      <div>
+        <h1 className="text-2xl font-bold tracking-tight text-slate-950 sm:text-3xl">
+          Tổng quan
+        </h1>
+        <p className="mt-2 text-sm text-slate-600">
+          Truy cập nhanh các thao tác quản trị thường dùng trên điện thoại và máy tính.
+        </p>
       </div>
 
-      <div className="rounded-lg border bg-white p-6 shadow-sm">
-        <h2 className="mb-4 text-xl font-semibold">Recent Activity</h2>
-        <div className="space-y-4">
-          <p className="text-sm text-gray-600 italic">No recent activity to display.</p>
-        </div>
+      <div className="grid gap-3 sm:grid-cols-2">
+        {shortcuts.map((item) => (
+          <Link
+            key={item.label}
+            href={item.href}
+            className="flex items-center gap-4 rounded-md border border-slate-200 bg-white p-4 shadow-sm transition-colors hover:border-orange-200 hover:bg-orange-50/40"
+          >
+            <span className="inline-flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-md bg-slate-950 text-orange-400">
+              <item.icon className="h-5 w-5" />
+            </span>
+            <span className="text-sm font-semibold text-slate-950">{item.label}</span>
+          </Link>
+        ))}
       </div>
     </div>
   );

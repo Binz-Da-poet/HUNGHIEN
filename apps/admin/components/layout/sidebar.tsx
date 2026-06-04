@@ -1,14 +1,15 @@
-import React from 'react';
 import Link from 'next/link';
-import { 
-  LayoutDashboard, 
-  Package, 
-  ListTree, 
-  ShoppingCart, 
+import {
+  LayoutDashboard,
+  Package,
+  ListTree,
+  ShoppingCart,
   Settings,
-  Menu
 } from 'lucide-react';
-import { cn } from '@/lib/utils';
+
+interface SidebarProps {
+  onNavigate?: () => void;
+}
 
 const navItems = [
   { name: 'Tổng quan', href: '/', icon: LayoutDashboard },
@@ -18,22 +19,21 @@ const navItems = [
   { name: 'Cài đặt', href: '/settings', icon: Settings },
 ];
 
-export function Sidebar() {
+export function Sidebar({ onNavigate }: SidebarProps) {
   return (
-    <div className="flex h-full w-64 flex-col bg-gray-900 text-white">
-      <div className="flex h-16 items-center justify-center border-b border-gray-800">
-        <span className="text-xl font-bold text-orange-500">HUNG HIEN ADMIN</span>
+    <div className="flex h-full w-full flex-col bg-slate-950 text-white">
+      <div className="flex h-16 items-center border-b border-white/10 px-5">
+        <span className="text-base font-bold text-orange-400">HUNG HIEN ADMIN</span>
       </div>
-      <nav className="flex-1 space-y-1 px-2 py-4">
+      <nav className="flex-1 space-y-1 px-3 py-4">
         {navItems.map((item) => (
           <Link
             key={item.name}
             href={item.href}
-            className={cn(
-              "group flex items-center rounded-md px-2 py-2 text-sm font-medium transition-colors hover:bg-gray-800 hover:text-white"
-            )}
+            onClick={onNavigate}
+            className="group flex items-center rounded-md px-3 py-3 text-sm font-medium text-slate-200 transition-colors hover:bg-white/10 hover:text-white"
           >
-            <item.icon className="mr-3 h-6 w-6 flex-shrink-0 text-gray-400 group-hover:text-white" />
+            <item.icon className="mr-3 h-5 w-5 flex-shrink-0 text-slate-400 group-hover:text-white" />
             {item.name}
           </Link>
         ))}
