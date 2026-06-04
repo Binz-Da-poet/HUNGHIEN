@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { formatVnd } from '@/lib/format';
 
 interface Product {
   id?: string;
@@ -59,8 +60,8 @@ export function ProductForm({ initialData, onSubmit, onCancel }: ProductFormProp
       setFormData({
         name: initialData.name,
         slug: initialData.slug,
-        price: initialData.price,
-        originalPrice: initialData.originalPrice || 0,
+        price: Number(initialData.price),
+        originalPrice: initialData.originalPrice ? Number(initialData.originalPrice) : 0,
         brand: initialData.brand,
         stock: initialData.stock,
         categoryId: initialData.categoryId,
@@ -91,7 +92,11 @@ export function ProductForm({ initialData, onSubmit, onCancel }: ProductFormProp
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onSubmit(formData);
+    const payload = { ...formData };
+    if (!payload.originalPrice || payload.originalPrice < 1) {
+      delete payload.originalPrice;
+    }
+    onSubmit(payload);
   };
 
   return (
@@ -126,30 +131,35 @@ export function ProductForm({ initialData, onSubmit, onCancel }: ProductFormProp
         </div>
         
         <div>
-          <label className="block text-sm font-medium text-gray-700">Giá</label>
+          <label className="block text-sm font-medium text-gray-700">Giá (VND)</label>
           <input
             type="number"
             name="price"
             value={formData.price}
             onChange={handleChange}
-            min="0"
-            step="0.01"
+            min="1"
+            step="1"
             className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-orange-500 focus:outline-none focus:ring-orange-500 sm:text-sm"
             required
           />
+          <p className="mt-1 text-xs text-slate-500">Hiển thị: {formatVnd(formData.price)}</p>
+          <p className="text-xs text-slate-400">Nhập số nguyên, không dấu chấm</p>
         </div>
         
         <div>
-          <label className="block text-sm font-medium text-gray-700">Giá gốc</label>
+          <label className="block text-sm font-medium text-gray-700">Giá gốc (VND)</label>
           <input
             type="number"
             name="originalPrice"
             value={formData.originalPrice}
             onChange={handleChange}
-            min="0"
-            step="0.01"
+            min="1"
+            step="1"
             className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-orange-500 focus:outline-none focus:ring-orange-500 sm:text-sm"
           />
+          {(formData.originalPrice ?? 0) > 0 && (
+            <p className="mt-1 text-xs text-slate-500">Hiển thị: {formatVnd(formData.originalPrice)}</p>
+          )}
         </div>
         
         <div>

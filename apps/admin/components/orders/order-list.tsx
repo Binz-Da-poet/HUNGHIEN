@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { OrderStatusBadge } from './order-status-badge';
+import { formatVnd } from '@/lib/format';
 
 interface Order {
   id: string;
@@ -52,7 +53,7 @@ export function OrderList({ orders, onStatusChange }: OrderListProps) {
                 {new Date(order.createdAt).toLocaleDateString()}
               </td>
               <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-900">
-                ${Number(order.totalAmount).toFixed(2)}
+                {formatVnd(order.totalAmount)}
               </td>
               <td className="whitespace-nowrap px-6 py-4 text-sm">
                 <OrderStatusBadge status={order.status} />

@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { Edit, Trash2 } from 'lucide-react';
+import { formatVnd } from '@/lib/format';
 
 interface Product {
   id: string;
@@ -34,7 +35,7 @@ export function ProductTable({ products, onEdit, onDelete }: ProductTableProps) 
           {products.map((product) => (
             <tr key={product.id}>
               <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-900">{product.name}</td>
-              <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">${Number(product.price).toFixed(2)}</td>
+              <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">{formatVnd(product.price)}</td>
               <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">{product.stock}</td>
               <td className="whitespace-nowrap px-6 py-4 text-right text-sm font-medium">
                 <button 
