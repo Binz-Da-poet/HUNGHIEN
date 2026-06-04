@@ -1,0 +1,75 @@
+'use client';
+
+import React from 'react';
+import { OrderStatusBadge } from './order-status-badge';
+
+interface Order {
+  id: string;
+  customerName: string;
+  phone: string;
+  totalAmount: string | number;
+  status: string;
+  createdAt: string;
+}
+
+interface OrderListProps {
+  orders: Order[];
+  onStatusChange: (id: string, newStatus: string) => void;
+}
+
+const AVAILABLE_STATUSES = ['PENDING', 'SHIPPING', 'SUCCESS', 'CANCELLED'];
+
+export function OrderList({ orders, onStatusChange }: OrderListProps) {
+  return (
+    <div className="overflow-x-auto rounded-lg border border-gray-200">
+      <table className="min-w-full divide-y divide-gray-200 bg-white">
+        <thead className="bg-gray-50">
+          <tr>
+            <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">ID</th>
+            <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Customer</th>
+            <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Date</th>
+            <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Total</th>
+            <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Status</th>
+            <th className="px-6 py-3 text-right text-xs font-medium uppercase tracking-wider text-gray-500">Update Status</th>
+          </tr>
+        </thead>
+        <tbody className="divide-y divide-gray-200">
+          {orders.map((order) => (
+            <tr key={order.id}>
+              <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">{order.id.slice(-6)}</td>
+              <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-900">
+                {order.customerName}
+                <div className="text-xs text-gray-500">{order.phone}</div>
+              </td>
+              <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
+                {new Date(order.createdAt).toLocaleDateString()}
+              </td>
+              <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-900">
+                ${Number(order.totalAmount).toFixed(2)}
+              </td>
+              <td className="whitespace-nowrap px-6 py-4 text-sm">
+                <OrderStatusBadge status={order.status} />
+              </td>
+              <td className="whitespace-nowrap px-6 py-4 text-right text-sm font-medium">
+                <select
+                  value={order.status}
+                  onChange={(e) => onStatusChange(order.id, e.target.value)}
+                  className="rounded-md border border-gray-300 px-2 py-1 text-sm shadow-sm focus:border-orange-500 focus:outline-none focus:ring-orange-500"
+                >
+                  {AVAILABLE_STATUSES.map((status) => (
+                    <option key={status} value={status}>
+                      {status}
+                    </option>
+                  ))}
+                </select>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+      {orders.length === 0 && (
+        <div className="py-10 text-center text-gray-500">No orders found</div>
+      )}
+    </div>
+  );
+}
