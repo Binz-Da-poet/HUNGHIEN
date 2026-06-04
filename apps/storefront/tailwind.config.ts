@@ -8,6 +8,9 @@ const config: Config = {
   ],
   theme: {
     extend: {
+      fontFamily: {
+        sans: ['var(--font-be-vietnam-pro)', 'system-ui', '-apple-system', 'Segoe UI', 'sans-serif'],
+      },
       colors: {
         primary: "#1e3a8a", // Navy Blue
         secondary: "#047857", // Dark Green

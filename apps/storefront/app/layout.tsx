@@ -1,7 +1,15 @@
 import './globals.css';
 import type { Metadata } from 'next';
 import Link from 'next/link';
+import { Be_Vietnam_Pro } from 'next/font/google';
 import { ShoppingCart, Store } from 'lucide-react';
+
+const beVietnamPro = Be_Vietnam_Pro({
+  subsets: ['vietnamese', 'latin'],
+  weight: ['400', '500', '600', '700'],
+  variable: '--font-be-vietnam-pro',
+  display: 'swap',
+});
 
 export const metadata: Metadata = {
   title: 'Cửa hàng HUNG HIEN',
@@ -14,8 +22,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
-      <body className="flex min-h-screen flex-col">
+    <html lang="vi" className={beVietnamPro.variable}>
+      <body className={`${beVietnamPro.className} flex min-h-screen flex-col font-sans antialiased`}>
         <header className="sticky top-0 z-50 w-full border-b bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/60">
           <div className="container mx-auto flex h-16 items-center justify-between px-4">
             <Link href="/" className="flex items-center space-x-2">
