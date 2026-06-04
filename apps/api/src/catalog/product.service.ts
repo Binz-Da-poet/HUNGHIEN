@@ -42,7 +42,7 @@ export class ProductService {
     const validatedData = CreateProductSchema.parse(data);
 
     return this.prisma.product.create({
-      data: validatedData,
+      data: validatedData as any,
     });
   }
 
