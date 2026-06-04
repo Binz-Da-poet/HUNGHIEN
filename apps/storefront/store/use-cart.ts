@@ -6,14 +6,18 @@ export interface CartItem {
   name: string;
   price: number;
   quantity: number;
+  imageUrl?: string | null;
 }
 
 interface CartStore {
   items: CartItem[];
+  buyNowItem: CartItem | null;
   addItem: (item: Omit<CartItem, 'quantity'>) => void;
   removeItem: (productId: string) => void;
   updateQuantity: (productId: string, quantity: number) => void;
   clearCart: () => void;
+  setBuyNowItem: (item: Omit<CartItem, 'quantity'>) => void;
+  clearBuyNowItem: () => void;
   getTotal: () => number;
 }
 
@@ -21,6 +25,7 @@ export const useCart = create<CartStore>()(
   persist(
     (set, get) => ({
       items: [],
+      buyNowItem: null,
       addItem: (item) => {
         const currentItems = get().items;
         const existingItem = currentItems.find((i) => i.productId === item.productId);
@@ -50,6 +55,8 @@ export const useCart = create<CartStore>()(
         });
       },
       clearCart: () => set({ items: [] }),
+      setBuyNowItem: (item) => set({ buyNowItem: { ...item, quantity: 1 } }),
+      clearBuyNowItem: () => set({ buyNowItem: null }),
       getTotal: () => get().items.reduce((total, item) => total + item.price * item.quantity, 0),
     }),
     {

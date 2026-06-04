@@ -3,7 +3,21 @@
 @tailwind utilities;
 
 @layer base {
+  html {
+    overflow-x: hidden;
+  }
+
   body {
-    @apply bg-gray-50 text-gray-900;
+    min-height: 100vh;
+    overflow-x: hidden;
+    background: #f8fafc;
+    color: #0f172a;
+  }
+
+  button,
+  input,
+  select,
+  textarea {
+    font: inherit;
   }
 }
