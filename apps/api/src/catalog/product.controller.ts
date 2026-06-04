@@ -1,4 +1,6 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Query } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query, UploadedFiles, UseInterceptors } from '@nestjs/common';
+import { FilesInterceptor } from '@nestjs/platform-express';
+import { memoryStorage } from 'multer';
 import { ProductService } from './product.service';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
@@ -15,6 +17,26 @@ export class ProductController {
   @Get()
   findAll(@Query('categoryId') categoryId?: string, @Query('search') search?: string) {
     return this.productService.findAll({ categoryId, search });
+  }
+
+  @Post(':id/images')
+  @UseInterceptors(FilesInterceptor('images', 8, { storage: memoryStorage() }))
+  uploadImages(@Param('id') id: string, @UploadedFiles() files: Express.Multer.File[]) {
+    return this.productService.addImages(id, files);
+  }
+
+  @Patch(':id/images/:imageId')
+  updateImage(
+    @Param('id') id: string,
+    @Param('imageId') imageId: string,
+    @Body() body: { altText?: string; sortOrder?: number; isPrimary?: boolean },
+  ) {
+    return this.productService.updateImage(id, imageId, body);
+  }
+
+  @Delete(':id/images/:imageId')
+  deleteImage(@Param('id') id: string, @Param('imageId') imageId: string) {
+    return this.productService.deleteImage(id, imageId);
   }
 
   @Get(':id')

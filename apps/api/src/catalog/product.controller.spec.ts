@@ -13,6 +13,9 @@ describe('ProductController', () => {
     create: vi.fn(),
     update: vi.fn(),
     remove: vi.fn(),
+    addImages: vi.fn(),
+    updateImage: vi.fn(),
+    deleteImage: vi.fn(),
   };
 
   beforeEach(async () => {
@@ -82,5 +85,35 @@ describe('ProductController', () => {
     
     expect(result).toEqual({ id });
     expect(mockProductService.remove).toHaveBeenCalledWith(id);
+  });
+
+  it('uploadImages should pass files to the product service', async () => {
+    const files = [{ originalname: 'front.jpg', mimetype: 'image/jpeg', buffer: Buffer.from('a'), size: 100 }] as any;
+    const images = [{ id: 'img-1', url: '/uploads/products/product-1/front.jpg' }];
+    mockProductService.addImages.mockResolvedValue(images);
+
+    const result = await controller.uploadImages('product-1', files);
+
+    expect(result).toEqual(images);
+    expect(mockProductService.addImages).toHaveBeenCalledWith('product-1', files);
+  });
+
+  it('updateImage should pass metadata to the product service', async () => {
+    const dto = { isPrimary: true };
+    mockProductService.updateImage.mockResolvedValue({ id: 'img-1', isPrimary: true });
+
+    const result = await controller.updateImage('product-1', 'img-1', dto);
+
+    expect(result).toEqual({ id: 'img-1', isPrimary: true });
+    expect(mockProductService.updateImage).toHaveBeenCalledWith('product-1', 'img-1', dto);
+  });
+
+  it('deleteImage should remove image metadata', async () => {
+    mockProductService.deleteImage.mockResolvedValue({ deleted: true });
+
+    const result = await controller.deleteImage('product-1', 'img-1');
+
+    expect(result).toEqual({ deleted: true });
+    expect(mockProductService.deleteImage).toHaveBeenCalledWith('product-1', 'img-1');
   });
 });
