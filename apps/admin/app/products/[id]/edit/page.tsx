@@ -15,7 +15,7 @@ export default function EditProductPage({ params }: { params: { id: string } }) 
     const fetchProduct = async () => {
       try {
         const res = await fetch(`http://localhost:3001/api/products/${params.id}`);
-        if (!res.ok) throw new Error('Failed to fetch product');
+        if (!res.ok) throw new Error('Lỗi tải sản phẩm');
         const data = await res.json();
         setProduct(data);
       } catch (error) {
@@ -37,14 +37,14 @@ export default function EditProductPage({ params }: { params: { id: string } }) 
       });
 
       if (!res.ok) {
-        throw new Error('Failed to update product');
+        throw new Error('Lỗi cập nhật sản phẩm');
       }
 
       router.push('/products');
       router.refresh();
     } catch (error) {
       console.error(error);
-      alert('Error updating product. Check console for details.');
+      alert('Lỗi cập nhật sản phẩm. Kiểm tra console để biết chi tiết.');
     }
   };
 
@@ -54,11 +54,11 @@ export default function EditProductPage({ params }: { params: { id: string } }) 
         <Link href="/products" className="text-gray-500 hover:text-gray-900">
           <ArrowLeft className="h-5 w-5" />
         </Link>
-        <h1 className="text-2xl font-bold text-gray-900">Edit Product</h1>
+        <h1 className="text-2xl font-bold text-gray-900">Sửa sản phẩm</h1>
       </div>
 
       {loading ? (
-        <div className="text-center py-10">Loading...</div>
+        <div className="text-center py-10">Đang tải...</div>
       ) : product ? (
         <ProductForm 
           initialData={product}
@@ -66,7 +66,7 @@ export default function EditProductPage({ params }: { params: { id: string } }) 
           onCancel={() => router.push('/products')} 
         />
       ) : (
-        <div className="text-center py-10 text-red-500">Product not found</div>
+        <div className="text-center py-10 text-red-500">Không tìm thấy sản phẩm</div>
       )}
     </div>
   );

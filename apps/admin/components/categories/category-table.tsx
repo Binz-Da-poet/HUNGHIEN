@@ -21,9 +21,9 @@ export function CategoryTable({ categories, onEdit, onDelete }: CategoryTablePro
       <table className="min-w-full divide-y divide-gray-200 bg-white">
         <thead className="bg-gray-50">
           <tr>
-            <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Name</th>
+            <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Tên</th>
             <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Slug</th>
-            <th className="px-6 py-3 text-right text-xs font-medium uppercase tracking-wider text-gray-500">Actions</th>
+            <th className="px-6 py-3 text-right text-xs font-medium uppercase tracking-wider text-gray-500">Thao tác</th>
           </tr>
         </thead>
         <tbody className="divide-y divide-gray-200">
@@ -50,7 +50,7 @@ export function CategoryTable({ categories, onEdit, onDelete }: CategoryTablePro
           {categories.length === 0 && (
             <tr>
               <td colSpan={3} className="px-6 py-4 text-center text-sm text-gray-500">
-                No categories found.
+                Không tìm thấy danh mục nào.
               </td>
             </tr>
           )}

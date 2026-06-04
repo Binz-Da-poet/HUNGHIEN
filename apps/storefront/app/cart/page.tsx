@@ -11,10 +11,10 @@ export default function CartPage() {
   if (items.length === 0) {
     return (
       <div className="container mx-auto px-4 py-20 text-center">
-        <h1 className="mb-4 text-3xl font-bold text-gray-900">Your Cart is Empty</h1>
-        <p className="mb-8 text-gray-500">Looks like you haven't added anything to your cart yet.</p>
+        <h1 className="mb-4 text-3xl font-bold text-gray-900">Giỏ hàng của bạn đang trống</h1>
+        <p className="mb-8 text-gray-500">Có vẻ như bạn chưa thêm gì vào giỏ hàng.</p>
         <Link href="/" className="inline-flex rounded-md bg-primary px-6 py-3 font-medium text-white transition-colors hover:bg-primary/90">
-          Continue Shopping
+          Tiếp tục mua sắm
         </Link>
       </div>
     );
@@ -22,7 +22,7 @@ export default function CartPage() {
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <h1 className="mb-8 text-3xl font-bold text-gray-900">Shopping Cart</h1>
+      <h1 className="mb-8 text-3xl font-bold text-gray-900">Giỏ hàng</h1>
 
       <div className="grid grid-cols-1 gap-8 lg:grid-cols-12">
         <div className="lg:col-span-8">
@@ -31,7 +31,7 @@ export default function CartPage() {
               {items.map((item) => (
                 <li key={item.productId} className="flex items-center gap-4 p-4 sm:p-6">
                   <div className="h-24 w-24 flex-shrink-0 rounded-md bg-gray-100 flex items-center justify-center">
-                    <span className="text-xs text-gray-400">Image</span>
+                    <span className="text-xs text-gray-400">Hình ảnh</span>
                   </div>
                   
                   <div className="flex flex-1 flex-col justify-between">
@@ -75,19 +75,19 @@ export default function CartPage() {
 
         <div className="lg:col-span-4">
           <div className="rounded-xl border bg-white p-6 shadow-sm">
-            <h2 className="mb-4 text-lg font-bold text-gray-900">Order Summary</h2>
+            <h2 className="mb-4 text-lg font-bold text-gray-900">Tóm tắt đơn hàng</h2>
             
             <div className="space-y-4 text-sm text-gray-600">
               <div className="flex justify-between">
-                <span>Subtotal</span>
+                <span>Tạm tính</span>
                 <span>${getTotal().toFixed(2)}</span>
               </div>
               <div className="flex justify-between">
-                <span>Shipping</span>
-                <span>Calculated at checkout</span>
+                <span>Phí giao hàng</span>
+                <span>Được tính khi thanh toán</span>
               </div>
               <div className="border-t pt-4 flex justify-between font-bold text-gray-900 text-lg">
-                <span>Total</span>
+                <span>Tổng cộng</span>
                 <span>${getTotal().toFixed(2)}</span>
               </div>
             </div>
@@ -96,7 +96,7 @@ export default function CartPage() {
               href="/checkout"
               className="mt-6 flex w-full items-center justify-center space-x-2 rounded-md bg-accent px-4 py-3 font-bold text-white transition-colors hover:bg-accent/90"
             >
-              <span>Proceed to Checkout</span>
+              <span>Thanh toán</span>
               <ArrowRight className="h-5 w-5" />
             </Link>
           </div>

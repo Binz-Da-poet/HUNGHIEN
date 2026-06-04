@@ -4,8 +4,8 @@ import Link from 'next/link';
 import { ShoppingCart, Store } from 'lucide-react';
 
 export const metadata: Metadata = {
-  title: 'HUNG HIEN Store',
-  description: 'E-commerce platform for Electronics, Furniture, and Appliances',
+  title: 'Cửa hàng HUNG HIEN',
+  description: 'Nền tảng thương mại điện tử cho Điện tử, Nội thất và Gia dụng',
 };
 
 export default function RootLayout({
@@ -24,8 +24,8 @@ export default function RootLayout({
             </Link>
             
             <nav className="flex items-center space-x-6 text-sm font-medium">
-              <Link href="/" className="transition-colors hover:text-primary">Home</Link>
-              <Link href="/products" className="transition-colors hover:text-primary">Products</Link>
+              <Link href="/" className="transition-colors hover:text-primary">Trang chủ</Link>
+              <Link href="/products" className="transition-colors hover:text-primary">Sản phẩm</Link>
             </nav>
 
             <div className="flex items-center space-x-4">
@@ -44,7 +44,7 @@ export default function RootLayout({
         <footer className="border-t bg-white py-6 md:py-0">
           <div className="container mx-auto flex flex-col items-center justify-between gap-4 md:h-24 md:flex-row px-4">
             <p className="text-center text-sm leading-loose text-gray-500 md:text-left">
-              Built by HUNG HIEN. The source code is available on GitHub.
+              Được xây dựng bởi HUNG HIEN. Mã nguồn có sẵn trên GitHub.
             </p>
           </div>
         </footer>

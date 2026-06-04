@@ -6,6 +6,14 @@ import { OrderList } from '@/components/orders/order-list';
 const API_URL = 'http://localhost:3001/api/orders';
 const AVAILABLE_STATUSES = ['ALL', 'PENDING', 'SHIPPING', 'SUCCESS', 'CANCELLED'];
 
+const statusDisplayMap: Record<string, string> = {
+  ALL: 'Tất cả',
+  PENDING: 'Chờ xử lý',
+  SHIPPING: 'Đang giao',
+  SUCCESS: 'Thành công',
+  CANCELLED: 'Đã hủy',
+};
+
 export default function OrdersPage() {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -16,7 +24,7 @@ export default function OrdersPage() {
     try {
       const url = status !== 'ALL' ? `${API_URL}?status=${status}` : API_URL;
       const res = await fetch(url);
-      if (!res.ok) throw new Error('Failed to fetch');
+      if (!res.ok) throw new Error('Lỗi tải dữ liệu');
       const data = await res.json();
       setOrders(data);
     } catch (error) {
@@ -39,7 +47,7 @@ export default function OrdersPage() {
       });
 
       if (!res.ok) {
-        throw new Error('Failed to update status');
+        throw new Error('Lỗi cập nhật trạng thái');
       }
 
       // Optimistically update UI
@@ -55,17 +63,17 @@ export default function OrdersPage() {
       }
     } catch (error) {
       console.error('Failed to update order status:', error);
-      alert('Error updating order status. Check console for details.');
+      alert('Lỗi cập nhật trạng thái đơn hàng. Kiểm tra console để biết chi tiết.');
     }
   };
 
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-gray-900">Orders</h1>
+        <h1 className="text-2xl font-bold text-gray-900">Đơn hàng</h1>
         <div className="flex items-center space-x-2">
           <label htmlFor="status-filter" className="text-sm font-medium text-gray-700">
-            Filter by:
+            Lọc theo:
           </label>
           <select
             id="status-filter"
@@ -75,7 +83,7 @@ export default function OrdersPage() {
           >
             {AVAILABLE_STATUSES.map((status) => (
               <option key={status} value={status}>
-                {status}
+                {statusDisplayMap[status] || status}
               </option>
             ))}
           </select>
@@ -83,7 +91,7 @@ export default function OrdersPage() {
       </div>
 
       {loading ? (
-        <div className="text-center py-10">Loading...</div>
+        <div className="text-center py-10">Đang tải...</div>
       ) : (
         <OrderList orders={orders} onStatusChange={handleStatusChange} />
       )}

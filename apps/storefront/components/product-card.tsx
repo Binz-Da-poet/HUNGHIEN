@@ -27,14 +27,14 @@ export function ProductCard({ product }: ProductCardProps) {
       name: product.name,
       price: Number(product.price),
     });
-    alert('Added to cart!');
+    alert('Đã thêm vào giỏ hàng!');
   };
 
   return (
     <Link href={`/products/${product.id}`} className="group flex flex-col justify-between overflow-hidden rounded-lg border bg-white shadow-sm transition-all hover:shadow-md">
       <div className="aspect-square w-full bg-gray-100 p-6 flex items-center justify-center relative">
          {/* Placeholder Image */}
-         <div className="text-gray-400 font-medium">Image Placeholder</div>
+         <div className="text-gray-400 font-medium">Chỗ dành cho ảnh</div>
       </div>
       
       <div className="flex flex-1 flex-col p-4">
@@ -65,7 +65,7 @@ export function ProductCard({ product }: ProductCardProps) {
             className="flex w-full items-center justify-center space-x-2 rounded-md bg-primary px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-primary/90 disabled:bg-gray-300 disabled:cursor-not-allowed"
           >
             <ShoppingCart className="h-4 w-4" />
-            <span>{product.stock > 0 ? 'Add to Cart' : 'Out of Stock'}</span>
+            <span>{product.stock > 0 ? 'Thêm vào giỏ' : 'Hết hàng'}</span>
           </button>
         </div>
       </div>

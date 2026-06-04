@@ -97,12 +97,12 @@ export function ProductForm({ initialData, onSubmit, onCancel }: ProductFormProp
   return (
     <form onSubmit={handleSubmit} className="space-y-4 rounded-lg bg-white p-6 shadow-sm border border-gray-200">
       <h3 className="text-lg font-medium text-gray-900">
-        {initialData ? 'Edit Product' : 'Add Product'}
+        {initialData ? 'Sửa sản phẩm' : 'Thêm sản phẩm'}
       </h3>
       
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <div>
-          <label className="block text-sm font-medium text-gray-700">Name</label>
+          <label className="block text-sm font-medium text-gray-700">Tên</label>
           <input
             type="text"
             name="name"
@@ -126,7 +126,7 @@ export function ProductForm({ initialData, onSubmit, onCancel }: ProductFormProp
         </div>
         
         <div>
-          <label className="block text-sm font-medium text-gray-700">Price</label>
+          <label className="block text-sm font-medium text-gray-700">Giá</label>
           <input
             type="number"
             name="price"
@@ -140,7 +140,7 @@ export function ProductForm({ initialData, onSubmit, onCancel }: ProductFormProp
         </div>
         
         <div>
-          <label className="block text-sm font-medium text-gray-700">Original Price</label>
+          <label className="block text-sm font-medium text-gray-700">Giá gốc</label>
           <input
             type="number"
             name="originalPrice"
@@ -153,7 +153,7 @@ export function ProductForm({ initialData, onSubmit, onCancel }: ProductFormProp
         </div>
         
         <div>
-          <label className="block text-sm font-medium text-gray-700">Brand</label>
+          <label className="block text-sm font-medium text-gray-700">Thương hiệu</label>
           <input
             type="text"
             name="brand"
@@ -165,7 +165,7 @@ export function ProductForm({ initialData, onSubmit, onCancel }: ProductFormProp
         </div>
         
         <div>
-          <label className="block text-sm font-medium text-gray-700">Stock</label>
+          <label className="block text-sm font-medium text-gray-700">Tồn kho</label>
           <input
             type="number"
             name="stock"
@@ -178,7 +178,7 @@ export function ProductForm({ initialData, onSubmit, onCancel }: ProductFormProp
         </div>
         
         <div className="sm:col-span-2">
-          <label className="block text-sm font-medium text-gray-700">Category</label>
+          <label className="block text-sm font-medium text-gray-700">Danh mục</label>
           <select
             name="categoryId"
             value={formData.categoryId}
@@ -186,7 +186,7 @@ export function ProductForm({ initialData, onSubmit, onCancel }: ProductFormProp
             className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-orange-500 focus:outline-none focus:ring-orange-500 sm:text-sm"
             required
           >
-            <option value="" disabled>Select a category</option>
+            <option value="" disabled>Chọn một danh mục</option>
             {categories.map((cat) => (
               <option key={cat.id} value={cat.id}>{cat.name}</option>
             ))}
@@ -194,7 +194,7 @@ export function ProductForm({ initialData, onSubmit, onCancel }: ProductFormProp
         </div>
         
         <div className="sm:col-span-2">
-          <label className="block text-sm font-medium text-gray-700">Description</label>
+          <label className="block text-sm font-medium text-gray-700">Mô tả</label>
           <textarea
             name="description"
             value={formData.description}
@@ -211,13 +211,13 @@ export function ProductForm({ initialData, onSubmit, onCancel }: ProductFormProp
           onClick={onCancel}
           className="rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none"
         >
-          Cancel
+          Hủy
         </button>
         <button
           type="submit"
           className="rounded-md bg-orange-600 px-4 py-2 text-sm font-medium text-white hover:bg-orange-700 focus:outline-none"
         >
-          {initialData ? 'Update Product' : 'Create Product'}
+          {initialData ? 'Cập nhật sản phẩm' : 'Tạo sản phẩm'}
         </button>
       </div>
     </form>

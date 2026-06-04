@@ -9,10 +9,10 @@ interface OrderStatusBadgeProps {
 
 export function OrderStatusBadge({ status }: OrderStatusBadgeProps) {
   const statusConfig: Record<string, { label: string; className: string }> = {
-    PENDING: { label: 'Pending', className: 'bg-yellow-100 text-yellow-800' },
-    SHIPPING: { label: 'Shipping', className: 'bg-blue-100 text-blue-800' },
-    SUCCESS: { label: 'Success', className: 'bg-green-100 text-green-800' },
-    CANCELLED: { label: 'Cancelled', className: 'bg-red-100 text-red-800' },
+    PENDING: { label: 'Chờ xử lý', className: 'bg-yellow-100 text-yellow-800' },
+    SHIPPING: { label: 'Đang giao', className: 'bg-blue-100 text-blue-800' },
+    SUCCESS: { label: 'Thành công', className: 'bg-green-100 text-green-800' },
+    CANCELLED: { label: 'Đã hủy', className: 'bg-red-100 text-red-800' },
   };
 
   const config = statusConfig[status.toUpperCase()] || {

@@ -26,12 +26,12 @@ export default function CategoriesPage() {
     setError(null);
     try {
       const res = await fetch(API_URL);
-      if (!res.ok) throw new Error('Failed to fetch categories');
+      if (!res.ok) throw new Error('Lỗi tải danh mục');
       const data = await res.json();
       setCategories(data);
     } catch (error) {
       console.error('Failed to fetch categories:', error);
-      setError('Could not load categories. Please make sure the API is running.');
+      setError('Không thể tải danh mục. Vui lòng đảm bảo API đang chạy.');
     } finally {
       setLoading(false);
     }
@@ -52,14 +52,14 @@ export default function CategoriesPage() {
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm('Are you sure you want to delete this category?')) return;
+    if (!confirm('Bạn có chắc chắn muốn xóa danh mục này không?')) return;
     try {
       const res = await fetch(`${API_URL}/${id}`, { method: 'DELETE' });
-      if (!res.ok) throw new Error('Failed to delete category');
+      if (!res.ok) throw new Error('Xóa danh mục thất bại');
       fetchCategories();
     } catch (error) {
       console.error('Failed to delete category:', error);
-      alert('Failed to delete category');
+      alert('Xóa danh mục thất bại');
     }
   };
 
@@ -71,40 +71,40 @@ export default function CategoriesPage() {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(data),
         });
-        if (!res.ok) throw new Error('Failed to update category');
+        if (!res.ok) throw new Error('Cập nhật danh mục thất bại');
       } else {
         const res = await fetch(API_URL, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(data),
         });
-        if (!res.ok) throw new Error('Failed to create category');
+        if (!res.ok) throw new Error('Tạo danh mục thất bại');
       }
       setIsFormOpen(false);
       fetchCategories();
     } catch (error) {
       console.error('Failed to save category:', error);
-      alert('Failed to save category');
+      alert('Lưu danh mục thất bại');
     }
   };
 
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-gray-900">Categories</h1>
+        <h1 className="text-2xl font-bold text-gray-900">Danh mục</h1>
         <button
           onClick={handleAdd}
           className="flex items-center rounded-md bg-orange-600 px-4 py-2 text-sm font-medium text-white hover:bg-orange-700"
         >
           <Plus className="mr-2 h-4 w-4" />
-          Add Category
+          Thêm danh mục
         </button>
       </div>
 
       <Dialog
         isOpen={isFormOpen}
         onClose={() => setIsFormOpen(false)}
-        title={editingCategory ? 'Edit Category' : 'Add Category'}
+        title={editingCategory ? 'Sửa danh mục' : 'Thêm danh mục'}
       >
         <CategoryForm
           initialData={editingCategory}
@@ -122,7 +122,7 @@ export default function CategoriesPage() {
       {loading ? (
         <div className="text-center py-10">
           <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-orange-600 border-r-transparent align-[-0.125em] motion-reduce:animate-[spin_1.5s_linear_infinite]" role="status">
-            <span className="!absolute !-m-px !h-px !w-px !overflow-hidden !whitespace-nowrap !border-0 !p-0 ![clip:rect(0,0,0,0)]">Loading...</span>
+            <span className="!absolute !-m-px !h-px !w-px !overflow-hidden !whitespace-nowrap !border-0 !p-0 ![clip:rect(0,0,0,0)]">Đang tải...</span>
           </div>
         </div>
       ) : (

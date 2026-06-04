@@ -11,11 +11,11 @@ import {
 import { cn } from '@/lib/utils';
 
 const navItems = [
-  { name: 'Dashboard', href: '/', icon: LayoutDashboard },
-  { name: 'Categories', href: '/categories', icon: ListTree },
-  { name: 'Products', href: '/products', icon: Package },
-  { name: 'Orders', href: '/orders', icon: ShoppingCart },
-  { name: 'Settings', href: '/settings', icon: Settings },
+  { name: 'Tổng quan', href: '/', icon: LayoutDashboard },
+  { name: 'Danh mục', href: '/categories', icon: ListTree },
+  { name: 'Sản phẩm', href: '/products', icon: Package },
+  { name: 'Đơn hàng', href: '/orders', icon: ShoppingCart },
+  { name: 'Cài đặt', href: '/settings', icon: Settings },
 ];
 
 export function Sidebar() {

@@ -25,7 +25,7 @@ export default function ProductsPage() {
     setLoading(true);
     try {
       const res = await fetch(API_URL);
-      if (!res.ok) throw new Error('Failed to fetch');
+      if (!res.ok) throw new Error('Lỗi tải dữ liệu');
       const data = await res.json();
       setProducts(data);
     } catch (error) {
@@ -48,13 +48,13 @@ export default function ProductsPage() {
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm('Are you sure you want to delete this product?')) return;
+    if (!confirm('Bạn có chắc chắn muốn xóa sản phẩm này không?')) return;
     try {
       const res = await fetch(`${API_URL}/${id}`, { method: 'DELETE' });
       if (res.ok) {
         fetchProducts();
       } else {
-        throw new Error('Failed to delete');
+        throw new Error('Xóa thất bại');
       }
     } catch (error) {
       console.error('Failed to delete product:', error);
@@ -64,18 +64,18 @@ export default function ProductsPage() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-gray-900">Products</h1>
+        <h1 className="text-2xl font-bold text-gray-900">Sản phẩm</h1>
         <button
           onClick={handleAdd}
           className="flex items-center rounded-md bg-orange-600 px-4 py-2 text-sm font-medium text-white hover:bg-orange-700"
         >
           <Plus className="mr-2 h-4 w-4" />
-          Add Product
+          Thêm sản phẩm
         </button>
       </div>
 
       {loading ? (
-        <div className="text-center py-10">Loading...</div>
+        <div className="text-center py-10">Đang tải...</div>
       ) : (
         <ProductTable
           products={products}

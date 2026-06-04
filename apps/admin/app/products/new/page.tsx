@@ -18,14 +18,14 @@ export default function NewProductPage() {
       });
 
       if (!res.ok) {
-        throw new Error('Failed to create product');
+        throw new Error('Lỗi tạo sản phẩm');
       }
 
       router.push('/products');
       router.refresh();
     } catch (error) {
       console.error(error);
-      alert('Error creating product. Check console for details.');
+      alert('Lỗi tạo sản phẩm. Kiểm tra console để biết chi tiết.');
     }
   };
 
@@ -35,7 +35,7 @@ export default function NewProductPage() {
         <Link href="/products" className="text-gray-500 hover:text-gray-900">
           <ArrowLeft className="h-5 w-5" />
         </Link>
-        <h1 className="text-2xl font-bold text-gray-900">Create New Product</h1>
+        <h1 className="text-2xl font-bold text-gray-900">Tạo sản phẩm mới</h1>
       </div>
 
       <ProductForm 

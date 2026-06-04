@@ -8,15 +8,15 @@ export default function CheckoutSuccessPage() {
       <div className="mx-auto mb-6 flex h-24 w-24 items-center justify-center rounded-full bg-green-100 text-green-600">
         <CheckCircle className="h-12 w-12" />
       </div>
-      <h1 className="mb-4 text-4xl font-bold text-gray-900">Thank You for Your Order!</h1>
+      <h1 className="mb-4 text-4xl font-bold text-gray-900">Cảm ơn bạn đã đặt hàng!</h1>
       <p className="mx-auto mb-8 max-w-lg text-lg text-gray-600">
-        We've received your order and will contact you shortly to confirm delivery details.
+        Chúng tôi đã nhận được đơn hàng của bạn và sẽ liên hệ trong thời gian sớm nhất để xác nhận chi tiết giao hàng.
       </p>
       <Link 
         href="/" 
         className="inline-flex items-center justify-center rounded-md bg-primary px-8 py-3 text-base font-bold text-white transition-colors hover:bg-primary/90"
       >
-        Continue Shopping
+        Tiếp tục mua sắm
       </Link>
     </div>
   );

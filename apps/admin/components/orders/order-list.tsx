@@ -19,18 +19,25 @@ interface OrderListProps {
 
 const AVAILABLE_STATUSES = ['PENDING', 'SHIPPING', 'SUCCESS', 'CANCELLED'];
 
+const statusMap: Record<string, string> = {
+  PENDING: 'Chờ xử lý',
+  SHIPPING: 'Đang giao',
+  SUCCESS: 'Thành công',
+  CANCELLED: 'Đã hủy',
+};
+
 export function OrderList({ orders, onStatusChange }: OrderListProps) {
   return (
     <div className="overflow-x-auto rounded-lg border border-gray-200">
       <table className="min-w-full divide-y divide-gray-200 bg-white">
         <thead className="bg-gray-50">
           <tr>
-            <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">ID</th>
-            <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Customer</th>
-            <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Date</th>
-            <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Total</th>
-            <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Status</th>
-            <th className="px-6 py-3 text-right text-xs font-medium uppercase tracking-wider text-gray-500">Update Status</th>
+            <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Mã ĐH</th>
+            <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Khách hàng</th>
+            <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Ngày</th>
+            <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Tổng cộng</th>
+            <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Trạng thái</th>
+            <th className="px-6 py-3 text-right text-xs font-medium uppercase tracking-wider text-gray-500">Cập nhật Trạng thái</th>
           </tr>
         </thead>
         <tbody className="divide-y divide-gray-200">
@@ -58,7 +65,7 @@ export function OrderList({ orders, onStatusChange }: OrderListProps) {
                 >
                   {AVAILABLE_STATUSES.map((status) => (
                     <option key={status} value={status}>
-                      {status}
+                      {statusMap[status] || status}
                     </option>
                   ))}
                 </select>
@@ -68,7 +75,7 @@ export function OrderList({ orders, onStatusChange }: OrderListProps) {
         </tbody>
       </table>
       {orders.length === 0 && (
-        <div className="py-10 text-center text-gray-500">No orders found</div>
+        <div className="py-10 text-center text-gray-500">Không tìm thấy đơn hàng nào</div>
       )}
     </div>
   );
