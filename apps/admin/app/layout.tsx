@@ -1,9 +1,14 @@
 import type { Metadata } from 'next';
-import { Inter } from 'next/font/google';
+import { Be_Vietnam_Pro } from 'next/font/google';
 import './globals.css';
 import { AdminShell } from '@/components/layout/admin-shell';
 
-const inter = Inter({ subsets: ['latin'] });
+const beVietnamPro = Be_Vietnam_Pro({
+  subsets: ['vietnamese', 'latin'],
+  weight: ['400', '500', '600', '700'],
+  variable: '--font-be-vietnam-pro',
+  display: 'swap',
+});
 
 export const metadata: Metadata = {
   title: 'Hung Hien Admin',
@@ -16,8 +21,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="vi">
-      <body className={inter.className}>
+    <html lang="vi" className={beVietnamPro.variable}>
+      <body className={`${beVietnamPro.className} font-sans antialiased`}>
         <AdminShell>{children}</AdminShell>
       </body>
     </html>

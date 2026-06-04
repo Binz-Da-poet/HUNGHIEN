@@ -12,6 +12,8 @@
     overflow-x: hidden;
     background: #f8fafc;
     color: #0f172a;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
 
   button,
