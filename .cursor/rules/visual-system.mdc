@@ -1,0 +1,41 @@
+---
+description: Hùng Hiền navy/gold design system
+globs: *.tsx,*.css
+---
+
+# Visual Design System
+
+## Colors
+- **Navy** `#1A2B4C` — Headers, primary buttons, price boxes, dark panels, active states
+- **Navy hover** `#253A66` — Button hover state
+- **Gold** `#E5C37A` — CTAs, highlights, labels on dark backgrounds, accents
+- **Red** `#D10024` — Discount badges, sale prices
+- **Background** `#f8fafc` (slate-50) — Page backgrounds, list items
+- **White** `#ffffff` — Card backgrounds, inputs
+- **Slate** `#f8f9fa` — Cart page background
+
+## Typography
+- All text in Vietnamese (no English labels in UI)
+- `font-black` — Headings, prices, CTAs, labels
+- `font-bold` — Body text, descriptions
+- `uppercase tracking-widest` or `tracking-tighter` — Headings and labels
+- `text-[10px]` — Small labels and badges
+- `rounded-2xl` or `rounded-3xl` — Cards and panels
+
+## Buttons
+- Primary: `bg-[#1A2B4C] text-[#E5C37A]` with `shadow-xl shadow-[#1A2B4C]/20`
+- Secondary: `bg-white border-2 border-[#1A2B4C] text-[#1A2B4C]`
+- Danger: `bg-[#D10024] text-white`
+- Height: `h-14` or `h-16`, `rounded-2xl`
+- Text: `font-black uppercase text-xs tracking-widest`
+
+## Cards
+- `rounded-2xl bg-white p-5 shadow-sm border border-slate-100`
+- Hover: `hover:shadow-md transition-shadow`
+- Dark variant: `rounded-[2rem] bg-[#1A2B4C] p-8 text-white shadow-2xl border border-[#E5C37A]/20`
+
+## Responsive
+- Mobile first: default styles = mobile, `lg:` = desktop
+- Mobile breakpoint: 390px (smallest supported)
+- Bottom padding on mobile pages: `pb-32` (accounts for fixed bottom nav)
+- Sticky mobile actions: above `bottom-16` (bottom nav height)

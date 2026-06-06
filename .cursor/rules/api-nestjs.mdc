@@ -1,0 +1,39 @@
+---
+description: NestJS API coding standards
+globs: apps/api/**
+---
+
+# NestJS API Conventions
+
+## Module structure
+- Each domain has a folder: `src/<domain>/`
+- File pattern: `<domain>.module.ts`, `<domain>.service.ts`, `<domain>.controller.ts`
+- DTOs in `src/<domain>/dto/` using class-validator
+- Guards in `src/<domain>/` (e.g., `admin-session.guard.ts`)
+
+## Service pattern
+- Inject PrismaService via constructor
+- Use `@Injectable()` decorator
+- Write service tests first (TDD) using Vitest + NestJS Testing module
+- Mock PrismaService, never use real DB in tests
+
+## Controller pattern
+- Use `@Controller('prefix')` decorator
+- Public endpoints: no guard. Protected: `@UseGuards(AdminSessionGuard)`
+- Response: use `@Res({ passthrough: true })` for cookie manipulation
+- Validate input with DTO classes + `class-validator` decorators
+- Return JSON, never HTML
+
+## Testing
+- Vitest: `describe` / `it` / `expect` / `vi` from 'vitest'
+- Test module: `Test.createTestingModule({ controllers: [...], providers: [...] }).compile()`
+- Mock all dependencies (PrismaService, bcryptjs, crypto)
+- Co-locate tests: `*.spec.ts` in same directory as source
+
+## Database
+- Prisma schema: `apps/api/prisma/schema.prisma`
+- 14 models: AdminUser, AdminSession, Category, Product, ProductImage, Order, OrderItem,
+  HomepageBanner, HomepageBannerProduct, HomepageSection, FeaturedCategory,
+  FeaturedProductGroup, FeaturedProductGroupItem, FeaturedBrand, StoreBenefit, StoreSettings
+- Migrations: `pnpm --filter api exec prisma migrate dev --name <name>`
+- Seed: `pnpm --filter api exec prisma db seed`

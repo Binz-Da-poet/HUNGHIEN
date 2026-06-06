@@ -1,0 +1,39 @@
+---
+description: Next.js frontend standards for admin and storefront
+globs: apps/admin/**/*.tsx,apps/storefront/**/*.tsx
+---
+
+# Next.js Frontend Conventions
+
+## Page structure
+- App Router pages: `app/<route>/page.tsx`
+- Default export: page component (async for server, function for client)
+- Layouts: `app/layout.tsx` — wraps all pages with header/footer/providers
+- Admin routes: all protected via `apps/admin/middleware.ts` (check `admin_session` cookie)
+
+## Client vs Server
+- Add `'use client'` directive at top when using: `useState`, `useEffect`, `useRouter`, `useSearchParams`, `useCart()`, event handlers
+- Server components: fetch data directly (no hooks), prefer async
+- Storefront homepage: server component fetching CMS via `getHomepage()`
+
+## Data fetching (admin)
+- Use `adminFetch` from `apps/admin/lib/admin-api.ts` — sets `credentials: 'include'`, handles 401 redirect
+- API calls use `NEXT_PUBLIC_API_URL` from `apps/admin/lib/api.ts`
+- Handle loading/error states: show loading skeleton or error message
+- Forms: use `FormData` for image uploads, JSON for data
+
+## Data fetching (storefront)
+- Public API: `API_BASE_URL` from `apps/storefront/lib/api.ts`
+- Zustand store: `apps/storefront/store/use-cart.ts` for cart state
+- Toast: `useToast()` from `apps/storefront/components/toast-provider.tsx`
+
+## Component patterns
+- One component per file, named export matching filename
+- Pass className prop for composability
+- Use `ProductImage` component for all product images (handles fallback)
+- Format prices with `formatVnd()` from `@/lib/format` (admin) or `@repo/shared` (storefront)
+
+## Navigation
+- Internal links: use `<Link href="...">` from 'next/link'
+- External/admin-to-store: use `<a>` tags
+- Breadcrumbs: `Trang chủ > Category > Product name`

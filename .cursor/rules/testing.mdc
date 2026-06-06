@@ -1,0 +1,64 @@
+---
+description: Testing standards for Vitest
+globs: **/*.spec.ts,**/*.test.ts
+---
+
+# Testing Standards
+
+## Test framework: Vitest
+
+Use Vitest for all tests. Never use Jest.
+
+```typescript
+import { describe, it, expect, beforeEach, vi } from 'vitest';
+```
+
+## API tests (NestJS)
+
+```typescript
+import { Test, TestingModule } from '@nestjs/testing';
+
+describe('ServiceName', () => {
+  let service: ServiceName;
+
+  const mockPrisma = {
+    entityName: { findUnique: vi.fn(), create: vi.fn(), delete: vi.fn() },
+  };
+
+  beforeEach(async () => {
+    const module: TestingModule = await Test.createTestingModule({
+      providers: [
+        ServiceName,
+        { provide: PrismaService, useValue: mockPrisma },
+      ],
+    }).compile();
+
+    service = module.get<ServiceName>(ServiceName);
+    vi.clearAllMocks();
+  });
+});
+```
+
+## Controller tests
+
+- Mock all service methods: `const mockService = { method: vi.fn() }`
+- Test cookie setting/clearing with mocked Response
+- Test guard presence with `Reflect.getMetadata('__guards__', ...)`
+
+## Shared package tests
+
+- Test Zod schemas: valid/invalid data, required fields
+- Test format functions: `formatVnd(1000000)` expects `1.000.000 ₫`
+
+## Commands
+
+```bash
+pnpm --filter api test                    # All API tests
+pnpm --filter api test -- auth            # Auth only
+pnpm --filter @repo/shared test           # Shared tests
+```
+
+## Do NOT
+- Skip writing tests for new features
+- Use real database connections in tests (always mock Prisma)
+- Hardcode credentials in test files
