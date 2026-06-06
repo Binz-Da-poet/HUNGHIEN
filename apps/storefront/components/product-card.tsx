@@ -3,22 +3,21 @@
 import React from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { Heart, ShoppingCart, Star } from 'lucide-react';
 import { useCart } from '@/store/use-cart';
 import { formatVnd } from '@/lib/format';
 import { getPrimaryImage } from '@/lib/product-images';
 import { ProductImage } from '@/components/product-image';
 import { useToast } from '@/components/toast-provider';
+import {
+  StorefrontProduct,
+  getDiscountPercent,
+  getProductRating,
+  getSoldCount,
+} from '@/lib/catalog-ui';
 
 interface ProductCardProps {
-  product: {
-    id: string;
-    name: string;
-    price: number | string;
-    originalPrice?: number | string | null;
-    brand: string;
-    stock: number;
-    images?: { url: string; isPrimary?: boolean; altText?: string | null }[];
-  };
+  product: StorefrontProduct;
 }
 
 export function ProductCard({ product }: ProductCardProps) {
@@ -27,6 +26,10 @@ export function ProductCard({ product }: ProductCardProps) {
   const { showToast } = useToast();
 
   const image = getPrimaryImage(product.images);
+  const discount = getDiscountPercent(product);
+  const rating = getProductRating(product);
+  const soldCount = getSoldCount(product);
+  
   const cartItem = {
     productId: product.id,
     name: product.name,
@@ -34,65 +37,97 @@ export function ProductCard({ product }: ProductCardProps) {
     imageUrl: image?.url ?? null,
   };
 
-  const handleAddToCart = (event: React.MouseEvent) => {
-    event.preventDefault();
+  const handleAddToCart = (e: React.MouseEvent) => {
+    e.preventDefault();
     addItem(cartItem);
-    showToast('Đã thêm sản phẩm vào giỏ hàng.');
+    showToast('Đã thêm vào giỏ hàng.');
   };
 
-  const handleBuyNow = (event: React.MouseEvent) => {
-    event.preventDefault();
+  const handleBuyNow = (e: React.MouseEvent) => {
+    e.preventDefault();
     setBuyNowItem(cartItem);
     router.push('/checkout?mode=buy-now');
   };
 
   return (
-    <Link
-      href={`/products/${product.id}`}
-      className="group flex flex-col justify-between overflow-hidden rounded-md border border-slate-200 bg-white shadow-sm transition-all hover:shadow-md"
-    >
-      <div className="relative aspect-square w-full overflow-hidden bg-slate-100">
-        <ProductImage src={image?.url} alt={product.name} />
-        {product.stock <= 0 && (
-          <div className="absolute inset-0 flex items-center justify-center bg-slate-950/40">
-            <span className="rounded-md bg-white px-2 py-1 text-xs font-bold text-slate-950">HẾT HÀNG</span>
+    <article className="group relative flex h-full flex-col overflow-hidden bg-white hover:shadow-xl transition-all duration-300 border border-slate-100 rounded-lg">
+      <Link href={`/products/${product.id}`} className="relative block aspect-square overflow-hidden bg-slate-50">
+        <ProductImage
+          src={image?.url}
+          alt={product.name}
+          className="h-full w-full object-contain p-4 group-hover:scale-105 transition-transform duration-500"
+        />
+        
+        {/* Discount Badge */}
+        {discount > 0 && (
+          <div className="absolute left-0 top-3 bg-[#D10024] text-white text-[11px] font-black px-2.5 py-1 rounded-r-full shadow-sm z-10">
+            -{discount}%
           </div>
         )}
-      </div>
 
-      <div className="flex flex-1 flex-col p-3">
-        <div className="flex-1">
-          <p className="text-[10px] font-bold uppercase tracking-wider text-emerald-700">{product.brand}</p>
-          <h3 className="mt-1 line-clamp-2 text-sm font-semibold text-slate-900 group-hover:text-emerald-700">
+        {/* Favorite Button */}
+        <button className="absolute right-3 top-3 p-1.5 bg-white/80 backdrop-blur-sm rounded-full text-slate-400 hover:text-red-500 shadow-sm transition-colors z-10">
+          <Heart className="h-4 w-4" />
+        </button>
+      </Link>
+
+      <div className="flex flex-1 flex-col p-4 space-y-2">
+        <div className="flex items-center gap-1.5">
+           <span className="text-[10px] font-bold text-[#1A2B4C] bg-[#E5C37A]/20 px-2 py-0.5 rounded uppercase tracking-wider">
+             {product.brand}
+           </span>
+           <div className="flex items-center gap-1 text-[11px] font-bold text-amber-500 ml-auto">
+             <Star className="h-3 w-3 fill-current" />
+             {rating}
+           </div>
+        </div>
+
+        <Link href={`/products/${product.id}`} className="block group-hover:text-[#1A2B4C] transition-colors">
+          <h3 className="line-clamp-2 min-h-[2.5rem] text-sm font-bold leading-snug text-slate-900">
             {product.name}
           </h3>
-          <div className="mt-2 flex items-baseline gap-1.5">
-            <span className="text-sm font-bold text-orange-600">{formatVnd(product.price)}</span>
+        </Link>
+
+        <div className="flex flex-col gap-0.5 pt-1">
+          <div className="flex items-baseline gap-2">
+            <span className="text-lg font-black text-[#D10024]">{formatVnd(product.price)}</span>
             {product.originalPrice && (
-              <span className="text-[10px] text-slate-400 line-through">{formatVnd(product.originalPrice)}</span>
+              <span className="text-[11px] text-slate-400 line-through font-medium">
+                {formatVnd(product.originalPrice)}
+              </span>
             )}
+          </div>
+          <div className="text-[10px] text-slate-500 font-medium italic">
+            Đã bán {soldCount} sản phẩm
           </div>
         </div>
 
-        <div className="mt-4 grid grid-cols-2 gap-2">
+        <div className="mt-auto pt-4 flex gap-2 opacity-0 lg:group-hover:opacity-100 transition-opacity">
           <button
-            type="button"
             onClick={handleAddToCart}
-            disabled={product.stock <= 0}
-            className="h-10 rounded-md border border-emerald-700 px-2 text-xs font-bold text-emerald-700 hover:bg-emerald-50 disabled:border-slate-200 disabled:text-slate-400 disabled:hover:bg-transparent"
+            className="flex-1 h-9 bg-slate-100 text-slate-700 rounded font-bold text-[11px] uppercase hover:bg-slate-200 transition-colors flex items-center justify-center gap-2"
           >
-            Thêm giỏ
+            <ShoppingCart className="h-3.5 w-3.5" />
+            + Giỏ hàng
           </button>
           <button
-            type="button"
             onClick={handleBuyNow}
-            disabled={product.stock <= 0}
-            className="h-10 rounded-md bg-orange-600 px-2 text-xs font-bold text-white hover:bg-orange-700 disabled:bg-slate-300"
+            className="flex-1 h-9 bg-[#1A2B4C] text-[#E5C37A] rounded font-bold text-[11px] uppercase hover:bg-[#253A66] transition-colors"
+          >
+            Mua ngay
+          </button>
+        </div>
+        
+        {/* Mobile-only CTA */}
+        <div className="mt-auto pt-2 lg:hidden">
+          <button
+            onClick={handleBuyNow}
+            className="w-full h-9 bg-[#1A2B4C] text-[#E5C37A] rounded font-bold text-[11px] uppercase shadow-md active:scale-[0.98] transition-all"
           >
             Mua ngay
           </button>
         </div>
       </div>
-    </Link>
+    </article>
   );
 }

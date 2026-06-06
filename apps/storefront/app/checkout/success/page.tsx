@@ -1,23 +1,32 @@
 import React from 'react';
 import Link from 'next/link';
-import { CheckCircle } from 'lucide-react';
+import { BadgeCheck, ShoppingBag } from 'lucide-react';
 
 export default function CheckoutSuccessPage() {
   return (
-    <div className="mx-auto max-w-7xl px-4 py-20 text-center sm:py-32">
-      <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-emerald-100 text-emerald-600">
-        <CheckCircle className="h-10 w-10" />
+    <div className="mx-auto max-w-7xl px-4 py-32 text-center">
+      <div className="mx-auto mb-10 flex h-24 w-24 items-center justify-center rounded-full bg-green-50 text-green-600 border border-green-100 shadow-sm animate-in zoom-in duration-500">
+        <BadgeCheck className="h-12 w-12" />
       </div>
-      <h1 className="mb-4 text-3xl font-bold text-slate-950">Cảm ơn bạn đã đặt hàng!</h1>
-      <p className="mx-auto mb-8 max-w-lg text-base text-slate-600">
-        HUNG HIEN đã nhận đơn hàng và sẽ liên hệ xác nhận thông tin giao hàng trong thời gian sớm nhất.
+      <h1 className="mb-6 text-4xl font-black text-[#1A2B4C] uppercase tracking-tight">Đặt hàng thành công!</h1>
+      <p className="mx-auto mb-12 max-w-lg text-lg text-slate-500 font-medium leading-relaxed">
+        Hùng Hiền Điện Máy đã nhận đơn hàng của bạn. Chúng tôi sẽ liên hệ xác nhận và giao hàng trong thời gian sớm nhất.
       </p>
-      <Link
-        href="/"
-        className="inline-flex h-12 items-center justify-center rounded-md bg-emerald-700 px-10 font-bold text-white transition-colors hover:bg-emerald-800"
-      >
-        Tiếp tục mua sắm
-      </Link>
+      <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+        <Link
+          href="/"
+          className="inline-flex h-14 items-center justify-center rounded-2xl bg-[#1A2B4C] px-10 text-sm font-black text-[#E5C37A] uppercase tracking-widest transition-all hover:bg-[#253A66] shadow-xl shadow-[#1A2B4C]/20 w-full sm:w-auto"
+        >
+          <ShoppingBag className="h-4 w-4 mr-2" />
+          Tiếp tục mua sắm
+        </Link>
+        <Link
+          href="/orders/tracking"
+          className="inline-flex h-14 items-center justify-center rounded-2xl bg-white border-2 border-slate-200 px-10 text-sm font-black text-slate-600 uppercase tracking-widest transition-all hover:bg-slate-50 w-full sm:w-auto"
+        >
+          Theo dõi đơn hàng
+        </Link>
+      </div>
     </div>
   );
 }
