@@ -1,13 +1,13 @@
-import type { Metadata } from "next";
-import { Inter } from "next/font/google";
-import "./globals.css";
-import { Sidebar } from "@/components/layout/sidebar";
+import type { Metadata } from 'next';
+import { Inter } from 'next/font/google';
+import './globals.css';
+import { LayoutWrapper } from '@/components/layout/layout-wrapper';
 
-const inter = Inter({ subsets: ["latin"] });
+const inter = Inter({ subsets: ['latin', 'vietnamese'] });
 
 export const metadata: Metadata = {
-  title: "Hung Hien Admin",
-  description: "E-commerce Administration Dashboard",
+  title: 'Hùng Hiền Điện Máy - Admin',
+  description: 'Trang quản trị bán hàng Hùng Hiền Điện Máy',
 };
 
 export default function RootLayout({
@@ -16,14 +16,9 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="vi">
       <body className={inter.className}>
-        <div className="flex h-screen overflow-hidden">
-          <Sidebar />
-          <main className="flex-1 overflow-y-auto bg-gray-50 p-8">
-            {children}
-          </main>
-        </div>
+        <LayoutWrapper>{children}</LayoutWrapper>
       </body>
     </html>
   );
