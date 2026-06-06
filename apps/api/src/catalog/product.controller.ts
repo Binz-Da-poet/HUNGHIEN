@@ -9,18 +9,21 @@ import {
   Query,
   UploadedFiles,
   UseInterceptors,
+  UseGuards,
 } from '@nestjs/common';
 import { ProductService } from './product.service';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { FilesInterceptor } from '@nestjs/platform-express';
 import { memoryStorage } from 'multer';
+import { AdminSessionGuard } from '../auth/admin-session.guard';
 
 @Controller('products')
 export class ProductController {
   constructor(private readonly productService: ProductService) {}
 
   @Post()
+  @UseGuards(AdminSessionGuard)
   create(@Body() createProductDto: CreateProductDto) {
     return this.productService.create(createProductDto);
   }
@@ -31,12 +34,14 @@ export class ProductController {
   }
 
   @Post(':id/images')
+  @UseGuards(AdminSessionGuard)
   @UseInterceptors(FilesInterceptor('images', 8, { storage: memoryStorage() }))
   uploadImages(@Param('id') id: string, @UploadedFiles() files: any[]) {
     return this.productService.addImages(id, files);
   }
 
   @Patch(':id/images/:imageId')
+  @UseGuards(AdminSessionGuard)
   updateImage(
     @Param('id') id: string,
     @Param('imageId') imageId: string,
@@ -46,6 +51,7 @@ export class ProductController {
   }
 
   @Delete(':id/images/:imageId')
+  @UseGuards(AdminSessionGuard)
   deleteImage(@Param('id') id: string, @Param('imageId') imageId: string) {
     return this.productService.deleteImage(id, imageId);
   }
@@ -56,11 +62,13 @@ export class ProductController {
   }
 
   @Patch(':id')
+  @UseGuards(AdminSessionGuard)
   update(@Param('id') id: string, @Body() updateProductDto: UpdateProductDto) {
     return this.productService.update(id, updateProductDto);
   }
 
   @Delete(':id')
+  @UseGuards(AdminSessionGuard)
   remove(@Param('id') id: string) {
     return this.productService.remove(id);
   }

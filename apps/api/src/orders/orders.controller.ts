@@ -1,8 +1,9 @@
-import { Controller, Post, Body, Get, Query, Patch, Param } from '@nestjs/common';
+import { Controller, Post, Body, Get, Query, Patch, Param, UseGuards } from '@nestjs/common';
 import { OrdersService } from './orders.service';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { OrderQueryDto } from './dto/order-query.dto';
 import { UpdateOrderStatusDto } from './dto/update-order-status.dto';
+import { AdminSessionGuard } from '../auth/admin-session.guard';
 
 @Controller('orders')
 export class OrdersController {
@@ -14,11 +15,13 @@ export class OrdersController {
   }
 
   @Get()
+  @UseGuards(AdminSessionGuard)
   findAll(@Query() query: OrderQueryDto) {
     return this.ordersService.findAll(query);
   }
 
   @Patch(':id/status')
+  @UseGuards(AdminSessionGuard)
   updateStatus(
     @Param('id') id: string,
     @Body() updateOrderStatusDto: UpdateOrderStatusDto,

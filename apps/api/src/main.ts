@@ -4,11 +4,22 @@ import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
 import { join } from 'node:path';
 import { NestExpressApplication } from '@nestjs/platform-express';
+import * as cookieParser from 'cookie-parser';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
+  
+  app.use(cookieParser());
+  
   app.useGlobalPipes(new ValidationPipe({ whitelist: true, transform: true }));
-  app.enableCors();
+  
+  app.enableCors({
+    origin: [
+      'http://localhost:3000', // Storefront
+      'http://localhost:3002', // Admin
+    ],
+    credentials: true,
+  });
   
   app.useStaticAssets(join(process.cwd(), 'uploads'), {
     prefix: '/uploads',
