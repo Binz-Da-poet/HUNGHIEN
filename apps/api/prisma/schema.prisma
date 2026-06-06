@@ -7,29 +7,69 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model Category {
+enum BannerMode {
+  ARTWORK
+  DYNAMIC
+}
+
+enum HomepageSectionType {
+  BANNERS
+  FEATURED_CATEGORIES
+  PRODUCT_GROUP
+  SERVICE_BENEFITS
+  FEATURED_BRANDS
+  TRUST_STRIP
+}
+
+model AdminUser {
+  id           String         @id @default(cuid())
+  email        String         @unique
+  passwordHash String
+  name         String
+  isActive     Boolean        @default(true)
+  sessions     AdminSession[]
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+}
+
+model AdminSession {
   id        String    @id @default(cuid())
-  name      String
-  slug      String    @unique
-  parentId  String?
-  products  Product[]
+  tokenHash String    @unique
+  expiresAt DateTime
+  adminId   String
+  admin     AdminUser @relation(fields: [adminId], references: [id], onDelete: Cascade)
+  createdAt DateTime  @default(now())
+
+  @@index([adminId])
+  @@index([expiresAt])
+}
+
+model Category {
+  id               String            @id @default(cuid())
+  name             String
+  slug             String            @unique
+  parentId         String?
+  products         Product[]
+  featuredCategory FeaturedCategory?
 }
 
 model Product {
-  id            String         @id @default(cuid())
-  name          String
-  slug          String         @unique
-  description   String?
-  price         Decimal
-  originalPrice Decimal?
-  brand         String
-  stock         Int            @default(0)
-  specs         Json?
-  status        String         @default("ACTIVE")
-  categoryId    String
-  category      Category       @relation(fields: [categoryId], references: [id])
-  images        ProductImage[]
-  orderItems    OrderItem[]
+  id                     String                     @id @default(cuid())
+  name                   String
+  slug                   String                     @unique
+  description            String?
+  price                  Decimal
+  originalPrice          Decimal?
+  brand                  String
+  stock                  Int                        @default(0)
+  specs                  Json?
+  status                 String                     @default("ACTIVE")
+  categoryId             String
+  category               Category                   @relation(fields: [categoryId], references: [id])
+  images                 ProductImage[]
+  orderItems             OrderItem[]
+  homepageBannerProducts HomepageBannerProduct[]
+  featuredGroupItems     FeaturedProductGroupItem[]
 }
 
 model ProductImage {
@@ -47,16 +87,16 @@ model ProductImage {
 }
 
 model Order {
-  id             String      @id @default(cuid())
-  customerName   String
-  phone          String
-  address        String
-  note           String?
-  totalAmount    Decimal
-  paymentMethod  String
-  status         String      @default("PENDING")
-  createdAt      DateTime    @default(now())
-  items          OrderItem[]
+  id            String      @id @default(cuid())
+  customerName  String
+  phone         String
+  address       String
+  note          String?
+  totalAmount   Decimal
+  paymentMethod String
+  status        String      @default("PENDING")
+  createdAt     DateTime    @default(now())
+  items         OrderItem[]
 }
 
 model OrderItem {
@@ -67,4 +107,136 @@ model OrderItem {
   priceAtPurchase Decimal
   order           Order   @relation(fields: [orderId], references: [id])
   product         Product @relation(fields: [productId], references: [id])
+}
+
+model HomepageBanner {
+  id                 String                  @id @default(cuid())
+  name               String
+  mode               BannerMode
+  desktopImageUrl    String?
+  mobileImageUrl     String?
+  altText            String?
+  heading            String?
+  description        String?
+  ctaLabel           String?
+  ctaUrl             String?
+  backgroundColor    String?
+  backgroundImageUrl String?
+  isActive           Boolean                 @default(true)
+  startsAt           DateTime?
+  endsAt             DateTime?
+  sortOrder          Int                     @default(0)
+  products           HomepageBannerProduct[]
+  createdAt          DateTime                @default(now())
+  updatedAt          DateTime                @updatedAt
+
+  @@index([isActive, sortOrder])
+}
+
+model HomepageBannerProduct {
+  id        String         @id @default(cuid())
+  bannerId  String
+  productId String
+  sortOrder Int            @default(0)
+  banner    HomepageBanner @relation(fields: [bannerId], references: [id], onDelete: Cascade)
+  product   Product        @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@unique([bannerId, productId])
+  @@index([bannerId, sortOrder])
+}
+
+model HomepageSection {
+  id        String              @id @default(cuid())
+  type      HomepageSectionType
+  title     String
+  isActive  Boolean             @default(true)
+  sortOrder Int                 @default(0)
+  config    Json?
+  createdAt DateTime            @default(now())
+  updatedAt DateTime            @updatedAt
+
+  @@index([isActive, sortOrder])
+}
+
+model FeaturedCategory {
+  id          String   @id @default(cuid())
+  categoryId  String   @unique
+  displayName String
+  imageUrl    String?
+  isActive    Boolean  @default(true)
+  sortOrder   Int      @default(0)
+  category    Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([isActive, sortOrder])
+}
+
+model FeaturedProductGroup {
+  id        String                     @id @default(cuid())
+  name      String
+  slug      String                     @unique
+  title     String
+  accent    String?
+  isActive  Boolean                    @default(true)
+  sortOrder Int                        @default(0)
+  items     FeaturedProductGroupItem[]
+  createdAt DateTime                   @default(now())
+  updatedAt DateTime                   @updatedAt
+
+  @@index([isActive, sortOrder])
+}
+
+model FeaturedProductGroupItem {
+  id        String               @id @default(cuid())
+  groupId   String
+  productId String
+  sortOrder Int                  @default(0)
+  group     FeaturedProductGroup @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  product   Product              @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@unique([groupId, productId])
+  @@index([groupId, sortOrder])
+}
+
+model FeaturedBrand {
+  id        String   @id @default(cuid())
+  name      String
+  logoUrl   String
+  targetUrl String?
+  isActive  Boolean  @default(true)
+  sortOrder Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([isActive, sortOrder])
+}
+
+model StoreBenefit {
+  id          String   @id @default(cuid())
+  icon        String
+  title       String
+  description String
+  isActive    Boolean  @default(true)
+  sortOrder   Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([isActive, sortOrder])
+}
+
+model StoreSettings {
+  id             String   @id @default("main")
+  hotline        String?
+  storeSystemUrl String?
+  address        String?
+  email          String?
+  socialLinks    Json?
+  companySummary String?
+  supportLinks   Json?
+  policyLinks    Json?
+  newsletterCopy String?
+  paymentMethods Json?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
 }
