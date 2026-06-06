@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { ProductForm } from '@/components/products/product-form';
 import { ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
+import { API_BASE_URL } from '@/lib/api';
 
 export default function NewProductPage() {
   const router = useRouter();
@@ -13,7 +14,7 @@ export default function NewProductPage() {
   const handleSubmit = async (data: any) => {
     setError(null);
     try {
-      const res = await fetch('http://localhost:3001/api/products', {
+      const res = await fetch(`${API_BASE_URL}/products`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data),
@@ -34,11 +35,14 @@ export default function NewProductPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center space-x-4">
-        <Link href="/products" className="text-slate-500 hover:text-slate-900">
+      <div className="flex items-start gap-4">
+        <Link href="/products" className="mt-1 inline-flex h-10 w-10 items-center justify-center rounded-md border border-slate-200 bg-white text-slate-600 hover:bg-slate-50" aria-label="Quay lại danh sách sản phẩm">
           <ArrowLeft className="h-5 w-5" />
         </Link>
-        <h1 className="text-2xl font-bold text-slate-900">Tạo sản phẩm mới</h1>
+        <div>
+          <h1 className="text-3xl font-extrabold text-slate-950">Tạo sản phẩm mới</h1>
+          <p className="mt-2 text-sm text-slate-500">Thêm thông tin bán hàng, tồn kho và hình ảnh sản phẩm.</p>
+        </div>
       </div>
 
       {error && (

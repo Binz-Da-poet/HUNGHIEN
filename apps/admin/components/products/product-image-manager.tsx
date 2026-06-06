@@ -1,6 +1,7 @@
 'use client';
 
 import { ImagePlus, Star, Trash2 } from 'lucide-react';
+import Image from 'next/image';
 import { useRef, useState } from 'react';
 import { API_BASE_URL, UPLOAD_BASE_URL } from '@/lib/api';
 
@@ -121,7 +122,14 @@ export function ProductImageManager({ productId, images, onImagesChange }: Produ
       <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
         {images.map((image) => (
           <div key={image.id} className="overflow-hidden rounded-md border border-slate-200 bg-slate-50">
-            <img src={imageUrl(image.url)} alt={image.altText || 'Ảnh sản phẩm'} className="aspect-square w-full object-cover" />
+            <Image
+              src={imageUrl(image.url)}
+              alt={image.altText || 'Ảnh sản phẩm'}
+              width={320}
+              height={320}
+              unoptimized
+              className="aspect-square w-full object-cover"
+            />
             <div className="flex items-center justify-between gap-2 p-2">
               <button
                 type="button"

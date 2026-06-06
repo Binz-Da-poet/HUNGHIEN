@@ -17,7 +17,7 @@ interface CategoryTableProps {
 
 export function CategoryTable({ categories, onEdit, onDelete }: CategoryTableProps) {
   return (
-    <div className="space-y-4">
+    <div>
       <div className="space-y-3 md:hidden">
         {categories.map((category) => (
           <article key={category.id} className="rounded-md border border-slate-200 bg-white p-4 shadow-sm">
@@ -30,7 +30,7 @@ export function CategoryTable({ categories, onEdit, onDelete }: CategoryTablePro
                 <button
                   type="button"
                   onClick={() => onEdit(category)}
-                  className="inline-flex h-9 w-9 items-center justify-center rounded-md border border-slate-200 text-blue-600"
+                  className="inline-flex h-9 w-9 items-center justify-center rounded-md border border-slate-200 text-blue-700 hover:bg-blue-50"
                   aria-label="Sửa danh mục"
                 >
                   <Edit className="h-4 w-4" />
@@ -38,7 +38,7 @@ export function CategoryTable({ categories, onEdit, onDelete }: CategoryTablePro
                 <button
                   type="button"
                   onClick={() => onDelete(category.id)}
-                  className="inline-flex h-9 w-9 items-center justify-center rounded-md border border-slate-200 text-red-600"
+                  className="inline-flex h-9 w-9 items-center justify-center rounded-md border border-red-200 text-red-700 hover:bg-red-50"
                   aria-label="Xóa danh mục"
                 >
                   <Trash2 className="h-4 w-4" />
@@ -49,25 +49,35 @@ export function CategoryTable({ categories, onEdit, onDelete }: CategoryTablePro
         ))}
       </div>
 
-      <div className="hidden overflow-x-auto rounded-md border border-slate-200 md:block">
-        <table className="min-w-full divide-y divide-slate-200 bg-white">
+      <div className="hidden overflow-x-auto rounded-md border border-slate-200 bg-white shadow-sm md:block">
+        <table className="min-w-full divide-y divide-slate-200">
           <thead className="bg-slate-50">
             <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-slate-500">Tên</th>
-              <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-slate-500">Slug</th>
-              <th className="px-6 py-3 text-right text-xs font-medium uppercase tracking-wider text-slate-500">Thao tác</th>
+              <th className="px-5 py-3 text-left text-xs font-bold uppercase text-slate-500">Tên danh mục</th>
+              <th className="px-5 py-3 text-left text-xs font-bold uppercase text-slate-500">Đường dẫn</th>
+              <th className="px-5 py-3 text-right text-xs font-bold uppercase text-slate-500">Thao tác</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-200">
             {categories.map((category) => (
-              <tr key={category.id}>
-                <td className="whitespace-nowrap px-6 py-4 text-sm text-slate-900">{category.name}</td>
-                <td className="whitespace-nowrap px-6 py-4 text-sm text-slate-500">{category.slug}</td>
-                <td className="whitespace-nowrap px-6 py-4 text-right text-sm font-medium">
-                  <button onClick={() => onEdit(category)} className="mr-3 text-blue-600 hover:text-blue-900">
+              <tr key={category.id} className="transition hover:bg-slate-50">
+                <td className="whitespace-nowrap px-5 py-4 text-sm font-bold text-slate-950">{category.name}</td>
+                <td className="whitespace-nowrap px-5 py-4 text-sm text-slate-500">/{category.slug}</td>
+                <td className="whitespace-nowrap px-5 py-4 text-right">
+                  <button
+                    type="button"
+                    onClick={() => onEdit(category)}
+                    className="mr-2 inline-flex h-9 w-9 items-center justify-center rounded-md border border-slate-200 text-blue-700 hover:bg-blue-50"
+                    aria-label="Sửa danh mục"
+                  >
                     <Edit className="h-4 w-4" />
                   </button>
-                  <button onClick={() => onDelete(category.id)} className="text-red-600 hover:text-red-900">
+                  <button
+                    type="button"
+                    onClick={() => onDelete(category.id)}
+                    className="inline-flex h-9 w-9 items-center justify-center rounded-md border border-slate-200 text-red-700 hover:bg-red-50"
+                    aria-label="Xóa danh mục"
+                  >
                     <Trash2 className="h-4 w-4" />
                   </button>
                 </td>
@@ -77,7 +87,9 @@ export function CategoryTable({ categories, onEdit, onDelete }: CategoryTablePro
         </table>
       </div>
       {categories.length === 0 && (
-        <div className="py-10 text-center text-slate-500">Không tìm thấy danh mục nào</div>
+        <div className="rounded-md border border-dashed border-slate-300 bg-white py-12 text-center text-sm text-slate-500">
+          Không tìm thấy danh mục phù hợp.
+        </div>
       )}
     </div>
   );

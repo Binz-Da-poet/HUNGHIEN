@@ -1,8 +1,8 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
 import { ProductImage, ProductImageManager } from './product-image-manager';
+import { API_BASE_URL } from '@/lib/api';
 
 interface Product {
   id?: string;
@@ -47,7 +47,7 @@ export function ProductForm({ initialData, onSubmit, onCancel }: ProductFormProp
     // Fetch categories for the dropdown
     const fetchCategories = async () => {
       try {
-        const res = await fetch('http://localhost:3001/api/categories');
+        const res = await fetch(`${API_BASE_URL}/categories`);
         const data = await res.json();
         setCategories(data);
       } catch (error) {
