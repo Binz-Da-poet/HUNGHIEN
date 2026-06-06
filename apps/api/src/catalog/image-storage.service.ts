@@ -60,6 +60,27 @@ export class ImageStorageService {
     }
   }
 
+  async saveCmsImage(namespace: string, file: UploadedImageFile): Promise<{ url: string; altText: string }> {
+    const validNamespaces = ['banners', 'featured-categories', 'brands', 'store'];
+    if (!validNamespaces.includes(namespace)) {
+      throw new BadRequestException('Invalid namespace');
+    }
+
+    this.assertValidImage(file);
+    const cmsDir = join(process.cwd(), 'uploads', 'cms', namespace);
+    await mkdir(cmsDir, { recursive: true });
+
+    const extension = this.getSafeExtension(file.originalname, file.mimetype);
+    const fileName = `${Date.now()}-${randomUUID()}${extension}`;
+    const absolutePath = join(cmsDir, fileName);
+    await writeFile(absolutePath, file.buffer);
+
+    return {
+      url: `/uploads/cms/${namespace}/${fileName}`,
+      altText: file.originalname,
+    };
+  }
+
   private assertValidImage(file: UploadedImageFile) {
     if (!ALLOWED_MIME_TYPES.has(file.mimetype)) {
       throw new BadRequestException('Chỉ hỗ trợ ảnh JPG, PNG, WEBP hoặc GIF.');

@@ -2,6 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { CategoryController } from './category.controller';
 import { CategoryService } from './category.service';
 import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { AuthService } from '../auth/auth.service';
 
 describe('CategoryController', () => {
   let controller: CategoryController;
@@ -14,11 +15,16 @@ describe('CategoryController', () => {
     delete: vi.fn(),
   };
 
+  const mockAuthService = {
+    validateSession: vi.fn(),
+  };
+
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [CategoryController],
       providers: [
         { provide: CategoryService, useValue: mockCategoryService },
+        { provide: AuthService, useValue: mockAuthService },
       ],
     }).compile();
 
