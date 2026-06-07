@@ -28,7 +28,6 @@ describe('CategoryController', () => {
     }).compile();
 
     controller = module.get<CategoryController>(CategoryController);
-    service = module.get<CategoryService>(CategoryService);
   });
 
   it('should be defined', () => {

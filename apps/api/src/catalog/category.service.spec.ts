@@ -24,7 +24,6 @@ describe('CategoryService', () => {
     }).compile();
 
     service = module.get<CategoryService>(CategoryService);
-    prisma = module.get<PrismaService>(PrismaService);
   });
 
   it('should be defined', () => {

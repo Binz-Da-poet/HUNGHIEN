@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-export const CreateProductSchema = z.object({
+const CreateProductBase = z.object({
   name: z.string().min(1),
   slug: z.string().min(1),
   price: z.number().positive(),
@@ -11,6 +11,11 @@ export const CreateProductSchema = z.object({
   description: z.string().optional(),
 });
 
+export const CreateProductSchema = CreateProductBase.refine(
+  (v) => v.originalPrice == null || v.originalPrice >= v.price,
+  { path: ['originalPrice'], message: 'Giá gốc phải lớn hơn hoặc bằng giá bán.' },
+);
+
 export const ProductImageSchema = z.object({
   id: z.string().min(1),
   productId: z.string().min(1),
@@ -20,7 +25,7 @@ export const ProductImageSchema = z.object({
   isPrimary: z.boolean().default(false),
 });
 
-export const ProductSchema = CreateProductSchema.extend({
+export const ProductSchema = CreateProductBase.extend({
   id: z.string().min(1),
   originalPrice: z.number().optional().nullable(),
   description: z.string().optional().nullable(),

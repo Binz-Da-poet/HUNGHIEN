@@ -29,7 +29,7 @@ export default function ProductsPage() {
   const fetchProducts = async () => {
     setLoading(true);
     try {
-      const data = await adminFetch('/products');
+      const data = await adminFetch('/admin/products');
       setProducts(Array.isArray(data) ? data : []);
     } catch (error) {
       console.error('Failed to fetch products:', error);

@@ -61,32 +61,36 @@ describe('ProductService', () => {
   });
 
   describe('findAll', () => {
-    it('should return all products', async () => {
+    it('should return only ACTIVE products', async () => {
       const products = [
-        { id: '1', name: 'Product 1', slug: 'product-1', price: 100, stock: 10 },
+        { id: '1', name: 'Product 1', slug: 'product-1', price: 100, stock: 10, status: 'ACTIVE' },
       ];
       mockPrismaService.product.findMany.mockResolvedValue(products);
       
       const result = await service.findAll();
       
       expect(result).toEqual(products);
-      expect(mockPrismaService.product.findMany).toHaveBeenCalled();
-    });
-
-    it('should filter by categoryId', async () => {
-      await service.findAll({ categoryId: 'cat1' });
-      
       expect(mockPrismaService.product.findMany).toHaveBeenCalledWith({
-        where: { categoryId: 'cat1' },
+        where: { status: 'ACTIVE' },
         include: { category: true, images: { orderBy: imageOrderBy } },
       });
     });
 
-    it('should search by name', async () => {
+    it('should filter by categoryId (with ACTIVE filter)', async () => {
+      await service.findAll({ categoryId: 'cat1' });
+      
+      expect(mockPrismaService.product.findMany).toHaveBeenCalledWith({
+        where: { categoryId: 'cat1', status: 'ACTIVE' },
+        include: { category: true, images: { orderBy: imageOrderBy } },
+      });
+    });
+
+    it('should search by name (with ACTIVE filter)', async () => {
       await service.findAll({ search: 'phone' });
       
       expect(mockPrismaService.product.findMany).toHaveBeenCalledWith({
         where: {
+          status: 'ACTIVE',
           OR: [
             { name: { contains: 'phone', mode: 'insensitive' } },
             { description: { contains: 'phone', mode: 'insensitive' } },
@@ -98,13 +102,52 @@ describe('ProductService', () => {
     });
   });
 
+  describe('findAllAdmin', () => {
+    it('should return all products including inactive', async () => {
+      const products = [
+        { id: '1', name: 'Active', status: 'ACTIVE' },
+        { id: '2', name: 'Inactive', status: 'INACTIVE' },
+      ];
+      mockPrismaService.product.findMany.mockResolvedValue(products);
+
+      const result = await service.findAllAdmin();
+
+      expect(result).toEqual(products);
+      expect(mockPrismaService.product.findMany).toHaveBeenCalledWith({
+        where: {},
+        include: { category: true, images: { orderBy: imageOrderBy } },
+      });
+    });
+  });
+
   describe('findOne', () => {
-    it('should return a product by id', async () => {
-      const product = { id: '1', name: 'Product 1' };
+    it('should return a product by id (only if ACTIVE)', async () => {
+      const product = { id: '1', name: 'Product 1', status: 'ACTIVE' };
       mockPrismaService.product.findUnique.mockResolvedValue(product);
       
       const result = await service.findOne('1');
       
+      expect(result).toEqual(product);
+      expect(mockPrismaService.product.findUnique).toHaveBeenCalledWith({
+        where: { id: '1', status: 'ACTIVE' },
+        include: { category: true, images: { orderBy: imageOrderBy } },
+      });
+    });
+
+    it('should throw NotFoundException for INACTIVE product', async () => {
+      mockPrismaService.product.findUnique.mockResolvedValue(null);
+
+      await expect(service.findOne('inactive-id')).rejects.toThrow('not found');
+    });
+  });
+
+  describe('findOneAdmin', () => {
+    it('should return a product by id regardless of status', async () => {
+      const product = { id: '1', name: 'Inactive Product', status: 'INACTIVE' };
+      mockPrismaService.product.findUnique.mockResolvedValue(product);
+
+      const result = await service.findOneAdmin('1');
+
       expect(result).toEqual(product);
       expect(mockPrismaService.product.findUnique).toHaveBeenCalledWith({
         where: { id: '1' },

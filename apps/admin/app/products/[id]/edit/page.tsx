@@ -16,7 +16,7 @@ export default function EditProductPage({ params }: { params: { id: string } }) 
   useEffect(() => {
     const fetchProduct = async () => {
       try {
-        const data = await adminFetch(`/products/${params.id}`);
+        const data = await adminFetch(`/admin/products/${params.id}`);
         setProduct(data);
       } catch (err) {
         console.error('Failed to fetch product:', err);

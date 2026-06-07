@@ -1,7 +1,19 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
+import { Prisma } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateProductSchema } from '@repo/shared';
 import { ImageStorageService, UploadedImageFile } from './image-storage.service';
+
+const productInclude = {
+  category: true,
+  images: {
+    orderBy: [
+      { isPrimary: 'desc' as const },
+      { sortOrder: 'asc' as const },
+      { createdAt: 'asc' as const },
+    ],
+  },
+} satisfies Prisma.ProductInclude;
 
 @Injectable()
 export class ProductService {
@@ -11,7 +23,7 @@ export class ProductService {
   ) {}
 
   async findAll(query?: { categoryId?: string; search?: string }) {
-    const where: any = {};
+    const where: Prisma.ProductWhereInput = { status: 'ACTIVE' };
     if (query?.categoryId) {
       where.categoryId = query.categoryId;
     }
@@ -23,22 +35,38 @@ export class ProductService {
       ];
     }
 
-    return this.prisma.product.findMany({
-      where,
-      include: {
-        category: true,
-        images: { orderBy: [{ isPrimary: 'desc' }, { sortOrder: 'asc' }, { createdAt: 'asc' }] },
-      },
-    });
+    return this.prisma.product.findMany({ where, include: productInclude });
+  }
+
+  async findAllAdmin(query?: { categoryId?: string; search?: string }) {
+    const where: Prisma.ProductWhereInput = {};
+    if (query?.categoryId) {
+      where.categoryId = query.categoryId;
+    }
+    if (query?.search) {
+      where.OR = [
+        { name: { contains: query.search, mode: 'insensitive' } },
+        { description: { contains: query.search, mode: 'insensitive' } },
+        { brand: { contains: query.search, mode: 'insensitive' } },
+      ];
+    }
+
+    return this.prisma.product.findMany({ where, include: productInclude });
   }
 
   async findOne(id: string) {
     const product = await this.prisma.product.findUnique({
+      where: { id, status: 'ACTIVE' },
+      include: productInclude,
+    });
+    if (!product) throw new NotFoundException(`Product with ID ${id} not found`);
+    return product;
+  }
+
+  async findOneAdmin(id: string) {
+    const product = await this.prisma.product.findUnique({
       where: { id },
-      include: {
-        category: true,
-        images: { orderBy: [{ isPrimary: 'desc' }, { sortOrder: 'asc' }, { createdAt: 'asc' }] },
-      },
+      include: productInclude,
     });
     if (!product) throw new NotFoundException(`Product with ID ${id} not found`);
     return product;

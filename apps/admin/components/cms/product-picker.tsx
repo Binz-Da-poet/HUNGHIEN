@@ -23,7 +23,7 @@ export function ProductPicker({ selectedIds, onChange }: ProductPickerProps) {
       }
       try {
         // Fetch products by IDs
-        const all = await adminFetch('/products');
+        const all = await adminFetch('/admin/products');
         const filtered = selectedIds.map(id => all.find((p: any) => p.id === id)).filter(Boolean);
         setSelectedProducts(filtered);
       } catch (err) {
@@ -37,7 +37,7 @@ export function ProductPicker({ selectedIds, onChange }: ProductPickerProps) {
     if (!search.trim()) return;
     setLoading(true);
     try {
-      const data = await adminFetch(`/products?search=${encodeURIComponent(search)}`);
+      const data = await adminFetch(`/admin/products?search=${encodeURIComponent(search)}`);
       setResults(data.filter((p: any) => !selectedIds.includes(p.id)));
     } catch (err) {
       console.error(err);

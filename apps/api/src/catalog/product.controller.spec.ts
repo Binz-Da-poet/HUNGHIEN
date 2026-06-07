@@ -20,6 +20,8 @@ describe('ProductController', () => {
   };
 
   beforeEach(async () => {
+    vi.clearAllMocks();
+
     const module: TestingModule = await Test.createTestingModule({
       controllers: [ProductController],
       providers: [
@@ -29,7 +31,6 @@ describe('ProductController', () => {
     }).compile();
 
     controller = module.get<ProductController>(ProductController);
-    service = module.get<ProductService>(ProductService);
   });
 
   it('should be defined', () => {
@@ -87,5 +88,25 @@ describe('ProductController', () => {
     
     expect(result).toEqual({ id });
     expect(mockProductService.remove).toHaveBeenCalledWith(id);
+  });
+
+  describe('public catalog visibility', () => {
+    it('public product list filters only ACTIVE products', async () => {
+      const activeProduct = { id: '1', name: 'Active', status: 'ACTIVE' };
+      mockProductService.findAll.mockResolvedValue([activeProduct]);
+
+      const result = await controller.findAll();
+
+      expect(result).toEqual([activeProduct]);
+      expect(result.every((p: any) => p.status === 'ACTIVE')).toBe(true);
+      expect(mockProductService.findAll).toHaveBeenCalled();
+    });
+
+    it('public product detail returns 404 for INACTIVE product', async () => {
+      mockProductService.findOne.mockRejectedValue(new Error('404'));
+
+      await expect(controller.findOne('inactive-id')).rejects.toThrow('404');
+      expect(mockProductService.findOne).toHaveBeenCalledWith('inactive-id');
+    });
   });
 });

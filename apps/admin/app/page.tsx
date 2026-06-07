@@ -38,7 +38,7 @@ export default function DashboardPage() {
     const loadDashboard = async () => {
       try {
         const [productsData, ordersData, categoriesData] = await Promise.all([
-          adminFetch('/products').catch(() => []),
+          adminFetch('/admin/products').catch(() => []),
           adminFetch('/orders?take=8').catch(() => []),
           adminFetch('/categories').catch(() => []),
         ]);
