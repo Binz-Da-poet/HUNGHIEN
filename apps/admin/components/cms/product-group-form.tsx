@@ -42,7 +42,6 @@ export function ProductGroupForm({ initialData, isEdit }: ProductGroupFormProps)
         ...formData,
         items: formData.productIds.map((id: string, index: number) => ({ productId: id, sortOrder: index })),
       };
-      // @ts-ignore
       delete payload.productIds;
 
       if (isEdit) {

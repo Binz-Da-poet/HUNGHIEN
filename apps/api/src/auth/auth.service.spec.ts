@@ -12,7 +12,6 @@ vi.mock('bcryptjs', () => ({
 
 describe('AuthService', () => {
   let service: AuthService;
-  let prisma: PrismaService;
 
   const mockPrismaService = {
     adminUser: {

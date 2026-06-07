@@ -6,11 +6,17 @@
     "dev": "turbo dev",
     "postinstall": "pnpm --filter @repo/shared build",
     "lint": "turbo lint",
-    "format": "prettier --write \"**/*.{ts,tsx,md}\""
+    "format": "prettier --write \"**/*.{ts,tsx,md}\"",
+    "audit:prod": "node scripts/check-production-audit.mjs"
   },
   "devDependencies": {
     "prettier": "^3.0.0",
     "turbo": "latest"
   },
-  "packageManager": "pnpm@9.0.0"
+  "packageManager": "pnpm@9.0.0",
+  "pnpm": {
+    "overrides": {
+      "multer": "2.1.1"
+    }
+  }
 }

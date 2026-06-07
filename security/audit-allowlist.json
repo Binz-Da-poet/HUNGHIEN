@@ -1,0 +1,11 @@
+{
+  "advisories": [
+    "GHSA-h25m-26qc-wcjf",
+    "GHSA-q4gf-8mx6-v5v3",
+    "GHSA-8h8q-6873-q5fj",
+    "GHSA-c4j6-fc7j-m34r",
+    "GHSA-36qx-fr4f-26g5"
+  ],
+  "expiresOn": "2026-07-07",
+  "reason": "Các advisory chỉ được vá trong Next.js 15.x, không tương thích với Next.js 14."
+}

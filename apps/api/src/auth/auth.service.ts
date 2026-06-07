@@ -57,7 +57,7 @@ export class AuthService {
     const tokenHash = this.hashToken(rawToken);
     try {
       await this.prisma.adminSession.delete({ where: { tokenHash } });
-    } catch (e) {
+    } catch {
       // Ignore if session already deleted or not found
     }
   }

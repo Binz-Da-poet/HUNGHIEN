@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { ImageIcon, X, UploadCloud, Loader2 } from 'lucide-react';
+import { X, UploadCloud, Loader2 } from 'lucide-react';
 import { adminFetch } from '@/lib/admin-api';
 
 interface ImageUploadFieldProps {

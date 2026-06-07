@@ -16,7 +16,7 @@ async function getSearchResults(search?: string, categoryId?: string) {
     const res = await fetch(url, { next: { revalidate: 60 } });
     if (!res.ok) return [];
     return (await res.json()) as StorefrontProduct[];
-  } catch (error) {
+  } catch {
     return [];
   }
 }

@@ -80,7 +80,8 @@ export interface HomepagePayload {
 export async function getHomepage(): Promise<HomepagePayload> {
   try {
     const res = await fetch(`${API_BASE_URL}/storefront/homepage`, {
-      next: { revalidate: 3600 }, // 1 hour revalidation
+      next: { revalidate: process.env.NODE_ENV === 'development' ? 0 : 3600 },
+      cache: process.env.NODE_ENV === 'development' ? 'no-store' : undefined,
     });
 
     if (!res.ok) {

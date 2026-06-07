@@ -23,7 +23,7 @@ export function HomepageSectionRenderer({ payload, sections }: HomepageSectionRe
             return <BannerCarousel key={section.id} banners={payload.banners} />;
           case 'FEATURED_CATEGORIES':
             return <FeaturedCategories key={section.id} categories={payload.featuredCategories} />;
-          case 'PRODUCT_GROUP':
+          case 'PRODUCT_GROUP': {
             // Find the specific group by slug if configured
             const group = section.config?.slug 
               ? payload.productGroups.find(g => g.slug === section.config.slug)
@@ -31,6 +31,7 @@ export function HomepageSectionRenderer({ payload, sections }: HomepageSectionRe
               
             if (!group || !group.items.length) return null;
             return <ProductGroupSection key={section.id} group={group} />;
+          }
           case 'SERVICE_BENEFITS':
             return <BenefitStrip key={section.id} benefits={payload.benefits} />;
           case 'FEATURED_BRANDS':

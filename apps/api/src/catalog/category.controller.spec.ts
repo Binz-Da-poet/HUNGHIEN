@@ -6,7 +6,6 @@ import { AuthService } from '../auth/auth.service';
 
 describe('CategoryController', () => {
   let controller: CategoryController;
-  let service: CategoryService;
 
   const mockCategoryService = {
     findAll: vi.fn(),

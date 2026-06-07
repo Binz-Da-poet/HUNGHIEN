@@ -115,7 +115,7 @@ describe('OrdersService', () => {
       const query = { skip: 10, take: 5 };
       mockPrismaService.order.findMany.mockResolvedValue([]);
 
-      // @ts-ignore
+      // @ts-expect-error - testing with query params not in order DTO type
       await service.findAll(query);
 
       expect(mockPrismaService.order.findMany).toHaveBeenCalledWith({

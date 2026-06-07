@@ -4,7 +4,6 @@ import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { notFound, useRouter } from 'next/navigation';
 import { 
-  ArrowLeft, 
   BadgeCheck, 
   RotateCcw, 
   ShieldCheck, 

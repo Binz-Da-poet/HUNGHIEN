@@ -2,7 +2,7 @@
 
 import React from 'react';
 import Link from 'next/link';
-import { ArrowRight, Minus, PackageCheck, Plus, ShieldCheck, ShoppingBag, Trash2, Truck, RotateCcw } from 'lucide-react';
+import { ArrowRight, Minus, Plus, ShieldCheck, ShoppingBag, Trash2, Truck, RotateCcw } from 'lucide-react';
 import { useCart } from '@/store/use-cart';
 import { formatVnd } from '@/lib/format';
 import { ProductImage } from '@/components/product-image';

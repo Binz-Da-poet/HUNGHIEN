@@ -1,4 +1,4 @@
-import { IsString, IsOptional, IsBoolean, IsInt, IsEnum, IsUrl, IsJSON, IsArray, ValidateNested } from 'class-validator';
+import { IsString, IsOptional, IsBoolean, IsInt, IsEnum, IsArray } from 'class-validator';
 import { Type } from 'class-transformer';
 import { BannerMode, HomepageSectionType } from '@prisma/client';
 

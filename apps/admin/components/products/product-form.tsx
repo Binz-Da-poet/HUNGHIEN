@@ -81,7 +81,7 @@ export function ProductForm({ initialData, onSubmit, onCancel }: ProductFormProp
       
       // Auto-generate slug from name if it's a new product
       if (name === 'name' && !initialData) {
-        updated.slug = value.toLowerCase().replace(/[\s_]+/g, '-').replace(/[^\w\-]+/g, '');
+        updated.slug = value.toLowerCase().replace(/[\s_]+/g, '-').replace(/[^\w-]+/g, '');
       }
       
       // Handle number inputs
