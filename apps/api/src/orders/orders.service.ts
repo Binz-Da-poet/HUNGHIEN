@@ -3,6 +3,13 @@ import { PrismaService } from '../prisma/prisma.service';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { OrderQueryDto } from './dto/order-query.dto';
 import { UpdateOrderStatusDto } from './dto/update-order-status.dto';
+import { createPublicOrderCode } from './order-code';
+import { normalizeVietnamesePhone } from './phone-normalizer';
+
+const orderInclude = {
+  items: true,
+  events: { orderBy: { createdAt: 'asc' as const } },
+};
 
 @Injectable()
 export class OrdersService {
@@ -14,19 +21,20 @@ export class OrdersService {
       where: status ? { status } : {},
       skip,
       take,
-      include: {
-        items: true,
-      },
-      orderBy: {
-        createdAt: 'desc',
-      },
+      include: orderInclude,
+      orderBy: { createdAt: 'desc' },
     });
   }
 
   async create(createOrderDto: CreateOrderDto) {
     return this.prisma.$transaction(async (tx) => {
       let totalAmount = 0;
-      const orderItemsData = [];
+      const orderItemsData: {
+        productId: string;
+        productName: string;
+        quantity: number;
+        priceAtPurchase: number;
+      }[] = [];
 
       for (const item of createOrderDto.items) {
         const product = await tx.product.findUnique({
@@ -34,11 +42,11 @@ export class OrdersService {
         });
 
         if (!product) {
-          throw new NotFoundException(`Product with ID ${item.productId} not found`);
+          throw new NotFoundException(`Sản phẩm ${item.productId} không tồn tại.`);
         }
 
         if (product.stock < item.quantity) {
-          throw new BadRequestException(`Insufficient stock for product ${product.name}`);
+          throw new BadRequestException(`Sản phẩm "${product.name}" không đủ tồn kho.`);
         }
 
         // Deduct stock
@@ -52,26 +60,31 @@ export class OrdersService {
 
         orderItemsData.push({
           productId: item.productId,
+          productName: product.name,
           quantity: item.quantity,
           priceAtPurchase,
         });
       }
 
+      const publicCode = createPublicOrderCode();
+
       const order = await tx.order.create({
         data: {
+          publicCode,
           customerName: createOrderDto.customerName,
           phone: createOrderDto.phone,
+          phoneNormalized: normalizeVietnamesePhone(createOrderDto.phone),
           address: createOrderDto.address,
           note: createOrderDto.note,
           paymentMethod: createOrderDto.paymentMethod,
           totalAmount,
-          items: {
-            create: orderItemsData,
-          },
+          checkoutAttemptId: createOrderDto.checkoutAttemptId,
+          checkoutAttemptExpiresAt: createOrderDto.checkoutAttemptId
+            ? new Date(Date.now() + 24 * 60 * 60 * 1000)
+            : undefined,
+          items: { create: orderItemsData },
         },
-        include: {
-          items: true,
-        },
+        include: orderInclude,
       });
 
       return order;
@@ -84,7 +97,7 @@ export class OrdersService {
     });
 
     if (!order) {
-      throw new NotFoundException(`Order with ID ${id} not found`);
+      throw new NotFoundException(`Đơn hàng ${id} không tồn tại.`);
     }
 
     return this.prisma.order.update({

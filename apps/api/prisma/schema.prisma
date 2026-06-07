@@ -26,6 +26,31 @@ enum ProductStatus {
   INACTIVE
 }
 
+enum OrderStatus {
+  PENDING
+  CONFIRMED
+  SHIPPING
+  COMPLETED
+  CANCELLED
+}
+
+enum PaymentMethod {
+  COD
+  BANK_TRANSFER
+}
+
+enum PaymentStatus {
+  UNPAID
+  PAID
+  REFUNDED
+}
+
+enum OrderEventType {
+  ORDER_STATUS_CHANGED
+  PAYMENT_STATUS_CHANGED
+  STOCK_RESTORED
+}
+
 model AdminUser {
   id           String         @id @default(cuid())
   email        String         @unique
@@ -33,6 +58,7 @@ model AdminUser {
   name         String
   isActive     Boolean        @default(true)
   sessions     AdminSession[]
+  orderEvents  OrderEvent[]
   createdAt    DateTime       @default(now())
   updatedAt    DateTime       @updatedAt
 }
@@ -92,26 +118,55 @@ model ProductImage {
 }
 
 model Order {
-  id            String      @id @default(cuid())
-  customerName  String
-  phone         String
-  address       String
-  note          String?
-  totalAmount   Decimal
-  paymentMethod String
-  status        String      @default("PENDING")
-  createdAt     DateTime    @default(now())
-  items         OrderItem[]
+  id                      String         @id @default(cuid())
+  publicCode              String         @unique
+  checkoutAttemptId       String?        @unique
+  checkoutAttemptExpiresAt DateTime?
+  customerName            String
+  phone                   String
+  phoneNormalized         String
+  address                 String
+  note                    String?
+  totalAmount             Decimal
+  paymentMethod           PaymentMethod
+  status                  OrderStatus    @default(PENDING)
+  paymentStatus           PaymentStatus  @default(UNPAID)
+  stockRestoredAt         DateTime?
+  createdAt               DateTime       @default(now())
+  updatedAt               DateTime       @updatedAt
+  items                   OrderItem[]
+  events                  OrderEvent[]
+
+  @@index([phoneNormalized])
+  @@index([status])
+  @@index([publicCode, phoneNormalized])
 }
 
 model OrderItem {
   id              String  @id @default(cuid())
   orderId         String
   productId       String
+  productName     String
   quantity        Int
   priceAtPurchase Decimal
   order           Order   @relation(fields: [orderId], references: [id])
   product         Product @relation(fields: [productId], references: [id])
+
+  @@index([orderId])
+}
+
+model OrderEvent {
+  id        String         @id @default(cuid())
+  orderId   String
+  type      OrderEventType
+  fromValue String?
+  toValue   String?
+  adminId   String?
+  createdAt DateTime       @default(now())
+  order     Order          @relation(fields: [orderId], references: [id])
+  admin     AdminUser?     @relation(fields: [adminId], references: [id])
+
+  @@index([orderId, createdAt])
 }
 
 model HomepageBanner {
@@ -231,17 +286,23 @@ model StoreBenefit {
 }
 
 model StoreSettings {
-  id             String   @id @default("main")
-  hotline        String?
-  storeSystemUrl String?
-  address        String?
-  email          String?
-  socialLinks    Json?
-  companySummary String?
-  supportLinks   Json?
-  policyLinks    Json?
-  newsletterCopy String?
-  paymentMethods Json?
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
+  id                      String   @id @default("main")
+  hotline                 String?
+  storeSystemUrl          String?
+  address                 String?
+  email                   String?
+  socialLinks             Json?
+  companySummary          String?
+  supportLinks            Json?
+  policyLinks             Json?
+  newsletterCopy          String?
+  paymentMethods          Json?
+  bankName                String?
+  bankAccountNumber       String?
+  bankAccountHolder       String?
+  bankQrImageUrl          String?
+  bankTransferTemplate    String?
+  bankTransferInstructions String?
+  createdAt               DateTime @default(now())
+  updatedAt               DateTime @updatedAt
 }

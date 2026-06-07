@@ -105,7 +105,7 @@ describe('OrdersService', () => {
         where: { status: 'PENDING' },
         skip: 0,
         take: 10,
-        include: { items: true },
+        include: { items: true, events: { orderBy: { createdAt: 'asc' } } },
         orderBy: { createdAt: 'desc' },
       });
       expect(result).toEqual(mockOrders);
@@ -122,7 +122,7 @@ describe('OrdersService', () => {
         where: {},
         skip: 10,
         take: 5,
-        include: { items: true },
+        include: { items: true, events: { orderBy: { createdAt: 'asc' } } },
         orderBy: { createdAt: 'desc' },
       });
     });

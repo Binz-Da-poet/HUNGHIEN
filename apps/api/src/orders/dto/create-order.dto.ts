@@ -1,5 +1,6 @@
-import { IsString, IsNotEmpty, IsOptional, IsArray, ValidateNested, IsNumber, Min } from 'class-validator';
+import { IsString, IsNotEmpty, IsOptional, IsArray, ValidateNested, IsNumber, Min, IsEnum, IsUUID } from 'class-validator';
 import { Type } from 'class-transformer';
+import { PaymentMethod } from '@prisma/client';
 
 class CreateOrderItemDto {
   @IsString()
@@ -28,12 +29,15 @@ export class CreateOrderDto {
   @IsOptional()
   note?: string;
 
-  @IsString()
-  @IsNotEmpty()
-  paymentMethod: string;
+  @IsEnum(PaymentMethod)
+  paymentMethod: PaymentMethod;
 
   @IsArray()
   @ValidateNested({ each: true })
   @Type(() => CreateOrderItemDto)
   items: CreateOrderItemDto[];
+
+  @IsUUID()
+  @IsOptional()
+  checkoutAttemptId?: string;
 }
