@@ -14,9 +14,11 @@ import {
 import { ProductService } from './product.service';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
+import { UpdateProductImageDto } from './dto/update-product-image.dto';
 import { FilesInterceptor } from '@nestjs/platform-express';
 import { memoryStorage } from 'multer';
 import { AdminSessionGuard } from '../auth/admin-session.guard';
+import { UploadedImageFile } from './image-storage.service';
 
 @Controller('products')
 export class ProductController {
@@ -35,8 +37,13 @@ export class ProductController {
 
   @Post(':id/images')
   @UseGuards(AdminSessionGuard)
-  @UseInterceptors(FilesInterceptor('images', 8, { storage: memoryStorage() }))
-  uploadImages(@Param('id') id: string, @UploadedFiles() files: any[]) {
+  @UseInterceptors(
+    FilesInterceptor('images', 8, {
+      storage: memoryStorage(),
+      limits: { fileSize: 5 * 1024 * 1024, files: 8 },
+    }),
+  )
+  uploadImages(@Param('id') id: string, @UploadedFiles() files: UploadedImageFile[]) {
     return this.productService.addImages(id, files);
   }
 
@@ -45,7 +52,7 @@ export class ProductController {
   updateImage(
     @Param('id') id: string,
     @Param('imageId') imageId: string,
-    @Body() body: { altText?: string; sortOrder?: number; isPrimary?: boolean },
+    @Body() body: UpdateProductImageDto,
   ) {
     return this.productService.updateImage(id, imageId, body);
   }

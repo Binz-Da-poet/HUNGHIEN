@@ -19,6 +19,43 @@ export interface StoredProductImage {
 const MAX_IMAGE_SIZE_BYTES = 5 * 1024 * 1024;
 const ALLOWED_MIME_TYPES = new Set(['image/jpeg', 'image/png', 'image/webp', 'image/gif']);
 
+/** Magic bytes for common image formats */
+function checkMagicBytes(buffer: Buffer, mimeType: string): boolean {
+  if (buffer.length < 4) return false;
+  // JPEG: FF D8 FF
+  if (mimeType === 'image/jpeg') {
+    return buffer[0] === 0xff && buffer[1] === 0xd8 && buffer[2] === 0xff;
+  }
+  // PNG: 89 50 4E 47 0D 0A 1A 0A
+  if (mimeType === 'image/png') {
+    return (
+      buffer[0] === 0x89 &&
+      buffer[1] === 0x50 &&
+      buffer[2] === 0x4e &&
+      buffer[3] === 0x47
+    );
+  }
+  // WebP: RIFF....WEBP
+  if (mimeType === 'image/webp') {
+    if (buffer.length < 12) return false;
+    return (
+      buffer[0] === 0x52 && // R
+      buffer[1] === 0x49 && // I
+      buffer[2] === 0x46 && // F
+      buffer[3] === 0x46 && // F
+      buffer[8] === 0x57 && // W
+      buffer[9] === 0x45 && // E
+      buffer[10] === 0x42 && // B
+      buffer[11] === 0x50   // P
+    );
+  }
+  // GIF: GIF8
+  if (mimeType === 'image/gif') {
+    return buffer[0] === 0x47 && buffer[1] === 0x49 && buffer[2] === 0x46 && buffer[3] === 0x38;
+  }
+  return false;
+}
+
 @Injectable()
 export class ImageStorageService {
   private readonly uploadRoot = join(process.cwd(), 'uploads', 'products');
@@ -82,12 +119,20 @@ export class ImageStorageService {
   }
 
   private assertValidImage(file: UploadedImageFile) {
+    if (!file?.buffer || !Buffer.isBuffer(file.buffer)) {
+      throw new BadRequestException('File không hợp lệ hoặc đã bị hỏng.');
+    }
+
     if (!ALLOWED_MIME_TYPES.has(file.mimetype)) {
       throw new BadRequestException('Chỉ hỗ trợ ảnh JPG, PNG, WEBP hoặc GIF.');
     }
 
     if (file.size > MAX_IMAGE_SIZE_BYTES) {
       throw new BadRequestException('Ảnh không được vượt quá 5MB.');
+    }
+
+    if (!checkMagicBytes(file.buffer, file.mimetype)) {
+      throw new BadRequestException('Chữ ký file không khớp với định dạng ảnh khai báo.');
     }
   }
 

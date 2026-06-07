@@ -95,6 +95,10 @@ export class ProductService {
   }
 
   async addImages(productId: string, files: UploadedImageFile[]) {
+    // Validate product exists before saving files
+    const product = await this.prisma.product.findUnique({ where: { id: productId } });
+    if (!product) throw new NotFoundException(`Sản phẩm ${productId} không tồn tại.`);
+
     const existingImages = await this.prisma.productImage.findMany({
       where: { productId },
       orderBy: { sortOrder: 'asc' },
@@ -102,15 +106,23 @@ export class ProductService {
     const storedImages = await this.imageStorage.saveProductImages(productId, files);
     const nextSortOrder = existingImages.length;
 
-    await this.prisma.productImage.createMany({
-      data: storedImages.map((image, index) => ({
-        productId,
-        url: image.url,
-        altText: image.altText,
-        sortOrder: nextSortOrder + index,
-        isPrimary: existingImages.length === 0 && index === 0,
-      })),
-    });
+    try {
+      await this.prisma.productImage.createMany({
+        data: storedImages.map((image, index) => ({
+          productId,
+          url: image.url,
+          altText: image.altText,
+          sortOrder: nextSortOrder + index,
+          isPrimary: existingImages.length === 0 && index === 0,
+        })),
+      });
+    } catch (error) {
+      // Compensating: delete all saved files if DB write fails
+      await Promise.allSettled(
+        storedImages.map((img) => this.imageStorage.deleteByUrl(img.url)),
+      );
+      throw error;
+    }
 
     return this.prisma.productImage.findMany({
       where: { productId },
