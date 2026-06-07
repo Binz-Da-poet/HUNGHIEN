@@ -6,7 +6,8 @@ import Image from 'next/image';
 import { StoreSettings } from '@/lib/homepage';
 import { Facebook, Youtube, Send, Mail, MapPin, Phone } from 'lucide-react';
 
-export function SiteFooter({ settings }: { settings: StoreSettings }) {
+export function SiteFooter({ settings }: { settings: StoreSettings | null }) {
+  const s = settings ?? {} as StoreSettings;
   return (
     <footer className="bg-[#1A2B4C] text-white pt-16 pb-24 lg:pb-12">
       <div className="mx-auto max-w-7xl px-4">
@@ -23,7 +24,7 @@ export function SiteFooter({ settings }: { settings: StoreSettings }) {
               />
             </Link>
             <p className="text-sm text-slate-300 leading-relaxed">
-              {settings.companySummary || 'Hùng Hiền Điện Máy - Hệ thống mua sắm điện tử, nội thất và gia dụng chính hãng uy tín hàng đầu.'}
+              {s.companySummary || 'Hùng Hiền Điện Máy - Hệ thống mua sắm điện tử, nội thất và gia dụng chính hãng uy tín hàng đầu.'}
             </p>
             <div className="flex gap-4">
               <Link href="#" className="p-2.5 bg-white/5 rounded-full hover:bg-[#E5C37A] hover:text-[#1A2B4C] transition-all border border-white/10"><Facebook className="h-5 w-5" /></Link>
@@ -56,15 +57,15 @@ export function SiteFooter({ settings }: { settings: StoreSettings }) {
             <ul className="space-y-6 text-sm font-medium">
               <li className="flex items-start gap-3">
                 <MapPin className="h-5 w-5 text-[#E5C37A] flex-shrink-0 mt-0.5" />
-                <span className="text-slate-300 leading-snug">{settings.address || 'Đang cập nhật địa chỉ...'}</span>
+                <span className="text-slate-300 leading-snug">{s.address || 'Đang cập nhật địa chỉ...'}</span>
               </li>
               <li className="flex items-center gap-3">
                 <Phone className="h-5 w-5 text-[#E5C37A] flex-shrink-0" />
-                <span className="text-[#E5C37A] font-black text-xl tracking-tighter">{settings.hotline || '1900 xxxx'}</span>
+                <span className="text-[#E5C37A] font-black text-xl tracking-tighter">{s.hotline || '1900 xxxx'}</span>
               </li>
               <li className="flex items-center gap-3">
                 <Mail className="h-5 w-5 text-[#E5C37A] flex-shrink-0" />
-                <span className="text-slate-300">{settings.email || 'contact@hunghien.vn'}</span>
+                <span className="text-slate-300">{s.email || 'contact@hunghien.vn'}</span>
               </li>
             </ul>
           </div>
