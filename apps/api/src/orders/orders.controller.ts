@@ -1,10 +1,11 @@
-import { Controller, Post, Body, Get, Query, Patch, Param, UseGuards } from '@nestjs/common';
+import { Controller, Post, Body, Get, Query, Patch, Param, UseGuards, Req } from '@nestjs/common';
 import { Throttle } from '@nestjs/throttler';
 import { OrdersService } from './orders.service';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { OrderQueryDto } from './dto/order-query.dto';
 import { UpdateOrderStatusDto } from './dto/update-order-status.dto';
 import { AdminSessionGuard } from '../auth/admin-session.guard';
+import { Request } from 'express';
 
 @Controller('orders')
 export class OrdersController {
@@ -27,7 +28,8 @@ export class OrdersController {
   updateStatus(
     @Param('id') id: string,
     @Body() updateOrderStatusDto: UpdateOrderStatusDto,
+    @Req() req: Request & { adminUser?: { id: string } },
   ) {
-    return this.ordersService.updateStatus(id, updateOrderStatusDto);
+    return this.ordersService.updateStatus(id, updateOrderStatusDto, req.adminUser?.id);
   }
 }

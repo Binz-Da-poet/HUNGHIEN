@@ -8,6 +8,7 @@ import { CatalogModule } from './catalog/catalog.module';
 import { OrdersModule } from './orders/orders.module';
 import { AuthModule } from './auth/auth.module';
 import { HomepageModule } from './homepage/homepage.module';
+import { PaymentsModule } from './payments/payments.module';
 
 @Module({
   imports: [
@@ -16,6 +17,7 @@ import { HomepageModule } from './homepage/homepage.module';
     OrdersModule,
     AuthModule,
     HomepageModule,
+    PaymentsModule,
     ThrottlerModule.forRoot([{
       ttl: 60_000,
       limit: 30,

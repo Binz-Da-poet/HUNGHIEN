@@ -24,6 +24,9 @@ describe('OrdersService', () => {
       update: vi.fn(),
       updateMany: vi.fn(),
     },
+    orderEvent: {
+      create: vi.fn(),
+    },
   };
 
   beforeEach(async () => {
@@ -243,21 +246,94 @@ describe('OrdersService', () => {
   });
 
   describe('updateStatus', () => {
-    it('updates order status', async () => {
-      mockPrismaService.order.findUnique.mockResolvedValue({ id: 'order1', status: 'PENDING' });
-      mockPrismaService.order.update.mockResolvedValue({ id: 'order1', status: 'CONFIRMED' });
+    it('updates order status within valid transition', async () => {
+      const order = { id: 'order1', status: 'PENDING', stockRestoredAt: null, items: [] };
+      mockPrismaService.$transaction.mockImplementation(async (cb: any) => cb(mockPrismaService));
+      mockPrismaService.order.findUnique.mockResolvedValue(order);
+      mockPrismaService.order.update.mockResolvedValue({ ...order, status: 'CONFIRMED' });
+      mockPrismaService.orderEvent.create.mockResolvedValue({});
 
       const result = await service.updateStatus('order1', { status: 'CONFIRMED' });
 
       expect(result.status).toBe('CONFIRMED');
+      expect(mockPrismaService.orderEvent.create).toHaveBeenCalledWith(
+        expect.objectContaining({
+          data: expect.objectContaining({
+            type: 'ORDER_STATUS_CHANGED',
+            fromValue: 'PENDING',
+            toValue: 'CONFIRMED',
+          }),
+        }),
+      );
+    });
+
+    it('restores stock on first cancellation', async () => {
+      const items = [
+        { productId: 'p1', quantity: 2, product: { id: 'p1' } },
+        { productId: 'p2', quantity: 1, product: { id: 'p2' } },
+      ];
+      const order = { id: 'order1', status: 'PENDING', stockRestoredAt: null, items };
+      mockPrismaService.$transaction.mockImplementation(async (cb: any) => cb(mockPrismaService));
+      mockPrismaService.order.findUnique.mockResolvedValue(order);
+      mockPrismaService.order.update.mockResolvedValue({ ...order, status: 'CANCELLED' });
+      mockPrismaService.orderEvent.create.mockResolvedValue({});
+
+      await service.updateStatus('order1', { status: 'CANCELLED' });
+
+      expect(mockPrismaService.product.update).toHaveBeenCalledWith({
+        where: { id: 'p1' },
+        data: { stock: { increment: 2 } },
+      });
+      expect(mockPrismaService.product.update).toHaveBeenCalledWith({
+        where: { id: 'p2' },
+        data: { stock: { increment: 1 } },
+      });
+    });
+
+    it('does not restore stock twice', async () => {
+      const order = {
+        id: 'order1',
+        status: 'PENDING',
+        stockRestoredAt: new Date(), // already restored
+        items: [{ productId: 'p1', quantity: 2, product: { id: 'p1' } }],
+      };
+      mockPrismaService.$transaction.mockImplementation(async (cb: any) => cb(mockPrismaService));
+      mockPrismaService.order.findUnique.mockResolvedValue(order);
+      mockPrismaService.orderEvent.create.mockResolvedValue({});
+
+      // CANCELLED → CANCELLED should be rejected by transition
+      // Actually, since the transition rejects CANCELLED → anything, we just test that
+      // for PENDING→CANCELLED with already-restored stock, it doesn't try to restore again
+      // But stockRestoredAt check means if it's already set, it won't restore
+
+      // For this test, let's check another flow: PENDING→CANCELLED but stockRestoredAt is set
+      // Wait, that wouldn't happen normally. StockRestoredAt is only set when cancelled.
+      // The plan says: "Never restore stock when stockRestoredAt already exists"
+      // So if stockRestoredAt is already set, the update should NOT restore again.
+
+      await service.updateStatus('order1', { status: 'CANCELLED' });
+
+      // product.update should NOT be called since stockRestoredAt exists
+      expect(mockPrismaService.product.update).not.toHaveBeenCalled();
+    });
+
+    it('rejects invalid transition', async () => {
+      const order = { id: 'order1', status: 'COMPLETED', stockRestoredAt: null, items: [] };
+      mockPrismaService.$transaction.mockImplementation(async (cb: any) => cb(mockPrismaService));
+      mockPrismaService.order.findUnique.mockResolvedValue(order);
+
+      await expect(
+        service.updateStatus('order1', { status: 'PENDING' }),
+      ).rejects.toThrow(BadRequestException);
     });
 
     it('throws NotFoundException if order not found', async () => {
+      mockPrismaService.$transaction.mockImplementation(async (cb: any) => cb(mockPrismaService));
       mockPrismaService.order.findUnique.mockResolvedValue(null);
 
-      await expect(service.updateStatus('invalid-id', { status: 'CONFIRMED' })).rejects.toThrow(
-        NotFoundException,
-      );
+      await expect(
+        service.updateStatus('invalid-id', { status: 'CONFIRMED' }),
+      ).rejects.toThrow(NotFoundException);
     });
   });
 });

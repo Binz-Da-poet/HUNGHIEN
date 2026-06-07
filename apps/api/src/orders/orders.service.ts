@@ -1,10 +1,12 @@
 import { Injectable, BadRequestException, NotFoundException } from '@nestjs/common';
+import { OrderStatus } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { OrderQueryDto } from './dto/order-query.dto';
 import { UpdateOrderStatusDto } from './dto/update-order-status.dto';
 import { createPublicOrderCode } from './order-code';
 import { normalizeVietnamesePhone } from './phone-normalizer';
+import { isValidOrderTransition } from './order-transitions';
 
 const orderInclude = {
   items: true,
@@ -165,18 +167,60 @@ export class OrdersService {
     });
   }
 
-  async updateStatus(id: string, updateOrderStatusDto: UpdateOrderStatusDto) {
-    const order = await this.prisma.order.findUnique({
-      where: { id },
-    });
+  async updateStatus(id: string, updateOrderStatusDto: UpdateOrderStatusDto, adminId?: string) {
+    return this.prisma.$transaction(async (tx) => {
+      const order = await tx.order.findUnique({
+        where: { id },
+        include: { items: { include: { product: true } } },
+      });
 
-    if (!order) {
-      throw new NotFoundException(`Đơn hàng ${id} không tồn tại.`);
-    }
+      if (!order) {
+        throw new NotFoundException(`Đơn hàng ${id} không tồn tại.`);
+      }
 
-    return this.prisma.order.update({
-      where: { id },
-      data: { status: updateOrderStatusDto.status },
+      const newStatus = updateOrderStatusDto.status;
+
+      if (!isValidOrderTransition(order.status as OrderStatus, newStatus as OrderStatus)) {
+        throw new BadRequestException(
+          `Không thể chuyển trạng thái từ "${order.status}" sang "${newStatus}".`,
+        );
+      }
+
+      // Restore stock on first cancellation
+      if (newStatus === 'CANCELLED' && !order.stockRestoredAt) {
+        for (const item of order.items) {
+          await tx.product.update({
+            where: { id: item.productId },
+            data: { stock: { increment: item.quantity } },
+          });
+        }
+      }
+
+      // Create event
+      await tx.orderEvent.create({
+        data: {
+          orderId: id,
+          type: 'ORDER_STATUS_CHANGED',
+          fromValue: order.status,
+          toValue: newStatus,
+          adminId: adminId || null,
+        },
+      });
+
+      // Update order
+      const updated = await tx.order.update({
+        where: { id },
+        data: {
+          status: newStatus,
+          stockRestoredAt:
+            newStatus === 'CANCELLED' && !order.stockRestoredAt
+              ? new Date()
+              : order.stockRestoredAt,
+        },
+        include: orderInclude,
+      });
+
+      return updated;
     });
   }
 }
