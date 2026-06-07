@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { 
@@ -14,10 +14,25 @@ import {
   Clock
 } from 'lucide-react';
 import { useCart } from '@/store/use-cart';
+import { API_BASE_URL } from '@/lib/api';
+
+interface Category {
+  id: string;
+  name: string;
+  slug: string;
+}
 
 export function SiteHeader() {
   const itemCount = useCart((state) => state.items.reduce((total, item) => total + item.quantity, 0));
   const [searchQuery, setSearchQuery] = useState('');
+  const [categories, setCategories] = useState<Category[]>([]);
+
+  useEffect(() => {
+    fetch(`${API_BASE_URL}/categories`)
+      .then(res => res.json())
+      .then(data => setCategories(Array.isArray(data) ? data : []))
+      .catch(() => setCategories([]));
+  }, []);
 
   return (
     <header className="z-50 w-full flex flex-col">
@@ -109,9 +124,9 @@ export function SiteHeader() {
             <LayoutGrid className="h-4 w-4" /> Danh mục
           </button>
           <div className="flex items-center gap-1 ml-4 whitespace-nowrap">
-            {['Tivi', 'Tủ lạnh', 'Máy giặt', 'Điều hòa', 'Gia dụng', 'Điện thoại', 'Laptop', 'Phụ kiện'].map(cat => (
-              <Link key={cat} href={`/categories/${cat}`} className="px-4 py-2 text-xs font-bold text-slate-700 hover:text-[#1A2B4C] hover:bg-slate-50 transition-colors uppercase tracking-tight">
-                {cat}
+            {categories.map(cat => (
+              <Link key={cat.id} href={`/categories/${cat.slug}`} className="px-4 py-2 text-xs font-bold text-slate-700 hover:text-[#1A2B4C] hover:bg-slate-50 transition-colors uppercase tracking-tight">
+                {cat.name}
               </Link>
             ))}
             <Link href="/deals" className="px-4 py-2 text-xs font-bold text-[#D10024] hover:bg-red-50 transition-colors uppercase tracking-tight flex items-center gap-1">

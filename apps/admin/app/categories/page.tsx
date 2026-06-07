@@ -5,7 +5,7 @@ import { FolderTree, Plus, Search } from 'lucide-react';
 import { CategoryTable } from '@/components/categories/category-table';
 import { CategoryForm } from '@/components/categories/category-form';
 import { Dialog } from '@/components/ui/dialog';
-import { API_BASE_URL } from '@/lib/api';
+import { adminFetch } from '@/lib/admin-api';
 
 interface Category {
   id: string;
@@ -25,9 +25,7 @@ export default function CategoriesPage() {
     setLoading(true);
     setError(null);
     try {
-      const res = await fetch(`${API_BASE_URL}/categories`);
-      if (!res.ok) throw new Error('Không thể tải danh mục.');
-      const data = await res.json();
+      const data = await adminFetch('/categories');
       setCategories(Array.isArray(data) ? data : []);
     } catch (err) {
       console.error('Failed to fetch categories:', err);
@@ -54,8 +52,7 @@ export default function CategoriesPage() {
   const handleDelete = async (id: string) => {
     if (!confirm('Bạn có chắc chắn muốn xóa danh mục này không?')) return;
     try {
-      const res = await fetch(`${API_BASE_URL}/categories/${id}`, { method: 'DELETE' });
-      if (!res.ok) throw new Error('Xóa danh mục thất bại.');
+      await adminFetch(`/categories/${id}`, { method: 'DELETE' });
       fetchCategories();
     } catch (err) {
       console.error('Failed to delete category:', err);
@@ -66,25 +63,15 @@ export default function CategoriesPage() {
   const handleSubmit = async (data: Omit<Category, 'id'>) => {
     try {
       if (editingCategory) {
-        const res = await fetch(`${API_BASE_URL}/categories/${editingCategory.id}`, {
+        await adminFetch(`/categories/${editingCategory.id}`, {
           method: 'PATCH',
-          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(data),
         });
-        if (!res.ok) {
-          const body = await res.json().catch(() => null);
-          throw new Error(body?.message || 'Cập nhật danh mục thất bại.');
-        }
       } else {
-        const res = await fetch(`${API_BASE_URL}/categories`, {
+        await adminFetch('/categories', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(data),
         });
-        if (!res.ok) {
-          const body = await res.json().catch(() => null);
-          throw new Error(body?.message || 'Tạo danh mục thất bại.');
-        }
       }
       setIsFormOpen(false);
       fetchCategories();
