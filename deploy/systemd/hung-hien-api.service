@@ -1,0 +1,23 @@
+[Unit]
+Description=Hùng Hiền API
+After=network.target postgresql.service
+Wants=postgresql.service
+
+[Service]
+User=hung-hien
+Group=hung-hien
+WorkingDirectory=/opt/hung-hien/apps/api
+Environment=NODE_ENV=production
+EnvironmentFile=/etc/hung-hien/api.env
+ExecStart=/usr/bin/node dist/main.js
+Restart=on-failure
+RestartSec=10
+
+# Write access only to uploads directory
+ReadWritePaths=/opt/hung-hien/uploads
+ProtectSystem=strict
+ProtectHome=true
+NoNewPrivileges=true
+
+[Install]
+WantedBy=multi-user.target

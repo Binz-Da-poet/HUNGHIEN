@@ -1,0 +1,20 @@
+[Unit]
+Description=Hùng Hiền Admin
+After=network.target hung-hien-api.service
+Wants=hung-hien-api.service
+
+[Service]
+User=hung-hien
+Group=hung-hien
+WorkingDirectory=/opt/hung-hien/apps/admin
+EnvironmentFile=/etc/hung-hien/admin.env
+ExecStart=/usr/bin/node node_modules/.bin/next start
+Restart=on-failure
+RestartSec=10
+
+ProtectSystem=strict
+ProtectHome=true
+NoNewPrivileges=true
+
+[Install]
+WantedBy=multi-user.target

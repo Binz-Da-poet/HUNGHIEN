@@ -98,7 +98,7 @@ export class ImageStorageService {
   }
 
   async saveCmsImage(namespace: string, file: UploadedImageFile): Promise<{ url: string; altText: string }> {
-    const validNamespaces = ['banners', 'featured-categories', 'brands', 'store'];
+    const validNamespaces = ['banners', 'featured-categories', 'brands', 'store', 'content'];
     if (!validNamespaces.includes(namespace)) {
       throw new BadRequestException('Invalid namespace');
     }

@@ -37,16 +37,6 @@ export function getDiscountPercent(product: Pick<StorefrontProduct, 'price' | 'o
   return Math.round(((originalPrice - price) / originalPrice) * 100);
 }
 
-export function getProductRating(product: Pick<StorefrontProduct, 'id' | 'name'>) {
-  const seed = Array.from(product.id || product.name).reduce((total, char) => total + char.charCodeAt(0), 0);
-  return Number((4.4 + (seed % 6) / 10).toFixed(1));
-}
-
-export function getSoldCount(product: Pick<StorefrontProduct, 'id' | 'stock'>) {
-  const seed = Array.from(product.id).reduce((total, char) => total + char.charCodeAt(0), 0);
-  return Math.max(24, 80 + (seed % 420) - product.stock);
-}
-
 export function getStockLabel(stock: number) {
   if (stock <= 0) return 'Hết hàng';
   if (stock <= 3) return `Chỉ còn ${stock}`;
@@ -80,7 +70,8 @@ export function sortProducts(products: StorefrontProduct[], sort: SortKey) {
     return sorted.sort((a, b) => a.stock - b.stock);
   }
 
-  return sorted.sort((a, b) => getSoldCount(b) - getSoldCount(a));
+  // featured: keep original order
+  return sorted;
 }
 
 export function buildHomeHref(params: {

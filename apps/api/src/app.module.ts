@@ -1,5 +1,5 @@
-import { Module } from '@nestjs/common';
-import { APP_GUARD } from '@nestjs/core';
+import { Module, MiddlewareConsumer, NestModule } from '@nestjs/common';
+import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
 import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
@@ -9,6 +9,10 @@ import { OrdersModule } from './orders/orders.module';
 import { AuthModule } from './auth/auth.module';
 import { HomepageModule } from './homepage/homepage.module';
 import { PaymentsModule } from './payments/payments.module';
+import { ContentModule } from './content/content.module';
+import { DashboardModule } from './dashboard/dashboard.module';
+import { RequestIdMiddleware } from './common/middleware/request-id.middleware';
+import { RequestLoggingInterceptor } from './common/interceptors/request-logging.interceptor';
 
 @Module({
   imports: [
@@ -18,6 +22,8 @@ import { PaymentsModule } from './payments/payments.module';
     AuthModule,
     HomepageModule,
     PaymentsModule,
+    ContentModule,
+    DashboardModule,
     ThrottlerModule.forRoot([{
       ttl: 60_000,
       limit: 30,
@@ -27,6 +33,11 @@ import { PaymentsModule } from './payments/payments.module';
   providers: [
     AppService,
     { provide: APP_GUARD, useClass: ThrottlerGuard },
+    { provide: APP_INTERCEPTOR, useClass: RequestLoggingInterceptor },
   ],
 })
-export class AppModule {}
+export class AppModule implements NestModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer.apply(RequestIdMiddleware).forRoutes('*');
+  }
+}

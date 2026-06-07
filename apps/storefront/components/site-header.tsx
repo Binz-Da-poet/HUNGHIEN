@@ -8,7 +8,6 @@ import {
   ShoppingCart, 
   Phone, 
   MapPin, 
-  User, 
   LayoutGrid,
   FileText,
   Clock
@@ -47,9 +46,7 @@ export function SiteHeader() {
           <div className="flex items-center gap-6">
             <Link href="/news" className="hover:text-white transition-colors uppercase font-bold">Tin tức</Link>
             <Link href="/policy" className="hover:text-white transition-colors uppercase font-bold">Chính sách</Link>
-            <Link href="/account" className="hover:text-white transition-colors uppercase font-bold flex items-center gap-1">
-              <User className="h-3 w-3" /> Đăng nhập / Đăng ký
-            </Link>
+            <Link href="/contact" className="hover:text-white transition-colors uppercase font-bold">Liên hệ</Link>
           </div>
         </div>
       </div>

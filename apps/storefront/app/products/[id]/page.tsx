@@ -7,10 +7,8 @@ import {
   BadgeCheck, 
   RotateCcw, 
   ShieldCheck, 
-  Star, 
   Truck, 
   ShoppingCart,
-  Heart,
   Share2
 } from 'lucide-react';
 import { useCart } from '@/store/use-cart';
@@ -21,8 +19,6 @@ import { useToast } from '@/components/toast-provider';
 import { 
   StorefrontProduct, 
   getDiscountPercent, 
-  getProductRating, 
-  getSoldCount, 
 } from '@/lib/catalog-ui';
 import { API_BASE_URL } from '@/lib/api';
 
@@ -65,8 +61,6 @@ export default function ProductDetailPage({ params }: { params: { id: string } }
   }
 
   const discount = getDiscountPercent(product);
-  const rating = getProductRating(product);
-  const soldCount = getSoldCount(product);
   
   const cartItem = {
     productId: product.id,
@@ -135,7 +129,6 @@ export default function ProductDetailPage({ params }: { params: { id: string } }
                  {product.brand}
                </span>
                <div className="flex items-center gap-3">
-                  <button className="p-2 bg-slate-50 rounded-full text-slate-400 hover:text-red-500 transition-all border border-slate-100 hover:shadow-md"><Heart className="h-5 w-5" /></button>
                   <button className="p-2 bg-slate-50 rounded-full text-slate-400 hover:text-blue-500 transition-all border border-slate-100 hover:shadow-md"><Share2 className="h-5 w-5" /></button>
                </div>
             </div>
@@ -145,13 +138,6 @@ export default function ProductDetailPage({ params }: { params: { id: string } }
             </h1>
 
             <div className="flex items-center gap-6 mb-10 text-xs font-black border-y border-slate-100 py-5">
-              <div className="flex items-center gap-1.5 text-amber-500">
-                <Star className="h-4 w-4 fill-current" />
-                <span className="tracking-tight">{rating} / 5.0 (128)</span>
-              </div>
-              <div className="w-px h-5 bg-slate-200"></div>
-              <div className="text-slate-500 uppercase tracking-widest">Đã bán {soldCount}</div>
-              <div className="w-px h-5 bg-slate-200"></div>
               <div className={`uppercase tracking-widest ${product.stock > 0 ? 'text-green-600' : 'text-red-600'}`}>
                 {product.stock > 0 ? `Còn ${product.stock} SP` : 'Hết hàng'}
               </div>

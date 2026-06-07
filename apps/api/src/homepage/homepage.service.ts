@@ -245,4 +245,19 @@ export class HomepageService {
   async createBenefit(dto: CreateBenefitDto) { return this.prisma.storeBenefit.create({ data: dto }); }
   async updateBenefit(id: string, dto: UpdateBenefitDto) { return this.prisma.storeBenefit.update({ where: { id }, data: dto }); }
   async deleteBenefit(id: string) { return this.prisma.storeBenefit.delete({ where: { id } }); }
+
+  /** Public: return only bank transfer info (safe for storefront) */
+  async getPublicStoreSettings() {
+    const settings = await this.prisma.storeSettings.findFirst({
+      select: {
+        bankName: true,
+        bankAccountNumber: true,
+        bankAccountHolder: true,
+        bankQrImageUrl: true,
+        bankTransferTemplate: true,
+        bankTransferInstructions: true,
+      },
+    });
+    return settings || {};
+  }
 }

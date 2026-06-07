@@ -10,3 +10,16 @@ export class StorefrontHomepageController {
     return this.homepageService.getPublicHomepage();
   }
 }
+
+/**
+ * Public endpoint to expose bank transfer settings for checkout/success page.
+ */
+@Controller('store-settings')
+export class StoreSettingsController {
+  constructor(private readonly homepageService: HomepageService) {}
+
+  @Get()
+  getStoreSettings() {
+    return this.homepageService.getPublicStoreSettings();
+  }
+}

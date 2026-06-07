@@ -69,25 +69,18 @@ export function SiteFooter({ settings }: { settings: StoreSettings }) {
             </ul>
           </div>
 
-          {/* Newsletter */}
+          {/* Newsletter — hidden until subscription endpoint exists */}
           <div>
             <h4 className="text-[#E5C37A] font-black uppercase tracking-wider mb-8 flex items-center gap-2">
               <span className="w-1 h-4 bg-[#E5C37A]"></span>
-              Đăng ký nhận tin
+              Hỗ trợ nhanh
             </h4>
             <p className="text-xs text-slate-300 mb-6 leading-relaxed">
-              {settings.newsletterCopy || 'Nhận ngay thông tin khuyến mãi mới nhất và ưu đãi đặc quyền từ Hùng Hiền.'}
+              Tra cứu đơn hàng, theo dõi tình trạng vận chuyển.
             </p>
-            <form className="relative group">
-              <input 
-                type="email" 
-                placeholder="Email của bạn..." 
-                className="w-full bg-white/5 border border-white/10 rounded-md py-3.5 pl-4 pr-12 text-sm focus:bg-white focus:text-[#1A2B4C] focus:outline-none transition-all placeholder:text-slate-500"
-              />
-              <button className="absolute right-1 top-1/2 -translate-y-1/2 p-2.5 text-[#1A2B4C] bg-[#E5C37A] rounded hover:bg-white transition-colors">
-                <Send className="h-4 w-4" />
-              </button>
-            </form>
+            <Link href="/orders/tracking" className="inline-flex items-center gap-2 rounded-md bg-[#E5C37A] px-4 py-2.5 text-xs font-bold text-[#1A2B4C] hover:bg-white transition-colors">
+              Tra cứu đơn hàng
+            </Link>
           </div>
         </div>
 

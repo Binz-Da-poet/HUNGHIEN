@@ -18,7 +18,9 @@ import {
   Award, 
   ShieldCheck, 
   Store,
-  LogOut
+  LogOut,
+  FileText,
+  BookOpen
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { adminFetch } from '@/lib/admin-api';
@@ -38,6 +40,11 @@ const cmsItems = [
   { name: 'Thương hiệu', href: '/brands', icon: Award },
   { name: 'Cam kết dịch vụ', href: '/benefits', icon: ShieldCheck },
   { name: 'Thông tin cửa hàng', href: '/store-settings', icon: Store },
+];
+
+const contentItems = [
+  { name: 'Tin tức', href: '/content/news', icon: FileText },
+  { name: 'Chính sách', href: '/content/policy', icon: BookOpen },
 ];
 
 function LogoBlock() {
@@ -104,6 +111,8 @@ function NavLinks({ onNavigate }: { onNavigate?: () => void }) {
       {renderItems(mainItems, 'Quản lý bán hàng')}
       <div className="my-2 border-t border-slate-800" />
       {renderItems(cmsItems, 'Quản lý trang chủ')}
+      <div className="my-2 border-t border-slate-800" />
+      {renderItems(contentItems, 'Nội dung')}
       <div className="mt-auto px-3 py-4 border-t border-slate-800">
         <button
           onClick={handleLogout}

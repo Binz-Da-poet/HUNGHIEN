@@ -1,0 +1,20 @@
+[Unit]
+Description=Hùng Hiền Storefront
+After=network.target hung-hien-api.service
+Wants=hung-hien-api.service
+
+[Service]
+User=hung-hien
+Group=hung-hien
+WorkingDirectory=/opt/hung-hien/apps/storefront
+EnvironmentFile=/etc/hung-hien/storefront.env
+ExecStart=/usr/bin/node node_modules/.bin/next start
+Restart=on-failure
+RestartSec=10
+
+ProtectSystem=strict
+ProtectHome=true
+NoNewPrivileges=true
+
+[Install]
+WantedBy=multi-user.target

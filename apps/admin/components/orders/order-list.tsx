@@ -1,37 +1,48 @@
 'use client';
 
 import React from 'react';
-import { CalendarDays, MapPin, Phone, ShoppingBag } from 'lucide-react';
+import { CalendarDays, MapPin, Phone, ShoppingBag, CreditCard } from 'lucide-react';
 import { OrderStatusBadge } from './order-status-badge';
 import { formatVnd } from '@/lib/format';
 
 export interface OrderListItem {
   id: string;
+  publicCode: string;
   customerName: string;
   phone: string;
   address?: string;
   totalAmount: string | number;
   status: string;
+  paymentStatus: string;
+  paymentMethod: string;
   createdAt: string;
-  paymentMethod?: string;
-  items?: { id: string; quantity: number }[];
+  items?: { productName: string; quantity: number }[];
 }
 
 interface OrderListProps {
   orders: OrderListItem[];
-  onStatusChange: (id: string, newStatus: string) => void;
+  onStatusChange?: (id: string, newStatus: string) => void;
+  onPaymentStatusChange?: (id: string, newPaymentStatus: string) => void;
 }
 
-const AVAILABLE_STATUSES = ['PENDING', 'SHIPPING', 'SUCCESS', 'CANCELLED'];
+const orderStatusOptions = ['PENDING', 'CONFIRMED', 'SHIPPING', 'COMPLETED', 'CANCELLED'];
+const paymentStatusOptions = ['UNPAID', 'PAID', 'REFUNDED'];
 
-const statusMap: Record<string, string> = {
-  PENDING: 'Chờ xử lý',
+const statusLabel: Record<string, string> = {
+  PENDING: 'Chờ xác nhận',
+  CONFIRMED: 'Đã xác nhận',
   SHIPPING: 'Đang giao',
-  SUCCESS: 'Thành công',
+  COMPLETED: 'Hoàn thành',
   CANCELLED: 'Đã hủy',
 };
 
-export function OrderList({ orders, onStatusChange }: OrderListProps) {
+const paymentLabel: Record<string, string> = {
+  UNPAID: 'Chưa TT',
+  PAID: 'Đã TT',
+  REFUNDED: 'Hoàn tiền',
+};
+
+export function OrderList({ orders, onStatusChange, onPaymentStatusChange }: OrderListProps) {
   if (orders.length === 0) {
     return (
       <div className="rounded-md border border-dashed border-slate-300 bg-white py-14 text-center">
@@ -49,14 +60,17 @@ export function OrderList({ orders, onStatusChange }: OrderListProps) {
           <article key={order.id} className="rounded-md border border-slate-200 bg-white p-4 shadow-sm">
             <div className="flex items-start justify-between gap-3">
               <div className="min-w-0">
-                <p className="text-xs font-bold uppercase text-slate-500">Đơn #{order.id.slice(-6)}</p>
+                <p className="text-xs font-bold uppercase text-slate-500">{order.publicCode}</p>
                 <h3 className="mt-1 truncate font-bold text-slate-950">{order.customerName}</h3>
                 <p className="mt-1 inline-flex items-center gap-1 text-sm text-slate-500">
                   <Phone className="h-3.5 w-3.5" />
                   {order.phone}
                 </p>
               </div>
-              <OrderStatusBadge status={order.status} />
+              <div className="flex flex-col gap-1 items-end">
+                <OrderStatusBadge status={order.status} type="order" />
+                <OrderStatusBadge status={order.paymentStatus} type="payment" />
+              </div>
             </div>
 
             <div className="mt-4 grid grid-cols-2 gap-3 rounded-md bg-slate-50 p-3 text-sm">
@@ -80,18 +94,36 @@ export function OrderList({ orders, onStatusChange }: OrderListProps) {
               </p>
             )}
 
-            <select
-              value={order.status}
-              onChange={(event) => onStatusChange(order.id, event.target.value)}
-              className="mt-4 h-11 w-full rounded-md border border-slate-300 px-3 text-sm font-medium focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500"
-              aria-label={`Cập nhật trạng thái đơn ${order.id.slice(-6)}`}
-            >
-              {AVAILABLE_STATUSES.map((status) => (
-                <option key={status} value={status}>
-                  {statusMap[status]}
-                </option>
-              ))}
-            </select>
+            <div className="mt-2 flex items-center gap-2 text-xs text-slate-500">
+              <CreditCard className="h-3.5 w-3.5" />
+              {order.paymentMethod === 'COD' ? 'COD' : 'CK Ngân hàng'}
+            </div>
+
+            {onStatusChange && (
+              <select
+                value={order.status}
+                onChange={(event) => onStatusChange(order.id, event.target.value)}
+                className="mt-4 h-11 w-full rounded-md border border-slate-300 px-3 text-sm font-medium focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500"
+                aria-label="Cập nhật trạng thái"
+              >
+                {orderStatusOptions.map((s) => (
+                  <option key={s} value={s}>{statusLabel[s]}</option>
+                ))}
+              </select>
+            )}
+
+            {onPaymentStatusChange && (
+              <select
+                value={order.paymentStatus}
+                onChange={(event) => onPaymentStatusChange(order.id, event.target.value)}
+                className="mt-2 h-11 w-full rounded-md border border-slate-300 px-3 text-sm font-medium focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500"
+                aria-label="Cập nhật trạng thái thanh toán"
+              >
+                {paymentStatusOptions.map((s) => (
+                  <option key={s} value={s}>{paymentLabel[s]}</option>
+                ))}
+              </select>
+            )}
           </article>
         ))}
       </div>
@@ -105,13 +137,19 @@ export function OrderList({ orders, onStatusChange }: OrderListProps) {
               <th className="px-5 py-3 text-left text-xs font-bold uppercase text-slate-500">Ngày đặt</th>
               <th className="px-5 py-3 text-left text-xs font-bold uppercase text-slate-500">Tổng tiền</th>
               <th className="px-5 py-3 text-left text-xs font-bold uppercase text-slate-500">Trạng thái</th>
-              <th className="px-5 py-3 text-right text-xs font-bold uppercase text-slate-500">Cập nhật</th>
+              <th className="px-5 py-3 text-left text-xs font-bold uppercase text-slate-500">Thanh toán</th>
+              {onStatusChange && (
+                <th className="px-5 py-3 text-right text-xs font-bold uppercase text-slate-500">Cập nhật</th>
+              )}
+              {onPaymentStatusChange && (
+                <th className="px-5 py-3 text-right text-xs font-bold uppercase text-slate-500">TT</th>
+              )}
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100">
             {orders.map((order) => (
               <tr key={order.id} className="transition hover:bg-slate-50">
-                <td className="whitespace-nowrap px-5 py-4 text-sm font-bold text-slate-600">#{order.id.slice(-6)}</td>
+                <td className="whitespace-nowrap px-5 py-4 text-sm font-mono font-bold text-slate-700">{order.publicCode}</td>
                 <td className="px-5 py-4 text-sm text-slate-900">
                   <p className="font-bold">{order.customerName}</p>
                   <p className="mt-1 text-xs text-slate-500">{order.phone}</p>
@@ -121,22 +159,39 @@ export function OrderList({ orders, onStatusChange }: OrderListProps) {
                 </td>
                 <td className="whitespace-nowrap px-5 py-4 text-sm font-extrabold text-slate-950">{formatVnd(order.totalAmount)}</td>
                 <td className="whitespace-nowrap px-5 py-4">
-                  <OrderStatusBadge status={order.status} />
+                  <OrderStatusBadge status={order.status} type="order" />
                 </td>
-                <td className="whitespace-nowrap px-5 py-4 text-right">
-                  <select
-                    value={order.status}
-                    onChange={(event) => onStatusChange(order.id, event.target.value)}
-                    className="h-9 rounded-md border border-slate-300 px-2 text-sm font-medium focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500"
-                    aria-label={`Cập nhật trạng thái đơn ${order.id.slice(-6)}`}
-                  >
-                    {AVAILABLE_STATUSES.map((status) => (
-                      <option key={status} value={status}>
-                        {statusMap[status]}
-                      </option>
-                    ))}
-                  </select>
+                <td className="whitespace-nowrap px-5 py-4">
+                  <OrderStatusBadge status={order.paymentStatus} type="payment" />
                 </td>
+                {onStatusChange && (
+                  <td className="whitespace-nowrap px-5 py-4 text-right">
+                    <select
+                      value={order.status}
+                      onChange={(event) => onStatusChange(order.id, event.target.value)}
+                      className="h-9 rounded-md border border-slate-300 px-2 text-sm font-medium focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500"
+                      aria-label="Cập nhật trạng thái"
+                    >
+                      {orderStatusOptions.map((s) => (
+                        <option key={s} value={s}>{statusLabel[s]}</option>
+                      ))}
+                    </select>
+                  </td>
+                )}
+                {onPaymentStatusChange && (
+                  <td className="whitespace-nowrap px-5 py-4 text-right">
+                    <select
+                      value={order.paymentStatus}
+                      onChange={(event) => onPaymentStatusChange(order.id, event.target.value)}
+                      className="h-9 rounded-md border border-slate-300 px-2 text-sm font-medium focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500"
+                      aria-label="Cập nhật thanh toán"
+                    >
+                      {paymentStatusOptions.map((s) => (
+                        <option key={s} value={s}>{paymentLabel[s]}</option>
+                      ))}
+                    </select>
+                  </td>
+                )}
               </tr>
             ))}
           </tbody>

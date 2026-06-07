@@ -1,12 +1,11 @@
 'use client';
 
-import React, { Suspense, useState } from 'react';
+import React, { Suspense, useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useCart } from '@/store/use-cart';
 import Link from 'next/link';
 import { formatVnd } from '@/lib/format';
 import { ShieldCheck, Truck, ArrowLeft, Loader2 } from 'lucide-react';
-import { API_BASE_URL } from '@/lib/api';
 
 function CheckoutContent() {
   const router = useRouter();
@@ -15,6 +14,7 @@ function CheckoutContent() {
   const { items, buyNowItem, clearCart, clearBuyNowItem } = useCart();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [checkoutAttemptId, setCheckoutAttemptId] = useState<string>('');
 
   const checkoutItems = mode === 'buy-now' && buyNowItem ? [buyNowItem] : items;
   const checkoutTotal = checkoutItems.reduce((total, item) => total + item.price * (item.quantity || 1), 0);
@@ -26,6 +26,10 @@ function CheckoutContent() {
     note: '',
     paymentMethod: 'COD',
   });
+
+  useEffect(() => {
+    setCheckoutAttemptId(crypto.randomUUID());
+  }, []);
 
   if (checkoutItems.length === 0) {
     return (
@@ -49,6 +53,7 @@ function CheckoutContent() {
 
     const payload = {
       ...formData,
+      checkoutAttemptId,
       items: checkoutItems.map((item) => ({
         productId: item.productId,
         quantity: item.quantity || 1,
@@ -56,7 +61,7 @@ function CheckoutContent() {
     };
 
     try {
-      const res = await fetch(`${API_BASE_URL}/orders`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL ?? '/api'}/orders`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
@@ -67,12 +72,20 @@ function CheckoutContent() {
         throw new Error(errData?.message || 'Thanh toán thất bại.');
       }
 
+      const order = await res.json();
+
       if (mode === 'buy-now') {
         clearBuyNowItem();
       } else {
         clearCart();
       }
-      router.push('/checkout/success');
+
+      // Pass order info to success page
+      const params = new URLSearchParams();
+      params.set('code', order.publicCode);
+      params.set('total', String(order.totalAmount));
+      params.set('payment', order.paymentMethod);
+      router.push(`/checkout/success?${params.toString()}`);
     } catch (err) {
       console.error(err);
       setError(err instanceof Error ? err.message : 'Thanh toán thất bại.');
@@ -230,7 +243,7 @@ function CheckoutContent() {
               <button
                 type="submit"
                 form="checkout-form"
-                disabled={loading}
+                disabled={loading || !checkoutAttemptId}
                 className="mt-10 flex h-16 w-full items-center justify-center rounded-2xl bg-[#E5C37A] text-[#1A2B4C] text-lg font-black uppercase tracking-[0.1em] transition-all hover:bg-white hover:shadow-xl disabled:opacity-50"
               >
                 {loading ? <Loader2 className="h-6 w-6 animate-spin" /> : 'Đặt hàng ngay'}

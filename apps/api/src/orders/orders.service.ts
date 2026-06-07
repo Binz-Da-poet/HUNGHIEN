@@ -4,6 +4,8 @@ import { PrismaService } from '../prisma/prisma.service';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { OrderQueryDto } from './dto/order-query.dto';
 import { UpdateOrderStatusDto } from './dto/update-order-status.dto';
+import { AdminOrderQueryDto } from './dto/admin-order-query.dto';
+import { TrackOrderDto } from './dto/track-order.dto';
 import { createPublicOrderCode } from './order-code';
 import { normalizeVietnamesePhone } from './phone-normalizer';
 import { isValidOrderTransition } from './order-transitions';
@@ -165,6 +167,106 @@ export class OrdersService {
 
       return order;
     });
+  }
+
+  /** Returns a public summary — no internal id/events/admin data */
+  async track(dto: TrackOrderDto) {
+    const normalizedPhone = normalizeVietnamesePhone(dto.phone);
+    const order = await this.prisma.order.findFirst({
+      where: {
+        publicCode: dto.publicCode.trim(),
+        phoneNormalized: normalizedPhone,
+      },
+      include: { items: true },
+    });
+
+    if (!order) {
+      throw new NotFoundException('Không tìm thấy đơn hàng. Vui lòng kiểm tra lại mã đơn và số điện thoại.');
+    }
+
+    // Include bank transfer info for unpaid bank-transfer orders
+    let bankTransfer: { bankName: string; bankAccountNumber: string; bankAccountHolder: string; transferContent: string; instructions: string | null; qrImageUrl: string | null } | undefined = undefined;
+    if (order.paymentMethod === 'BANK_TRANSFER' && order.paymentStatus === 'UNPAID') {
+      const settings = await this.prisma.storeSettings.findFirst();
+      if (settings?.bankAccountNumber) {
+        bankTransfer = {
+          bankName: settings.bankName || 'Ngân hàng',
+          bankAccountNumber: settings.bankAccountNumber,
+          bankAccountHolder: settings.bankAccountHolder || 'Chủ tài khoản',
+          transferContent: settings.bankTransferTemplate?.replace('{code}', order.publicCode) || order.publicCode,
+          instructions: settings.bankTransferInstructions || null,
+          qrImageUrl: settings.bankQrImageUrl || null,
+        };
+      }
+    }
+
+    const summary = this.toPublicSummary(order);
+    if (bankTransfer) {
+      (summary as any).bankTransfer = bankTransfer;
+    }
+    return summary;
+  }
+
+  async findById(id: string) {
+    const order = await this.prisma.order.findUnique({
+      where: { id },
+      include: {
+        items: true,
+        events: { orderBy: { createdAt: 'asc' }, include: { admin: { select: { name: true } } } },
+      },
+    });
+    if (!order) throw new NotFoundException(`Đơn hàng ${id} không tồn tại.`);
+    return order;
+  }
+
+  async findAllAdmin(query: AdminOrderQueryDto) {
+    const { status, paymentStatus, search, skip = 0, take = 10 } = query;
+    const where: any = {};
+    if (status) where.status = status;
+    if (paymentStatus) where.paymentStatus = paymentStatus;
+    if (search) {
+      where.OR = [
+        { publicCode: { contains: search, mode: 'insensitive' } },
+        { customerName: { contains: search, mode: 'insensitive' } },
+        { phoneNormalized: { contains: search } },
+      ];
+    }
+
+    const [orders, total] = await Promise.all([
+      this.prisma.order.findMany({
+        where,
+        skip,
+        take,
+        include: {
+          items: true,
+          events: { orderBy: { createdAt: 'asc' }, take: 1 },
+        },
+        orderBy: { createdAt: 'desc' },
+      }),
+      this.prisma.order.count({ where }),
+    ]);
+
+    return { orders, total, skip, take };
+  }
+
+  private toPublicSummary(order: any) {
+    return {
+      publicCode: order.publicCode,
+      status: order.status,
+      paymentStatus: order.paymentStatus,
+      paymentMethod: order.paymentMethod,
+      totalAmount: Number(order.totalAmount),
+      customerName: order.customerName,
+      phone: order.phone,
+      address: order.address,
+      note: order.note || null,
+      createdAt: order.createdAt.toISOString(),
+      items: order.items.map((item: any) => ({
+        productName: item.productName,
+        quantity: item.quantity,
+        priceAtPurchase: Number(item.priceAtPurchase),
+      })),
+    };
   }
 
   async updateStatus(id: string, updateOrderStatusDto: UpdateOrderStatusDto, adminId?: string) {

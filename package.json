@@ -6,10 +6,15 @@
     "dev": "turbo dev",
     "postinstall": "pnpm --filter @repo/shared build",
     "lint": "turbo lint",
+    "test": "turbo test",
+    "check": "pnpm lint && pnpm test && pnpm build && pnpm audit:prod",
+    "test:e2e": "playwright test",
+    "test:e2e:headed": "playwright test --headed",
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
     "audit:prod": "node scripts/check-production-audit.mjs"
   },
   "devDependencies": {
+    "@playwright/test": "^1.60.0",
     "prettier": "^3.0.0",
     "turbo": "latest"
   },

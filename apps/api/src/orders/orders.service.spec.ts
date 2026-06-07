@@ -20,9 +20,11 @@ describe('OrdersService', () => {
     order: {
       create: vi.fn(),
       findMany: vi.fn(),
+      findFirst: vi.fn(),
       findUnique: vi.fn(),
       update: vi.fn(),
       updateMany: vi.fn(),
+      count: vi.fn(),
     },
     orderEvent: {
       create: vi.fn(),
@@ -334,6 +336,73 @@ describe('OrdersService', () => {
       await expect(
         service.updateStatus('invalid-id', { status: 'CONFIRMED' }),
       ).rejects.toThrow(NotFoundException);
+    });
+  });
+
+  describe('track', () => {
+    it('returns public summary for correct code + phone', async () => {
+      const order = {
+        publicCode: 'HH1234567890',
+        status: 'PENDING',
+        paymentStatus: 'UNPAID',
+        paymentMethod: 'COD',
+        totalAmount: { toNumber: vi.fn().mockReturnValue(500) },
+        customerName: 'Nguyễn Văn A',
+        phone: '0912345678',
+        address: '123 Đường',
+        note: null,
+        createdAt: new Date('2026-01-01'),
+        items: [{ productName: 'TV', quantity: 1, priceAtPurchase: { toNumber: vi.fn().mockReturnValue(500) } }],
+      };
+      mockPrismaService.order.findFirst.mockResolvedValue(order);
+
+      const result = await service.track({ publicCode: 'HH1234567890', phone: '0912345678' });
+
+      expect(result.publicCode).toBe('HH1234567890');
+      expect(result.status).toBe('PENDING');
+      expect(result.customerName).toBe('Nguyễn Văn A');
+      expect(result.items).toHaveLength(1);
+    });
+
+    it('throws NotFound for wrong phone', async () => {
+      mockPrismaService.order.findFirst.mockResolvedValue(null);
+
+      await expect(
+        service.track({ publicCode: 'HH123', phone: '0999999999' }),
+      ).rejects.toThrow(NotFoundException);
+    });
+
+    it('throws NotFound for unknown code', async () => {
+      mockPrismaService.order.findFirst.mockResolvedValue(null);
+
+      await expect(
+        service.track({ publicCode: 'UNKNOWN', phone: '0912345678' }),
+      ).rejects.toThrow(NotFoundException);
+    });
+  });
+
+  describe('findAllAdmin', () => {
+    it('returns paginated results with total', async () => {
+      mockPrismaService.order.findMany.mockResolvedValue([{ id: 'o1' }]);
+      mockPrismaService.order.count.mockResolvedValue(5);
+
+      const result = await service.findAllAdmin({ skip: 0, take: 10 });
+
+      expect(result.total).toBe(5);
+      expect(result.orders).toHaveLength(1);
+    });
+
+    it('filters by payment status', async () => {
+      mockPrismaService.order.findMany.mockResolvedValue([]);
+      mockPrismaService.order.count.mockResolvedValue(0);
+
+      await service.findAllAdmin({ paymentStatus: 'UNPAID', skip: 0, take: 10 });
+
+      expect(mockPrismaService.order.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: { paymentStatus: 'UNPAID' },
+        }),
+      );
     });
   });
 });

@@ -1,0 +1,86 @@
+name: CI
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+jobs:
+  quality:
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: hung_hien
+          POSTGRES_PASSWORD: hung_hien
+          POSTGRES_DB: hung_hien
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      - name: Create .env
+        run: |
+          cat > .env << 'EOF'
+          DATABASE_URL=postgresql://hung_hien:hung_hien@localhost:5432/hung_hien
+          API_INTERNAL_URL=http://localhost:3001
+          UPLOADS_DIR=./uploads
+          STORE_URL=http://localhost:3000
+          ADMIN_URL=http://localhost:3002
+          SESSION_SECRET=ci-test-secret
+          SESSION_TTL=86400
+          PORT=3001
+          NODE_ENV=test
+          EOF
+
+      - name: Migrate database
+        run: pnpm --filter api exec prisma migrate deploy
+        env:
+          DATABASE_URL: postgresql://hung_hien:hung_hien@localhost:5432/hung_hien
+
+      - name: Seed test data
+        run: pnpm --filter api exec prisma db seed
+        env:
+          DATABASE_URL: postgresql://hung_hien:hung_hien@localhost:5432/hung_hien
+        continue-on-error: true
+
+      - name: Quality gates
+        run: pnpm check
+        env:
+          DATABASE_URL: postgresql://hung_hien:hung_hien@localhost:5432/hung_hien
+
+      - name: Install Playwright browsers
+        run: pnpm exec playwright install chromium
+
+      - name: E2E tests
+        run: pnpm test:e2e
+        env:
+          DATABASE_URL: postgresql://hung_hien:hung_hien@localhost:5432/hung_hien
+
+      - name: Upload Playwright report
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 7
