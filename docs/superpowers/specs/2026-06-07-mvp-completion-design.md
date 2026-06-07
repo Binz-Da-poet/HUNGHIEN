@@ -33,7 +33,7 @@ Các mục chưa thuộc MVP phải được ẩn khỏi điều hướng và gi
 
 ### 2.1 Critical and high-priority findings
 
-- Next.js `14.2.3` có dependency production mức critical/high, gồm lỗ hổng bypass middleware trong khi admin dựa vào middleware để bảo vệ route.
+- Next.js `14.2.3` có dependency production mức critical/high, gồm lỗ hổng bypass middleware. Admin dùng `AdminSessionGuard` ở tầng NestJS controller để bảo vệ API; Next.js middleware ở admin (`apps/admin/middleware.ts`) chỉ làm UX redirect khi cookie không có. Nguồn kiểm soát truy cập chính luôn là API guard.
 - `.env` đang được Git theo dõi và từng chứa `DATABASE_URL`.
 - Nhiều trang admin dùng `fetch` trực tiếp không kèm `credentials: 'include'`; request từ admin `:3002` sang API `:3001` có thể mất cookie phiên và trả `401`.
 - Luồng đặt hàng kiểm tra tồn kho rồi giảm kho bằng hai thao tác riêng, có thể bán vượt tồn khi nhiều đơn đồng thời.
@@ -59,6 +59,7 @@ Các mục chưa thuộc MVP phải được ẩn khỏi điều hướng và gi
 - CMS API còn nhiều đầu vào `any` chưa được validate.
 - Chưa có CI, tài liệu deploy, backup hoặc restore.
 - Tài liệu thiết kế hiện tại có một số mô tả lệch schema/code thật.
+- Seed script hiện tại (`prisma/seed.ts`) chỉ tạo admin user, chưa có dữ liệu mẫu cho catalog (danh mục, sản phẩm), CMS (banner, section, product group), content (bài viết tin tức/chính sách) và settings (thông tin ngân hàng, QR). Cần seed catalog độc lập (`seed-catalog.ts`, đã tạo) và seed CMS/Content/Settings để toàn bộ luồng MVP test được end-to-end ngay sau deploy.
 
 ---
 
@@ -82,11 +83,24 @@ Giữ nguyên pnpm Turborepo và stack hiện tại. API được chia theo các
 - Chuyển `Product.status`, `Order.status`, `Order.paymentMethod` sang Prisma enum.
 - Thêm `PaymentStatus` vào `Order`.
 - Thêm `publicCode` ngẫu nhiên, duy nhất và dễ nhập vào `Order`.
-- Thêm `checkoutAttemptId` duy nhất vào `Order` để chống tạo đơn lặp.
+- Thêm `checkoutAttemptId` duy nhất, nullable và `checkoutAttemptExpiresAt` vào `Order` để chống tạo đơn lặp trong 24 giờ rồi cho phép dọn key hết hạn.
+- Thêm `phoneNormalized` vào `Order` để tra cứu bằng số điện thoại nhất quán.
 - Thêm snapshot tên sản phẩm vào `OrderItem`.
 - Thêm thời điểm cập nhật và các mốc trạng thái cần thiết vào `Order`.
 - Mở rộng `StoreSettings` với thông tin ngân hàng, QR và hướng dẫn chuyển khoản.
 - Thêm `ContentPost` với enum type/status, rich-text JSON và `sortOrder`.
+
+#### Migration strategy (String → Enum)
+
+Do `Product.status`, `Order.status` và `Order.paymentMethod` hiện là `String`, khi chuyển sang enum cần migration an toàn không mất dữ liệu:
+
+1. Tạo enum Prisma mới với các giá trị khớp dữ liệu hiện có (VD: `PENDING`, `CONFIRMED`, `ACTIVE`, v.v.).
+2. Viết migration SQL thủ công: thêm cột mới kiểu enum, copy dữ liệu từ cột `String` cũ sang cột enum bằng CAST, xóa cột cũ, đổi tên cột enum.
+3. Chạy migration trong transaction để rollback được nếu lỗi.
+4. Cập nhật code DTO/service: thay `string` bằng enum type từ Prisma client.
+5. Seed script cũng phải dùng enum thay vì string literal.
+
+Trong môi trường dev, backup DB trước khi chạy migration. Trong production, migration phải nằm trong maintenance window và có bản backup đã kiểm tra.
 
 ### 3.2 VPS topology
 
@@ -184,6 +198,7 @@ Quy tắc:
 - Chỉ chấp nhận `COD` hoặc `BANK_TRANSFER`.
 - Validate tên, số điện thoại Việt Nam, địa chỉ, ghi chú và danh sách sản phẩm.
 - Client tạo `checkoutAttemptId` dạng UUID cho mỗi lần checkout. API lưu giá trị duy nhất này; request lặp trả lại đơn đã tạo thay vì tạo đơn mới.
+- `checkoutAttemptId` có TTL 24 giờ kể từ lần checkout cuối cùng. Khi key hết hạn, client phải tạo UUID mới và request được xử lý như checkout mới. Dọn key hết hạn khi tạo đơn mới thành công.
 - Sau khi tạo đơn, API trả mã tra cứu và thông tin cần cho trang thành công.
 
 ### 5.4 Bank transfer
@@ -416,10 +431,10 @@ pnpm lint
 pnpm --filter @repo/shared test
 pnpm --filter api test
 pnpm build
-pnpm audit --prod --audit-level=high
+pnpm audit:prod
 ```
 
-Lint, test và build phải xanh. Audit không còn critical/high có bản vá tương thích.
+Lint, test và build phải xanh. `audit:prod` fail với mọi critical/high chưa được vá, ngoại trừ advisory không có bản vá tương thích được ghi rõ trong allowlist có ngày hết hạn.
 
 ---
 
