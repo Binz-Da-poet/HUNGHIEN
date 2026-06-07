@@ -3,7 +3,8 @@
 import { ImagePlus, Star, Trash2 } from 'lucide-react';
 import Image from 'next/image';
 import { useRef, useState } from 'react';
-import { API_BASE_URL, UPLOAD_BASE_URL } from '@/lib/api';
+import { adminFetch } from '@/lib/admin-api';
+import { UPLOAD_BASE_URL } from '@/lib/api';
 
 export interface ProductImage {
   id: string;
@@ -37,17 +38,11 @@ export function ProductImageManager({ productId, images, onImagesChange }: Produ
     Array.from(files).forEach((file) => formData.append('images', file));
 
     try {
-      const response = await fetch(`${API_BASE_URL}/products/${productId}/images`, {
+      const data = await adminFetch(`/products/${productId}/images`, {
         method: 'POST',
         body: formData,
       });
-
-      if (!response.ok) {
-        const body = await response.json().catch(() => null);
-        throw new Error(body?.message || 'Không thể tải ảnh lên.');
-      }
-
-      onImagesChange(await response.json());
+      onImagesChange(data);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Không thể tải ảnh lên.');
     } finally {
@@ -58,28 +53,23 @@ export function ProductImageManager({ productId, images, onImagesChange }: Produ
 
   const setPrimary = async (imageId: string) => {
     if (!productId) return;
-    const response = await fetch(`${API_BASE_URL}/products/${productId}/images/${imageId}`, {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ isPrimary: true }),
-    });
-
-    if (response.ok) {
+    try {
+      await adminFetch(`/products/${productId}/images/${imageId}`, {
+        method: 'PATCH',
+        body: JSON.stringify({ isPrimary: true }),
+      });
       onImagesChange(images.map((image) => ({ ...image, isPrimary: image.id === imageId })));
-    } else {
+    } catch {
       setError('Không thể đặt ảnh chính.');
     }
   };
 
   const deleteImage = async (imageId: string) => {
     if (!productId) return;
-    const response = await fetch(`${API_BASE_URL}/products/${productId}/images/${imageId}`, {
-      method: 'DELETE',
-    });
-
-    if (response.ok) {
+    try {
+      await adminFetch(`/products/${productId}/images/${imageId}`, { method: 'DELETE' });
       onImagesChange(images.filter((image) => image.id !== imageId));
-    } else {
+    } catch {
       setError('Không thể xóa ảnh.');
     }
   };

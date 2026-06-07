@@ -3,7 +3,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import { AlertTriangle, ArrowRight, Boxes, CircleDollarSign, Clock3, PackageCheck, ShoppingCart } from 'lucide-react';
-import { API_BASE_URL } from '@/lib/api';
+import { adminFetch } from '@/lib/admin-api';
 import { formatVnd } from '@/lib/format';
 import { OrderStatusBadge } from '@/components/orders/order-status-badge';
 
@@ -37,16 +37,10 @@ export default function DashboardPage() {
   useEffect(() => {
     const loadDashboard = async () => {
       try {
-        const [productsRes, ordersRes, categoriesRes] = await Promise.all([
-          fetch(`${API_BASE_URL}/products`),
-          fetch(`${API_BASE_URL}/orders?take=8`),
-          fetch(`${API_BASE_URL}/categories`),
-        ]);
-
         const [productsData, ordersData, categoriesData] = await Promise.all([
-          productsRes.ok ? productsRes.json() : [],
-          ordersRes.ok ? ordersRes.json() : [],
-          categoriesRes.ok ? categoriesRes.json() : [],
+          adminFetch('/products').catch(() => []),
+          adminFetch('/orders?take=8').catch(() => []),
+          adminFetch('/categories').catch(() => []),
         ]);
 
         setProducts(Array.isArray(productsData) ? productsData : []);

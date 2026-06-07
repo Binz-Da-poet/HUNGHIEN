@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { ProductForm } from '@/components/products/product-form';
 import { ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
-import { API_BASE_URL } from '@/lib/api';
+import { adminFetch } from '@/lib/admin-api';
 
 export default function NewProductPage() {
   const router = useRouter();
@@ -14,16 +14,10 @@ export default function NewProductPage() {
   const handleSubmit = async (data: any) => {
     setError(null);
     try {
-      const res = await fetch(`${API_BASE_URL}/products`, {
+      await adminFetch('/products', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data),
       });
-
-      if (!res.ok) {
-        const body = await res.json().catch(() => null);
-        throw new Error(body?.message || 'Không thể tạo sản phẩm.');
-      }
 
       router.push('/products');
       router.refresh();

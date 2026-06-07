@@ -4,7 +4,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { AlertTriangle, Boxes, PackageCheck, Plus, Search } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { ProductTable } from '@/components/products/product-table';
-import { API_BASE_URL } from '@/lib/api';
+import { adminFetch } from '@/lib/admin-api';
 
 export interface AdminProduct {
   id: string;
@@ -29,9 +29,7 @@ export default function ProductsPage() {
   const fetchProducts = async () => {
     setLoading(true);
     try {
-      const res = await fetch(`${API_BASE_URL}/products`);
-      if (!res.ok) throw new Error('Không thể tải sản phẩm.');
-      const data = await res.json();
+      const data = await adminFetch('/products');
       setProducts(Array.isArray(data) ? data : []);
     } catch (error) {
       console.error('Failed to fetch products:', error);
@@ -74,8 +72,7 @@ export default function ProductsPage() {
   const handleDelete = async (id: string) => {
     if (!confirm('Bạn có chắc chắn muốn xóa sản phẩm này không?')) return;
     try {
-      const res = await fetch(`${API_BASE_URL}/products/${id}`, { method: 'DELETE' });
-      if (!res.ok) throw new Error('Xóa sản phẩm thất bại.');
+      await adminFetch(`/products/${id}`, { method: 'DELETE' });
       fetchProducts();
     } catch (error) {
       console.error('Failed to delete product:', error);

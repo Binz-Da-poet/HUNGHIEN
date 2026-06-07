@@ -14,6 +14,7 @@ export function getPrimaryImage(images?: ProductImage[] | null): ProductImage | 
 export function resolveApiImageUrl(url?: string | null): string | null {
   if (!url) return null;
   if (url.startsWith('http')) return url;
-  const apiOrigin = (process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001/api').replace(/\/api$/, '');
+  if (typeof window !== 'undefined') return url;
+  const apiOrigin = (process.env.API_INTERNAL_URL ?? process.env.NEXT_PUBLIC_API_URL ?? 'http://127.0.0.1:3001/api').replace(/\/api$/, '');
   return `${apiOrigin}${url}`;
 }

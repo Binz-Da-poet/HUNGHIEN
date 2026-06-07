@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { ProductForm } from '@/components/products/product-form';
 import { ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
-import { API_BASE_URL } from '@/lib/api';
+import { adminFetch } from '@/lib/admin-api';
 
 export default function EditProductPage({ params }: { params: { id: string } }) {
   const router = useRouter();
@@ -16,9 +16,7 @@ export default function EditProductPage({ params }: { params: { id: string } }) 
   useEffect(() => {
     const fetchProduct = async () => {
       try {
-        const res = await fetch(`${API_BASE_URL}/products/${params.id}`);
-        if (!res.ok) throw new Error('Không thể tải thông tin sản phẩm.');
-        const data = await res.json();
+        const data = await adminFetch(`/products/${params.id}`);
         setProduct(data);
       } catch (err) {
         console.error('Failed to fetch product:', err);
@@ -34,16 +32,10 @@ export default function EditProductPage({ params }: { params: { id: string } }) 
   const handleSubmit = async (data: any) => {
     setError(null);
     try {
-      const res = await fetch(`${API_BASE_URL}/products/${params.id}`, {
+      await adminFetch(`/products/${params.id}`, {
         method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data),
       });
-
-      if (!res.ok) {
-        const body = await res.json().catch(() => null);
-        throw new Error(body?.message || 'Không thể cập nhật sản phẩm.');
-      }
 
       router.push('/products');
       router.refresh();

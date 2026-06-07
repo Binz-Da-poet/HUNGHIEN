@@ -3,7 +3,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { CheckCircle2, Clock3, Search, Truck, XCircle } from 'lucide-react';
 import { OrderList, OrderListItem } from '@/components/orders/order-list';
-import { API_BASE_URL } from '@/lib/api';
+import { adminFetch } from '@/lib/admin-api';
 
 const AVAILABLE_STATUSES = ['ALL', 'PENDING', 'SHIPPING', 'SUCCESS', 'CANCELLED'];
 
@@ -26,10 +26,8 @@ export default function OrdersPage() {
     setLoading(true);
     setError(null);
     try {
-      const url = status !== 'ALL' ? `${API_BASE_URL}/orders?status=${status}&take=50` : `${API_BASE_URL}/orders?take=50`;
-      const res = await fetch(url);
-      if (!res.ok) throw new Error('Không thể tải dữ liệu đơn hàng.');
-      const data = await res.json();
+      const endpoint = status !== 'ALL' ? `/orders?status=${status}&take=50` : `/orders?take=50`;
+      const data = await adminFetch(endpoint);
       setOrders(Array.isArray(data) ? data : []);
     } catch (err) {
       console.error('Failed to fetch orders:', err);
@@ -64,16 +62,10 @@ export default function OrdersPage() {
 
   const handleStatusChange = async (id: string, newStatus: string) => {
     try {
-      const res = await fetch(`${API_BASE_URL}/orders/${id}/status`, {
+      await adminFetch(`/orders/${id}/status`, {
         method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ status: newStatus }),
       });
-
-      if (!res.ok) {
-        const body = await res.json().catch(() => null);
-        throw new Error(body?.message || 'Không thể cập nhật trạng thái.');
-      }
 
       setOrders((previousOrders) =>
         previousOrders.map((order) => (order.id === id ? { ...order, status: newStatus } : order))

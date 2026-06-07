@@ -20,7 +20,8 @@ export async function adminFetch(endpoint: string, options: RequestInit = {}) {
 
   if (response.status === 401) {
     if (typeof window !== 'undefined') {
-      window.location.href = '/login';
+      const callbackUrl = encodeURIComponent(window.location.pathname + window.location.search);
+      window.location.href = `/login?callbackUrl=${callbackUrl}`;
     }
   }
 
