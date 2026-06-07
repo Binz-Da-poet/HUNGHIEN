@@ -19,6 +19,10 @@ export class AuthService {
       throw new UnauthorizedException('Invalid credentials');
     }
 
+    await this.prisma.adminSession.deleteMany({
+      where: { expiresAt: { lt: new Date() } },
+    });
+
     const rawToken = randomBytes(32).toString('base64url');
     const tokenHash = this.hashToken(rawToken);
     const expiresAt = new Date();

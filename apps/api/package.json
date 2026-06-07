@@ -16,6 +16,7 @@
     "@nestjs/core": "^10.0.0",
     "@nestjs/mapped-types": "^2.1.1",
     "@nestjs/platform-express": "^10.0.0",
+    "@nestjs/throttler": "^6.5.0",
     "@prisma/client": "^5.0.0",
     "@repo/shared": "workspace:*",
     "bcryptjs": "^3.0.3",

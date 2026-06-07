@@ -5,13 +5,19 @@ import { ValidationPipe } from '@nestjs/common';
 import { join } from 'node:path';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import * as cookieParser from 'cookie-parser';
+import { ApiExceptionFilter } from './common/filters/api-exception.filter';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
   
   app.use(cookieParser());
   
-  app.useGlobalPipes(new ValidationPipe({ whitelist: true, transform: true }));
+  app.useGlobalPipes(new ValidationPipe({
+    whitelist: true,
+    forbidNonWhitelisted: true,
+    transform: true,
+  }));
+  app.useGlobalFilters(new ApiExceptionFilter());
   
   app.enableCors({
     origin: [

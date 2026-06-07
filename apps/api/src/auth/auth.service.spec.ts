@@ -12,6 +12,7 @@ vi.mock('bcryptjs', () => ({
 
 describe('AuthService', () => {
   let service: AuthService;
+  let prisma: PrismaService;
 
   const mockPrismaService = {
     adminUser: {
@@ -20,6 +21,7 @@ describe('AuthService', () => {
     adminSession: {
       create: vi.fn(),
       delete: vi.fn(),
+      deleteMany: vi.fn(),
       findUnique: vi.fn(),
     },
   };
@@ -76,6 +78,27 @@ describe('AuthService', () => {
       vi.mocked(bcrypt.compare).mockResolvedValue(true as never);
 
       await expect(service.login('a@b.com', 'pass')).rejects.toThrow(UnauthorizedException);
+    });
+
+    it('prunes expired sessions before creating a new one', async () => {
+      const email = 'admin@example.com';
+      const password = 'password';
+      const admin = { id: 'admin1', email, passwordHash: 'hashed_pass', isActive: true, name: 'Admin' };
+
+      mockPrismaService.adminUser.findUnique.mockResolvedValue(admin);
+      mockPrismaService.adminSession.create.mockResolvedValue({ id: 'session1' });
+      mockPrismaService.adminSession.deleteMany.mockResolvedValue({ count: 3 });
+      vi.mocked(bcrypt.compare).mockResolvedValue(true as never);
+
+      await service.login(email, password);
+
+      expect(mockPrismaService.adminSession.deleteMany).toHaveBeenCalledWith({
+        where: { expiresAt: { lt: expect.any(Date) } },
+      });
+
+      const deleteManyCallOrder = mockPrismaService.adminSession.deleteMany.mock.invocationCallOrder[0];
+      const createCallOrder = mockPrismaService.adminSession.create.mock.invocationCallOrder[0];
+      expect(deleteManyCallOrder).toBeLessThan(createCallOrder);
     });
   });
 
