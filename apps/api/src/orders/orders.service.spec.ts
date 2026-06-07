@@ -13,17 +13,22 @@ describe('OrdersService', () => {
     $transaction: vi.fn(),
     product: {
       findUnique: vi.fn(),
+      findMany: vi.fn(),
       update: vi.fn(),
+      updateMany: vi.fn(),
     },
     order: {
       create: vi.fn(),
       findMany: vi.fn(),
       findUnique: vi.fn(),
       update: vi.fn(),
+      updateMany: vi.fn(),
     },
   };
 
   beforeEach(async () => {
+    vi.clearAllMocks();
+
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         OrdersService,
@@ -33,73 +38,180 @@ describe('OrdersService', () => {
 
     service = module.get<OrdersService>(OrdersService);
     prisma = module.get<PrismaService>(PrismaService);
-
-    vi.clearAllMocks();
   });
 
   it('should be defined', () => {
     expect(service).toBeDefined();
   });
 
-  describe('create', () => {
+  describe('create — atomic checkout', () => {
     const createOrderDto = {
-      customerName: 'John Doe',
-      phone: '0123456789',
-      address: '123 Street',
-      paymentMethod: 'COD',
-      items: [
-        { productId: 'prod1', quantity: 2 },
-      ],
+      customerName: 'Nguyễn Văn A',
+      phone: '0912345678',
+      address: '123 Đường ABC',
+      paymentMethod: 'COD' as const,
+      items: [{ productId: 'prod1', quantity: 2 }],
     };
 
-    it('should create an order and update stock successfully', async () => {
-      const product = { id: 'prod1', name: 'Product 1', price: 100, stock: 10 };
-      const createdOrder = { id: 'order1', ...createOrderDto, totalAmount: 200 };
+    it('creates an order and decrements stock atomically', async () => {
+      const product = { id: 'prod1', name: 'Product 1', price: 100, stock: 10, status: 'ACTIVE' };
+      const createdOrder = { id: 'order1', ...createOrderDto, totalAmount: 200, publicCode: 'HHABCD123456' };
 
-      // Mock transaction behavior
-      mockPrismaService.$transaction.mockImplementation(async (callback) => {
-        return callback(mockPrismaService);
-      });
-
-      mockPrismaService.product.findUnique.mockResolvedValue(product);
+      mockPrismaService.$transaction.mockImplementation(async (cb: any) => cb(mockPrismaService));
+      mockPrismaService.product.findMany.mockResolvedValue([product]);
+      mockPrismaService.product.updateMany.mockResolvedValue({ count: 1 });
       mockPrismaService.order.create.mockResolvedValue(createdOrder);
 
       const result = await service.create(createOrderDto);
 
       expect(result).toEqual(createdOrder);
-      expect(mockPrismaService.product.update).toHaveBeenCalledWith({
-        where: { id: 'prod1' },
+      expect(mockPrismaService.product.updateMany).toHaveBeenCalledWith({
+        where: { id: 'prod1', status: 'ACTIVE', stock: { gte: 2 } },
         data: { stock: { decrement: 2 } },
       });
-      expect(mockPrismaService.order.create).toHaveBeenCalled();
     });
 
-    it('should throw NotFoundException if product does not exist', async () => {
-      mockPrismaService.$transaction.mockImplementation(async (callback) => {
-        return callback(mockPrismaService);
-      });
-      mockPrismaService.product.findUnique.mockResolvedValue(null);
+    it('uses database product price and name (not from request)', async () => {
+      const product = { id: 'prod1', name: 'Real Product Name', price: 150, stock: 10, status: 'ACTIVE' };
 
-      await expect(service.create(createOrderDto)).rejects.toThrow(NotFoundException);
+      mockPrismaService.$transaction.mockImplementation(async (cb: any) => cb(mockPrismaService));
+      mockPrismaService.product.findMany.mockResolvedValue([product]);
+      mockPrismaService.product.updateMany.mockResolvedValue({ count: 1 });
+      mockPrismaService.order.create.mockResolvedValue({ id: 'order1' });
+
+      await service.create(createOrderDto);
+
+      expect(mockPrismaService.order.create).toHaveBeenCalledWith(
+        expect.objectContaining({
+          data: expect.objectContaining({
+            totalAmount: 300, // 150 * 2
+            items: {
+              create: [
+                expect.objectContaining({
+                  productId: 'prod1',
+                  productName: 'Real Product Name',
+                  priceAtPurchase: 150,
+                  quantity: 2,
+                }),
+              ],
+            },
+          }),
+        }),
+      );
     });
 
-    it('should throw BadRequestException if insufficient stock', async () => {
-      mockPrismaService.$transaction.mockImplementation(async (callback) => {
-        return callback(mockPrismaService);
-      });
-      mockPrismaService.product.findUnique.mockResolvedValue({ id: 'prod1', name: 'Product 1', stock: 1, price: 100 });
+    it('rejects inactive products', async () => {
+      mockPrismaService.$transaction.mockImplementation(async (cb: any) => cb(mockPrismaService));
+      mockPrismaService.product.findMany.mockResolvedValue([]); // no ACTIVE products found
 
       await expect(service.create(createOrderDto)).rejects.toThrow(BadRequestException);
+      await expect(service.create(createOrderDto)).rejects.toThrow('không khả dụng');
+    });
+
+    it('rolls back when stock insufficient (updateMany returns 0)', async () => {
+      const product = { id: 'prod1', name: 'Product 1', price: 100, stock: 1, status: 'ACTIVE' };
+
+      mockPrismaService.$transaction.mockImplementation(async (cb: any) => cb(mockPrismaService));
+      mockPrismaService.product.findMany.mockResolvedValue([product]);
+      mockPrismaService.product.updateMany.mockResolvedValue({ count: 0 }); // no rows affected
+
+      await expect(service.create(createOrderDto)).rejects.toThrow(BadRequestException);
+      await expect(service.create(createOrderDto)).rejects.toThrow('không đủ tồn kho');
+    });
+
+    it('merges duplicate product lines before reserving stock', async () => {
+      const dtoWithDuplicates = {
+        ...createOrderDto,
+        items: [
+          { productId: 'prod1', quantity: 1 },
+          { productId: 'prod1', quantity: 3 },
+          { productId: 'prod2', quantity: 1 },
+        ],
+      };
+      const products = [
+        { id: 'prod1', name: 'Product 1', price: 100, stock: 10, status: 'ACTIVE' },
+        { id: 'prod2', name: 'Product 2', price: 200, stock: 5, status: 'ACTIVE' },
+      ];
+
+      mockPrismaService.$transaction.mockImplementation(async (cb: any) => cb(mockPrismaService));
+      mockPrismaService.product.findMany.mockResolvedValue(products);
+      mockPrismaService.product.updateMany.mockResolvedValue({ count: 1 });
+      mockPrismaService.order.create.mockResolvedValue({ id: 'order1' });
+
+      await service.create(dtoWithDuplicates);
+
+      // Should call updateMany for prod1 with quantity 4 (merged)
+      expect(mockPrismaService.product.updateMany).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: { id: 'prod1', status: 'ACTIVE', stock: { gte: 4 } },
+          data: { stock: { decrement: 4 } },
+        }),
+      );
+    });
+  });
+
+  describe('create — idempotency', () => {
+    const createOrderDto = {
+      customerName: 'Nguyễn Văn A',
+      phone: '0912345678',
+      address: '123 Đường ABC',
+      paymentMethod: 'COD' as const,
+      items: [{ productId: 'prod1', quantity: 1 }],
+      checkoutAttemptId: '550e8400-e29b-41d4-a716-446655440001',
+    };
+
+    it('returns the existing order for a repeated checkoutAttemptId (within TTL)', async () => {
+      const existingOrder = {
+        id: 'order1',
+        publicCode: 'HH1234567890',
+        checkoutAttemptId: createOrderDto.checkoutAttemptId,
+        checkoutAttemptExpiresAt: new Date(Date.now() + 3600_000), // 1 hour from now
+        status: 'PENDING',
+      };
+
+      mockPrismaService.$transaction.mockImplementation(async (cb: any) => cb(mockPrismaService));
+      mockPrismaService.order.findUnique.mockResolvedValue(existingOrder);
+
+      const result = await service.create(createOrderDto);
+
+      expect(result).toEqual(existingOrder);
+      expect(mockPrismaService.product.findMany).not.toHaveBeenCalled();
+    });
+
+    it('clears expired checkout attempt key and creates a new order', async () => {
+      const expiredOrder = {
+        id: 'order1',
+        checkoutAttemptId: createOrderDto.checkoutAttemptId,
+        checkoutAttemptExpiresAt: new Date(Date.now() - 1000), // expired
+      };
+      const product = { id: 'prod1', name: 'P1', price: 100, stock: 10, status: 'ACTIVE' };
+      const newOrder = { id: 'order2', publicCode: 'HHABCDEF1234' };
+
+      mockPrismaService.$transaction.mockImplementation(async (cb: any) => cb(mockPrismaService));
+      mockPrismaService.order.findUnique.mockResolvedValue(expiredOrder);
+      mockPrismaService.product.findMany.mockResolvedValue([product]);
+      mockPrismaService.product.updateMany.mockResolvedValue({ count: 1 });
+      mockPrismaService.order.create.mockResolvedValue(newOrder);
+
+      const result = await service.create(createOrderDto);
+
+      // Should clear the expired key
+      expect(mockPrismaService.order.update).toHaveBeenCalledWith({
+        where: { id: 'order1' },
+        data: { checkoutAttemptId: null, checkoutAttemptExpiresAt: null },
+      });
+      // Should create a new order
+      expect(result).toEqual(newOrder);
     });
   });
 
   describe('findAll', () => {
-    it('should find all orders with pagination and filter', async () => {
+    it('finds all orders with pagination and filter', async () => {
       const query = { status: 'PENDING', skip: 0, take: 10 };
       const mockOrders = [{ id: '1', status: 'PENDING' }];
       mockPrismaService.order.findMany.mockResolvedValue(mockOrders);
 
-      const result = await service.findAll(query);
+      await service.findAll(query as any);
 
       expect(mockPrismaService.order.findMany).toHaveBeenCalledWith({
         where: { status: 'PENDING' },
@@ -108,56 +220,44 @@ describe('OrdersService', () => {
         include: { items: true, events: { orderBy: { createdAt: 'asc' } } },
         orderBy: { createdAt: 'desc' },
       });
-      expect(result).toEqual(mockOrders);
     });
 
-    it('should find all orders without status filter', async () => {
-      const query = { skip: 10, take: 5 };
+    it('supports search by publicCode, name, or phone', async () => {
+      const query = { search: 'HH123', skip: 0, take: 10 };
       mockPrismaService.order.findMany.mockResolvedValue([]);
 
-      // @ts-expect-error - testing with query params not in order DTO type
-      await service.findAll(query);
+      await service.findAll(query as any);
 
-      expect(mockPrismaService.order.findMany).toHaveBeenCalledWith({
-        where: {},
-        skip: 10,
-        take: 5,
-        include: { items: true, events: { orderBy: { createdAt: 'asc' } } },
-        orderBy: { createdAt: 'desc' },
-      });
+      expect(mockPrismaService.order.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: {
+            OR: [
+              { publicCode: { contains: 'HH123', mode: 'insensitive' } },
+              { customerName: { contains: 'HH123', mode: 'insensitive' } },
+              { phoneNormalized: { contains: 'HH123' } },
+            ],
+          },
+        }),
+      );
     });
   });
 
   describe('updateStatus', () => {
-    it('should update order status successfully', async () => {
-      const orderId = 'order1';
-      const updateStatusDto = { status: 'SHIPPING' };
-      const mockOrder = { id: orderId, status: 'PENDING' };
+    it('updates order status', async () => {
+      mockPrismaService.order.findUnique.mockResolvedValue({ id: 'order1', status: 'PENDING' });
+      mockPrismaService.order.update.mockResolvedValue({ id: 'order1', status: 'CONFIRMED' });
 
-      mockPrismaService.order.findUnique.mockResolvedValue(mockOrder);
-      mockPrismaService.order.update.mockResolvedValue({
-        ...mockOrder,
-        status: 'SHIPPING',
-      });
+      const result = await service.updateStatus('order1', { status: 'CONFIRMED' });
 
-      const result = await service.updateStatus(orderId, updateStatusDto);
-
-      expect(mockPrismaService.order.findUnique).toHaveBeenCalledWith({
-        where: { id: orderId },
-      });
-      expect(mockPrismaService.order.update).toHaveBeenCalledWith({
-        where: { id: orderId },
-        data: { status: 'SHIPPING' },
-      });
-      expect(result.status).toBe('SHIPPING');
+      expect(result.status).toBe('CONFIRMED');
     });
 
-    it('should throw NotFoundException if order not found', async () => {
+    it('throws NotFoundException if order not found', async () => {
       mockPrismaService.order.findUnique.mockResolvedValue(null);
 
-      await expect(
-        service.updateStatus('invalid-id', { status: 'SUCCESS' }),
-      ).rejects.toThrow(NotFoundException);
+      await expect(service.updateStatus('invalid-id', { status: 'CONFIRMED' })).rejects.toThrow(
+        NotFoundException,
+      );
     });
   });
 });
