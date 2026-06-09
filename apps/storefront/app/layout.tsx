@@ -7,11 +7,11 @@ import { MobileBottomNav } from '@/components/mobile-bottom-nav';
 import { SiteFooter } from '@/components/site-footer';
 import { getHomepage } from '@/lib/homepage';
 
-const beVietnamPro = Be_Vietnam_Pro({ subsets: ['latin', 'vietnamese'] });
+const beVietnamPro = Be_Vietnam_Pro({ subsets: ['latin', 'vietnamese'], weight: ['400', '500', '600', '700', '800'] });
 
 export const metadata: Metadata = {
   title: 'Hùng Hiền Điện Máy | Mua sắm điện tử, gia dụng chính hãng',
-  description: 'Hùng Hiền Điện Máy - Hệ thống bán lẻ điện tử, nội thất và gia dụng uy tín. Giao nhanh, giá rõ, bảo hành chính hãng.',
+  description: 'Hùng Hiền Điện Máy - HềEthống bán lẻ điện tử, nội thất và gia dụng uy tín. Giao nhanh, giá rõ, bảo hành chính hãng.',
 };
 
 export default async function RootLayout({
