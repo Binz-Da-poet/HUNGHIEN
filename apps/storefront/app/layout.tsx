@@ -11,7 +11,7 @@ const beVietnamPro = Be_Vietnam_Pro({ subsets: ['latin', 'vietnamese'], weight: 
 
 export const metadata: Metadata = {
   title: 'Hùng Hiền Điện Máy | Mua sắm điện tử, gia dụng chính hãng',
-  description: 'Hùng Hiền Điện Máy - HềEthống bán lẻ điện tử, nội thất và gia dụng uy tín. Giao nhanh, giá rõ, bảo hành chính hãng.',
+  description: 'Hùng Hiền Điện Máy - Hệ thống bán lẻ điện tử, nội thất và gia dụng uy tín. Giao nhanh, giá rõ, bảo hành chính hãng.',
 };
 
 export default async function RootLayout({
