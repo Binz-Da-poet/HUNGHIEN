@@ -1,9 +1,9 @@
 import type { Metadata } from 'next';
-import { Inter } from 'next/font/google';
+import { Be_Vietnam_Pro } from 'next/font/google';
 import './globals.css';
 import { LayoutWrapper } from '@/components/layout/layout-wrapper';
 
-const inter = Inter({ subsets: ['latin', 'vietnamese'] });
+const beVietnamPro = Be_Vietnam_Pro({ subsets: ['latin', 'vietnamese'] });
 
 export const metadata: Metadata = {
   title: 'Hùng Hiền Điện Máy - Admin',
@@ -17,7 +17,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="vi">
-      <body className={inter.className}>
+      <body className={beVietnamPro.className}>
         <LayoutWrapper>{children}</LayoutWrapper>
       </body>
     </html>
