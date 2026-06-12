@@ -82,7 +82,7 @@ export function SiteHeader() {
             aria-expanded={menuOpen}
             aria-haspopup="true"
             aria-label="Danh mục sản phẩm"
-            className="flex items-center gap-2 px-4 h-10 rounded-button bg-brand-primary text-brand-accent font-semibold text-sm hover:bg-brand-primary/90 transition-colors"
+            className="flex items-center gap-2 px-4 h-10 rounded-button bg-brand-primary text-brand-accent font-semibold text-sm hover:bg-brand-primary/90 transition-colors focus-visible:ring-2 focus-visible:ring-brand-primary/20 focus-visible:ring-offset-1 focus-visible:outline-none"
           >
             <Menu className="h-4 w-4" /> Danh mục
             <ChevronDown className={cn('h-3 w-3 transition-transform', menuOpen && 'rotate-180')} />
@@ -94,7 +94,7 @@ export function SiteHeader() {
                   key={cat.id}
                   href={`/categories/${cat.slug}`}
                   onClick={() => setMenuOpen(false)}
-                  className="block px-4 py-2.5 text-sm font-medium text-text-primary hover:bg-slate-50 transition-colors"
+                  className="block px-4 py-2.5 text-sm font-medium text-text-primary hover:bg-slate-50 transition-colors focus-visible:bg-slate-50 focus-visible:outline-none"
                 >
                   {cat.name}
                 </Link>
@@ -103,7 +103,7 @@ export function SiteHeader() {
                 <Link
                   href="/deals"
                   onClick={() => setMenuOpen(false)}
-                  className="block px-4 py-2.5 text-sm font-semibold text-brand-danger hover:bg-red-50 transition-colors"
+                  className="block px-4 py-2.5 text-sm font-semibold text-brand-danger hover:bg-red-50 transition-colors focus-visible:bg-red-50 focus-visible:outline-none"
                 >
                   Khuyến mãi hot
                 </Link>
@@ -124,12 +124,12 @@ export function SiteHeader() {
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Tìm sản phẩm..."
-              className="w-full h-10 rounded-input border border-border bg-slate-50 pl-10 pr-4 text-sm focus:bg-white focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary transition-all text-text-primary placeholder:text-text-tertiary outline-none"
+              className="w-full h-10 rounded-input border border-border bg-slate-50 pl-10 pr-4 text-sm focus:bg-white focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary transition-all text-text-primary placeholder:text-slate-500 outline-none"
             />
             <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-text-tertiary" />
             <button
               type="submit"
-              className="hidden lg:block absolute right-1.5 top-1/2 -translate-y-1/2 h-8 px-4 bg-brand-primary text-brand-accent text-xs font-semibold rounded-input hover:bg-brand-primary/90 transition-colors"
+              className="hidden lg:block absolute right-1.5 top-1/2 -translate-y-1/2 h-8 px-4 bg-brand-primary text-brand-accent text-xs font-semibold rounded-input hover:bg-brand-primary/90 transition-colors focus-visible:ring-2 focus-visible:ring-brand-primary/20 focus-visible:ring-offset-1 focus-visible:outline-none"
             >
               Tìm
             </button>
@@ -139,7 +139,7 @@ export function SiteHeader() {
         {/* Cart (Desktop) */}
         <Link
           href="/cart"
-          className="hidden lg:flex items-center gap-2 text-text-secondary hover:text-brand-primary transition-colors relative"
+          className="hidden lg:flex items-center gap-2 text-text-secondary hover:text-brand-primary transition-colors relative focus-visible:ring-2 focus-visible:ring-brand-primary/20 focus-visible:rounded-lg focus-visible:ring-offset-1 focus-visible:outline-none"
         >
           <div className="p-2 rounded-full relative">
             <ShoppingCart className="h-5 w-5" />
@@ -169,7 +169,7 @@ export function SiteHeader() {
         </Link>
 
         {/* Mobile Cart */}
-        <Link href="/cart" className="lg:hidden relative p-2">
+        <Link href="/cart" className="lg:hidden relative p-2 focus-visible:ring-2 focus-visible:ring-brand-primary/20 focus-visible:rounded-lg focus-visible:outline-none">
           <ShoppingCart className="h-5 w-5" />
           {reduce ? (
             itemCount > 0 && (

@@ -26,12 +26,12 @@ export default async function ContactPage() {
   return (
     <main className="bg-slate-50 min-h-screen">
       <div className="max-w-3xl mx-auto px-4 py-12">
-        <h1 className="text-3xl font-black text-[#1A2B4C] mb-8">Liên hệ</h1>
+        <h1 className="text-3xl font-black text-brand-primary mb-8">Liên hệ</h1>
 
         <div className="space-y-6">
           {settings.hotline && (
             <div className="flex items-center gap-4 bg-white rounded-xl border border-slate-200 p-5">
-              <div className="flex-shrink-0 flex h-12 w-12 items-center justify-center rounded-lg bg-[#1A2B4C] text-white">
+              <div className="flex-shrink-0 flex h-12 w-12 items-center justify-center rounded-lg bg-brand-primary text-white">
                 <Phone className="h-6 w-6" />
               </div>
               <div>
@@ -43,7 +43,7 @@ export default async function ContactPage() {
 
           {settings.email && (
             <div className="flex items-center gap-4 bg-white rounded-xl border border-slate-200 p-5">
-              <div className="flex-shrink-0 flex h-12 w-12 items-center justify-center rounded-lg bg-[#1A2B4C] text-white">
+              <div className="flex-shrink-0 flex h-12 w-12 items-center justify-center rounded-lg bg-brand-primary text-white">
                 <Mail className="h-6 w-6" />
               </div>
               <div>
@@ -55,7 +55,7 @@ export default async function ContactPage() {
 
           {settings.address && (
             <div className="flex items-center gap-4 bg-white rounded-xl border border-slate-200 p-5">
-              <div className="flex-shrink-0 flex h-12 w-12 items-center justify-center rounded-lg bg-[#1A2B4C] text-white">
+              <div className="flex-shrink-0 flex h-12 w-12 items-center justify-center rounded-lg bg-brand-primary text-white">
                 <MapPin className="h-6 w-6" />
               </div>
               <div>
@@ -67,12 +67,12 @@ export default async function ContactPage() {
 
           {settings.storeSystemUrl && (
             <div className="flex items-center gap-4 bg-white rounded-xl border border-slate-200 p-5">
-              <div className="flex-shrink-0 flex h-12 w-12 items-center justify-center rounded-lg bg-[#1A2B4C] text-white">
+              <div className="flex-shrink-0 flex h-12 w-12 items-center justify-center rounded-lg bg-brand-primary text-white">
                 <ExternalLink className="h-6 w-6" />
               </div>
               <div>
                 <p className="text-xs font-bold text-slate-400 uppercase">Hệ thống cửa hàng</p>
-                <a href={settings.storeSystemUrl} target="_blank" rel="noopener noreferrer" className="text-lg font-bold text-[#1A2B4C] hover:text-orange-600 transition-colors underline">
+                <a href={settings.storeSystemUrl} target="_blank" rel="noopener noreferrer" className="text-lg font-bold text-brand-primary hover:text-orange-600 transition-colors underline">
                   Xem danh sách cửa hàng
                 </a>
               </div>

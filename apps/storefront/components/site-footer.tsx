@@ -27,13 +27,13 @@ export function SiteFooter({ settings }: { settings: StoreSettings | null }) {
               {s.companySummary || 'Hùng Hiền Điện Máy - Hệ thống mua sắm điện tử, nội thất và gia dụng chính hãng uy tín hàng đầu.'}
             </p>
             <div className="flex gap-3">
-              <Link href="#" className="p-2.5 bg-white/5 rounded-full hover:bg-brand-accent hover:text-brand-primary transition-all border border-white/10" aria-label="Facebook">
+              <Link href="#" className="p-2.5 bg-white/5 rounded-full hover:bg-brand-accent hover:text-brand-primary transition-all border border-white/10 focus-visible:ring-2 focus-visible:ring-brand-accent/50 focus-visible:outline-none" aria-label="Facebook">
                 <Facebook className="h-4 w-4" />
               </Link>
-              <Link href="#" className="p-2.5 bg-white/5 rounded-full hover:bg-brand-accent hover:text-brand-primary transition-all border border-white/10" aria-label="YouTube">
+              <Link href="#" className="p-2.5 bg-white/5 rounded-full hover:bg-brand-accent hover:text-brand-primary transition-all border border-white/10 focus-visible:ring-2 focus-visible:ring-brand-accent/50 focus-visible:outline-none" aria-label="YouTube">
                 <Youtube className="h-4 w-4" />
               </Link>
-              <Link href="#" className="p-2.5 bg-white/5 rounded-full hover:bg-brand-accent hover:text-brand-primary transition-all border border-white/10" aria-label="Telegram">
+              <Link href="#" className="p-2.5 bg-white/5 rounded-full hover:bg-brand-accent hover:text-brand-primary transition-all border border-white/10 focus-visible:ring-2 focus-visible:ring-brand-accent/50 focus-visible:outline-none" aria-label="Telegram">
                 <Send className="h-4 w-4" />
               </Link>
             </div>
@@ -45,11 +45,11 @@ export function SiteFooter({ settings }: { settings: StoreSettings | null }) {
               Hỗ trợ khách hàng
             </h4>
             <ul className="space-y-3">
-              <li><Link href="/news" className="text-sm text-slate-300 hover:text-brand-accent transition-colors">Tin tức công nghệ</Link></li>
-              <li><Link href="/policy/warranty" className="text-sm text-slate-300 hover:text-brand-accent transition-colors">Chính sách bảo hành</Link></li>
-              <li><Link href="/policy/delivery" className="text-sm text-slate-300 hover:text-brand-accent transition-colors">Chính sách giao hàng</Link></li>
-              <li><Link href="/policy/payment" className="text-sm text-slate-300 hover:text-brand-accent transition-colors">Phương thức thanh toán</Link></li>
-              <li><Link href="/contact" className="text-sm text-slate-300 hover:text-brand-accent transition-colors">Liên hệ góp ý</Link></li>
+              <li><Link href="/news" className="text-sm text-slate-300 hover:text-brand-accent transition-colors focus-visible:outline-none focus-visible:text-brand-accent focus-visible:underline">Tin tức công nghệ</Link></li>
+              <li><Link href="/policy/warranty" className="text-sm text-slate-300 hover:text-brand-accent transition-colors focus-visible:outline-none focus-visible:text-brand-accent focus-visible:underline">Chính sách bảo hành</Link></li>
+              <li><Link href="/policy/delivery" className="text-sm text-slate-300 hover:text-brand-accent transition-colors focus-visible:outline-none focus-visible:text-brand-accent focus-visible:underline">Chính sách giao hàng</Link></li>
+              <li><Link href="/policy/payment" className="text-sm text-slate-300 hover:text-brand-accent transition-colors focus-visible:outline-none focus-visible:text-brand-accent focus-visible:underline">Phương thức thanh toán</Link></li>
+              <li><Link href="/contact" className="text-sm text-slate-300 hover:text-brand-accent transition-colors focus-visible:outline-none focus-visible:text-brand-accent focus-visible:underline">Liên hệ góp ý</Link></li>
             </ul>
           </div>
 
@@ -66,12 +66,12 @@ export function SiteFooter({ settings }: { settings: StoreSettings | null }) {
                 type="email"
                 placeholder="Email của bạn"
                 aria-label="Địa chỉ email"
-                className="flex-1 h-10 rounded-input border border-white/20 bg-white/5 px-4 text-sm text-white placeholder:text-slate-400 outline-none focus:border-brand-accent/50 focus:bg-white/10 transition-all"
+                className="flex-1 h-10 rounded-input border border-white/20 bg-white/5 px-4 text-sm text-white placeholder:text-slate-400 outline-none focus:border-brand-accent/50 focus:bg-white/10 focus:ring-2 focus:ring-brand-accent/20 transition-all"
               />
               <button
                 type="submit"
                 aria-label="Gửi đăng ký"
-                className="h-10 px-4 bg-brand-accent text-brand-primary rounded-input font-semibold text-sm hover:bg-white transition-colors flex items-center gap-1"
+                className="h-10 px-4 bg-brand-accent text-brand-primary rounded-input font-semibold text-sm hover:bg-white transition-colors flex items-center gap-1 focus-visible:ring-2 focus-visible:ring-white/50 focus-visible:ring-offset-1 focus-visible:ring-offset-brand-primary focus-visible:outline-none"
               >
                 <ArrowRight className="h-4 w-4" />
               </button>
@@ -92,8 +92,8 @@ export function SiteFooter({ settings }: { settings: StoreSettings | null }) {
         <div className="pt-10 border-t border-white/10 flex flex-col md:flex-row items-center justify-between gap-4 text-xs text-slate-500">
           <p>© 2026 Hùng Hiền Điện Máy. Bảo lưu mọi quyền.</p>
           <div className="flex items-center gap-6">
-            <Link href="#" className="hover:text-slate-300 transition-colors">Quyền riêng tư</Link>
-            <Link href="#" className="hover:text-slate-300 transition-colors">Điều khoản</Link>
+            <Link href="#" className="hover:text-slate-300 transition-colors focus-visible:outline-none focus-visible:text-slate-300 focus-visible:underline">Quyền riêng tư</Link>
+            <Link href="#" className="hover:text-slate-300 transition-colors focus-visible:outline-none focus-visible:text-slate-300 focus-visible:underline">Điều khoản</Link>
           </div>
         </div>
       </div>

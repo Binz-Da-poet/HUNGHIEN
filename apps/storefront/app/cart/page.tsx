@@ -18,11 +18,11 @@ export default function CartPage() {
           <div className="mx-auto w-24 h-24 bg-slate-50 rounded-full flex items-center justify-center mb-8">
             <ShoppingBag className="h-10 w-10 text-slate-300" />
           </div>
-          <h1 className="text-3xl font-black text-[#1A2B4C] uppercase tracking-tight">Giỏ hàng đang trống</h1>
+          <h1 className="text-3xl font-black text-brand-primary uppercase tracking-tight">Giỏ hàng đang trống</h1>
           <p className="mt-4 text-slate-500 font-medium leading-relaxed">Chọn sản phẩm yêu thích, thêm vào giỏ và kiểm tra tổng tiền trước khi đặt hàng.</p>
           <Link
             href="/"
-            className="mt-10 inline-flex h-14 items-center rounded-2xl bg-[#1A2B4C] px-10 text-sm font-black text-[#E5C37A] uppercase tracking-widest transition-all hover:bg-[#253A66] shadow-xl shadow-[#1A2B4C]/20"
+            className="mt-10 inline-flex h-14 items-center rounded-2xl bg-brand-primary px-10 text-sm font-black text-brand-accent uppercase tracking-widest transition-all hover:bg-brand-primary/90 shadow-xl shadow-slate-900/20"
           >
             Tiếp tục mua sắm
           </Link>
@@ -32,10 +32,10 @@ export default function CartPage() {
   }
 
   return (
-    <div className="bg-[#f8f9fa] min-h-screen">
+    <div className="bg-background min-h-screen">
       <div className="mx-auto max-w-7xl px-4 py-8 pb-32 lg:pb-16">
         <div className="mb-10 flex flex-col gap-2">
-          <h1 className="text-3xl font-black text-[#1A2B4C] uppercase tracking-tight">Giỏ hàng của bạn</h1>
+          <h1 className="text-3xl font-black text-brand-primary uppercase tracking-tight">Giỏ hàng của bạn</h1>
           <p className="text-xs font-bold text-slate-400 uppercase tracking-[0.2em]">Bạn có {items.length} sản phẩm trong giỏ hàng</p>
         </div>
 
@@ -50,7 +50,7 @@ export default function CartPage() {
                 
                 <div className="flex-1 min-w-0 flex flex-col gap-2">
                   <div className="flex items-start justify-between gap-4">
-                    <Link href={`/products/${item.productId}`} className="line-clamp-2 text-sm font-bold text-slate-900 hover:text-[#1A2B4C] transition-colors leading-snug">
+                    <Link href={`/products/${item.productId}`} className="line-clamp-2 text-sm font-bold text-slate-900 hover:text-brand-primary transition-colors leading-snug">
                       {item.name}
                     </Link>
                     <button
@@ -64,12 +64,12 @@ export default function CartPage() {
                   
                   <div className="flex items-end justify-between mt-auto">
                     <div className="flex flex-col gap-1">
-                      <span className="text-sm font-bold text-[#D10024]">{formatVnd(item.price)}</span>
+                      <span className="text-sm font-bold text-brand-danger">{formatVnd(item.price)}</span>
                       <div className="flex items-center bg-slate-50 rounded-lg border border-slate-100 p-1 w-fit">
                         <button
                           type="button"
                           onClick={() => updateQuantity(item.productId, item.quantity - 1)}
-                          className="w-8 h-8 flex items-center justify-center text-slate-400 hover:text-[#1A2B4C] hover:bg-white rounded-md transition-all"
+                          className="w-8 h-8 flex items-center justify-center text-slate-400 hover:text-brand-primary hover:bg-white rounded-md transition-all"
                         >
                           <Minus className="h-4 w-4" />
                         </button>
@@ -77,7 +77,7 @@ export default function CartPage() {
                         <button
                           type="button"
                           onClick={() => updateQuantity(item.productId, item.quantity + 1)}
-                          className="w-8 h-8 flex items-center justify-center text-slate-400 hover:text-[#1A2B4C] hover:bg-white rounded-md transition-all"
+                          className="w-8 h-8 flex items-center justify-center text-slate-400 hover:text-brand-primary hover:bg-white rounded-md transition-all"
                         >
                           <Plus className="h-4 w-4" />
                         </button>
@@ -85,7 +85,7 @@ export default function CartPage() {
                     </div>
                     <div className="text-right">
                       <div className="text-[10px] font-black text-slate-400 uppercase mb-1">Thành tiền</div>
-                      <p className="text-lg font-black text-[#1A2B4C] tracking-tighter">{formatVnd(item.price * item.quantity)}</p>
+                      <p className="text-lg font-black text-brand-primary tracking-tighter">{formatVnd(item.price * item.quantity)}</p>
                     </div>
                   </div>
                 </div>
@@ -95,8 +95,8 @@ export default function CartPage() {
 
           {/* Summary */}
           <div className="lg:col-span-4">
-            <div className="rounded-[2rem] bg-[#1A2B4C] p-8 text-white shadow-2xl lg:sticky lg:top-32 border border-[#E5C37A]/20">
-              <h2 className="text-xl font-black uppercase tracking-widest text-[#E5C37A] mb-8 border-b border-white/10 pb-4">Tóm tắt đơn hàng</h2>
+            <div className="rounded-[2rem] bg-brand-primary p-8 text-white shadow-2xl lg:sticky lg:top-32 border border-brand-accent/20">
+              <h2 className="text-xl font-black uppercase tracking-widest text-brand-accent mb-8 border-b border-white/10 pb-4">Tóm tắt đơn hàng</h2>
               <div className="space-y-6">
                 <div className="flex justify-between text-sm">
                   <span className="text-slate-400 font-bold uppercase tracking-wider">Tạm tính</span>
@@ -104,25 +104,25 @@ export default function CartPage() {
                 </div>
                 <div className="flex justify-between text-sm">
                   <span className="text-slate-400 font-bold uppercase tracking-wider">Giao hàng</span>
-                  <span className="font-black text-[#E5C37A] uppercase">Miễn phí</span>
+                  <span className="font-black text-brand-accent uppercase">Miễn phí</span>
                 </div>
                 
                 <div className="p-4 bg-white/5 rounded-xl border border-white/10 flex items-center gap-3">
-                   <div className="p-2 bg-[#E5C37A] rounded-lg text-[#1A2B4C]"><Truck className="h-4 w-4" /></div>
-                   <p className="text-[10px] font-bold uppercase tracking-tight text-[#E5C37A]">Giao hàng hỏa tốc trong 2h</p>
+                   <div className="p-2 bg-brand-accent rounded-lg text-brand-primary"><Truck className="h-4 w-4" /></div>
+                   <p className="text-[10px] font-bold uppercase tracking-tight text-brand-accent">Giao hàng hỏa tốc trong 2h</p>
                 </div>
 
                 <div className="pt-6 border-t border-white/10">
                   <div className="flex flex-col gap-2">
                     <span className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em]">Tổng thanh toán</span>
-                    <span className="text-4xl font-black text-[#E5C37A] tracking-tighter">{formatVnd(total)}</span>
+                    <span className="text-4xl font-black text-brand-accent tracking-tighter">{formatVnd(total)}</span>
                   </div>
                 </div>
               </div>
               
               <Link
                 href="/checkout"
-                className="mt-10 flex h-16 w-full items-center justify-center gap-3 rounded-2xl bg-[#E5C37A] text-[#1A2B4C] font-black uppercase text-sm tracking-widest transition-all hover:bg-white hover:shadow-xl"
+                className="mt-10 flex h-16 w-full items-center justify-center gap-3 rounded-2xl bg-brand-accent text-brand-primary font-black uppercase text-sm tracking-widest transition-all hover:bg-white hover:shadow-xl"
               >
                 Tiến hành đặt hàng
                 <ArrowRight className="h-5 w-5" />
@@ -134,7 +134,7 @@ export default function CartPage() {
                   { icon: RotateCcw, text: 'Đổi trả miễn phí 7 ngày' },
                 ].map((item, i) => (
                   <div key={i} className="flex items-center gap-2 text-[10px] font-bold text-slate-400 uppercase tracking-widest">
-                    <item.icon className="h-4 w-4 text-[#E5C37A]" />
+                    <item.icon className="h-4 w-4 text-brand-accent" />
                     {item.text}
                   </div>
                 ))}
@@ -148,9 +148,9 @@ export default function CartPage() {
            <div className="bg-white p-5 rounded-2xl shadow-[0_-8px_30px_rgba(0,0,0,0.1)] border border-slate-100 flex items-center justify-between gap-4 pointer-events-auto">
               <div className="flex flex-col">
                 <span className="text-[10px] font-black text-slate-400 uppercase tracking-wider">Tổng cộng</span>
-                <span className="text-xl font-black text-[#D10024] tracking-tighter">{formatVnd(total)}</span>
+                <span className="text-xl font-black text-brand-danger tracking-tighter">{formatVnd(total)}</span>
               </div>
-              <Link href="/checkout" className="flex-1 h-14 bg-[#1A2B4C] text-[#E5C37A] rounded-xl flex items-center justify-center gap-2 font-black uppercase text-xs tracking-widest shadow-lg active:scale-95 transition-transform">
+              <Link href="/checkout" className="flex-1 h-14 bg-brand-primary text-brand-accent rounded-xl flex items-center justify-center gap-2 font-black uppercase text-xs tracking-widest shadow-lg active:scale-95 transition-transform">
                 Thanh toán
                 <ArrowRight className="h-4 w-4" />
               </Link>

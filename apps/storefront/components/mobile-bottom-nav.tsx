@@ -29,7 +29,7 @@ export function MobileBottomNav() {
             key={item.name}
             href={item.href}
             className={cn(
-              'relative flex flex-col items-center gap-1 p-2 transition-colors',
+              'relative flex flex-col items-center gap-1 p-2 transition-colors rounded-lg focus-visible:ring-2 focus-visible:ring-brand-primary/20 focus-visible:outline-none',
               isActive ? 'text-brand-primary' : 'text-slate-500 hover:text-brand-primary'
             )}
           >

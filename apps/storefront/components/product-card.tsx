@@ -55,7 +55,7 @@ export function ProductCard({ product }: ProductCardProps) {
       transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
       className="group relative flex h-full flex-col overflow-hidden rounded-card bg-surface transition-shadow duration-300 hover:shadow-card-hover"
     >
-      <Link href={`/products/${product.id}`} className="relative block aspect-square overflow-hidden bg-slate-50">
+      <Link href={`/products/${product.id}`} className="relative block aspect-square overflow-hidden bg-slate-50 focus-visible:ring-2 focus-visible:ring-brand-primary/20 focus-visible:ring-offset-2 focus-visible:outline-none rounded-t-card">
         <ProductImage
           src={image?.url}
           alt={product.name}
@@ -81,7 +81,7 @@ export function ProductCard({ product }: ProductCardProps) {
         </div>
 
         {/* Product Name */}
-        <Link href={`/products/${product.id}`} className="group-hover:text-brand-primary transition-colors">
+        <Link href={`/products/${product.id}`} className="group-hover:text-brand-primary transition-colors focus-visible:outline-none focus-visible:text-brand-primary focus-visible:underline">
           <h3 className="line-clamp-2 min-h-[2.5rem] text-sm font-medium leading-snug text-text-primary">
             {product.name}
           </h3>
@@ -101,13 +101,13 @@ export function ProductCard({ product }: ProductCardProps) {
         <div className="mt-3 pt-3 border-t border-border flex gap-2 opacity-0 lg:group-hover:opacity-100 transition-opacity">
           <button
             onClick={handleAddToCart}
-            className="flex-1 h-9 bg-slate-100 text-text-secondary rounded-button text-xs font-medium hover:bg-slate-200 transition-colors flex items-center justify-center gap-1.5"
+            className="flex-1 h-9 bg-slate-100 text-text-secondary rounded-button text-xs font-medium hover:bg-slate-200 transition-colors flex items-center justify-center gap-1.5 focus-visible:ring-2 focus-visible:ring-brand-primary/20 focus-visible:outline-none"
           >
             <ShoppingCart className="h-3.5 w-3.5" /> Thêm vào giỏ
           </button>
           <button
             onClick={handleBuyNow}
-            className="h-9 px-4 bg-brand-primary text-brand-accent rounded-button text-xs font-semibold hover:bg-brand-primary/90 transition-colors"
+            className="h-9 px-4 bg-brand-primary text-brand-accent rounded-button text-xs font-semibold hover:bg-brand-primary/90 transition-colors focus-visible:ring-2 focus-visible:ring-brand-primary/20 focus-visible:ring-offset-1 focus-visible:outline-none"
           >
             Mua ngay
           </button>
