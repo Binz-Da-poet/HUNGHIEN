@@ -23,7 +23,7 @@ export default async function RootLayout({
 
   return (
     <html lang="vi">
-      <body className={`${beVietnamPro.className} flex min-h-screen flex-col bg-[#f8f9fa] text-slate-950`}>
+      <body className={`${beVietnamPro.className} flex min-h-screen flex-col bg-background text-text-primary`}>
         <ToastProvider>
           <SiteHeader />
           <main className="flex-1 pb-20 lg:pb-0">{children}</main>

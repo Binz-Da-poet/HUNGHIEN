@@ -43,3 +43,9 @@
     font: inherit;
   }
 }
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+}
