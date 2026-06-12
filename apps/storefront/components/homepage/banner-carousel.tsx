@@ -51,8 +51,8 @@ export function BannerCarousel({ banners }: BannerCarouselProps) {
               </Link>
             ) : (
               <div
-                className="w-full h-full flex items-center px-6 md:px-12 lg:px-24"
-                className="bg-brand-primary" style={banner.backgroundColor ? { backgroundColor: banner.backgroundColor } : undefined}
+                className="w-full h-full flex items-center px-6 md:px-12 lg:px-24 bg-brand-primary"
+                style={banner.backgroundColor ? { backgroundColor: banner.backgroundColor } : undefined}
               >
                 <div className="max-w-2xl text-white space-y-3 md:space-y-6">
                   <h2 className="text-xl md:text-4xl lg:text-6xl font-bold leading-tight tracking-tight">
