@@ -124,7 +124,7 @@ export function SiteHeader() {
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Tìm sản phẩm..."
-              className="w-full h-10 rounded-input border border-border bg-slate-50 pl-10 pr-4 text-sm focus:bg-white focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary transition-all text-text-primary placeholder:text-slate-500 outline-none"
+              className="w-full h-10 rounded-input border border-border bg-slate-50 pl-10 pr-4 text-sm focus:bg-white focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary transition-all text-text-primary placeholder:text-text-secondary outline-none"
             />
             <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-text-tertiary" />
             <button

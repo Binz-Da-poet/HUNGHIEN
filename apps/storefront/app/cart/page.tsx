@@ -22,7 +22,7 @@ export default function CartPage() {
           <p className="mt-4 text-slate-500 font-medium leading-relaxed">Chọn sản phẩm yêu thích, thêm vào giỏ và kiểm tra tổng tiền trước khi đặt hàng.</p>
           <Link
             href="/"
-            className="mt-10 inline-flex h-14 items-center rounded-2xl bg-brand-primary px-10 text-sm font-black text-brand-accent uppercase tracking-widest transition-all hover:bg-brand-primary/90 focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2 shadow-xl shadow-slate-900/20"
+            className="mt-10 inline-flex h-14 items-center rounded-2xl bg-brand-primary px-10 text-sm font-black text-brand-accent uppercase tracking-widest transition-all hover:bg-brand-primary/90 focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2 shadow-xl shadow-text-primary/10"
           >
             Tiếp tục mua sắm
           </Link>
