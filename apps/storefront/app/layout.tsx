@@ -7,7 +7,7 @@ import { MobileBottomNav } from '@/components/mobile-bottom-nav';
 import { SiteFooter } from '@/components/site-footer';
 import { getHomepage } from '@/lib/homepage';
 
-const beVietnamPro = Be_Vietnam_Pro({ subsets: ['latin', 'vietnamese'], weight: ['400', '500', '600', '700', '800'] });
+const beVietnamPro = Be_Vietnam_Pro({ subsets: ['latin', 'vietnamese'], weight: ['300', '400', '500', '600', '700', '800'] });
 
 export const metadata: Metadata = {
   title: 'Hùng Hiền Điện Máy | Mua sắm điện tử, gia dụng chính hãng',

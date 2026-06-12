@@ -4,25 +4,12 @@ const sharedPreset = require('@repo/shared/tailwind-preset');
 
 const config: Config = {
   presets: [sharedPreset],
+  darkMode: 'class',
   content: [
     "./pages/**/*.{js,ts,jsx,tsx,mdx}",
     "./components/**/*.{js,ts,jsx,tsx,mdx}",
     "./app/**/*.{js,ts,jsx,tsx,mdx}",
   ],
-  theme: {
-    extend: {
-      colors: {
-        primary: {
-          DEFAULT: "#001f3f", // Navy Blue example
-          foreground: "#ffffff",
-        },
-        accent: {
-          DEFAULT: "#ff4500", // Orange example
-          foreground: "#ffffff",
-        },
-      },
-    },
-  },
   plugins: [],
 };
 export default config;

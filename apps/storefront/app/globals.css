@@ -3,15 +3,34 @@
 @tailwind utilities;
 
 @layer base {
+  :root {
+    --background: #f8f9fa;
+    --surface: #ffffff;
+    --surface-elevated: #f1f5f9;
+    --text-primary: #0f172a;
+    --text-secondary: #475569;
+    --text-tertiary: #94a3b8;
+    --border: #e2e8f0;
+    --brand-primary: #1A2B4C;
+    --brand-accent: #E5C37A;
+    --brand-danger: #D10024;
+    --brand-success: #16a34a;
+    --radius: 1rem;
+    --radius-button: 0.75rem;
+    --radius-input: 0.5rem;
+  }
+
   html {
     overflow-x: hidden;
   }
 
   body {
-    min-height: 100vh;
+    min-height: 100dvh;
     overflow-x: hidden;
-    background: #f8fafc;
-    color: #0f172a;
+    background: var(--background);
+    color: var(--text-primary);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
 
   button,
