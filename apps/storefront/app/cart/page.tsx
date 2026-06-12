@@ -22,7 +22,7 @@ export default function CartPage() {
           <p className="mt-4 text-slate-500 font-medium leading-relaxed">Chọn sản phẩm yêu thích, thêm vào giỏ và kiểm tra tổng tiền trước khi đặt hàng.</p>
           <Link
             href="/"
-            className="mt-10 inline-flex h-14 items-center rounded-2xl bg-brand-primary px-10 text-sm font-black text-brand-accent uppercase tracking-widest transition-all hover:bg-brand-primary/90 shadow-xl shadow-slate-900/20"
+            className="mt-10 inline-flex h-14 items-center rounded-2xl bg-brand-primary px-10 text-sm font-black text-brand-accent uppercase tracking-widest transition-all hover:bg-brand-primary/90 focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2 shadow-xl shadow-slate-900/20"
           >
             Tiếp tục mua sắm
           </Link>
@@ -50,13 +50,13 @@ export default function CartPage() {
                 
                 <div className="flex-1 min-w-0 flex flex-col gap-2">
                   <div className="flex items-start justify-between gap-4">
-                    <Link href={`/products/${item.productId}`} className="line-clamp-2 text-sm font-bold text-slate-900 hover:text-brand-primary transition-colors leading-snug">
+                    <Link href={`/products/${item.productId}`} className="line-clamp-2 text-sm font-bold text-slate-900 hover:text-brand-primary focus-visible:ring-2 focus-visible:ring-brand-primary/20 rounded transition-colors leading-snug">
                       {item.name}
                     </Link>
                     <button
                       type="button"
                       onClick={() => removeItem(item.productId)}
-                      className="p-2 text-slate-300 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all"
+                      className="p-2 text-slate-300 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all focus-visible:ring-2 focus-visible:ring-red-300"
                     >
                       <Trash2 className="h-5 w-5" />
                     </button>
@@ -69,7 +69,7 @@ export default function CartPage() {
                         <button
                           type="button"
                           onClick={() => updateQuantity(item.productId, item.quantity - 1)}
-                          className="w-8 h-8 flex items-center justify-center text-slate-400 hover:text-brand-primary hover:bg-white rounded-md transition-all"
+                          className="w-8 h-8 flex items-center justify-center text-slate-400 hover:text-brand-primary hover:bg-white rounded-md transition-all focus-visible:ring-2 focus-visible:ring-brand-primary/20"
                         >
                           <Minus className="h-4 w-4" />
                         </button>
@@ -77,7 +77,7 @@ export default function CartPage() {
                         <button
                           type="button"
                           onClick={() => updateQuantity(item.productId, item.quantity + 1)}
-                          className="w-8 h-8 flex items-center justify-center text-slate-400 hover:text-brand-primary hover:bg-white rounded-md transition-all"
+                          className="w-8 h-8 flex items-center justify-center text-slate-400 hover:text-brand-primary hover:bg-white rounded-md transition-all focus-visible:ring-2 focus-visible:ring-brand-primary/20"
                         >
                           <Plus className="h-4 w-4" />
                         </button>
@@ -122,7 +122,7 @@ export default function CartPage() {
               
               <Link
                 href="/checkout"
-                className="mt-10 flex h-16 w-full items-center justify-center gap-3 rounded-2xl bg-brand-accent text-brand-primary font-black uppercase text-sm tracking-widest transition-all hover:bg-white hover:shadow-xl"
+                className="mt-10 flex h-16 w-full items-center justify-center gap-3 rounded-2xl bg-brand-accent text-brand-primary font-black uppercase text-sm tracking-widest transition-all hover:bg-white hover:shadow-xl focus-visible:ring-2 focus-visible:ring-brand-accent focus-visible:ring-offset-2"
               >
                 Tiến hành đặt hàng
                 <ArrowRight className="h-5 w-5" />
@@ -150,7 +150,7 @@ export default function CartPage() {
                 <span className="text-[10px] font-black text-slate-400 uppercase tracking-wider">Tổng cộng</span>
                 <span className="text-xl font-black text-brand-danger tracking-tighter">{formatVnd(total)}</span>
               </div>
-              <Link href="/checkout" className="flex-1 h-14 bg-brand-primary text-brand-accent rounded-xl flex items-center justify-center gap-2 font-black uppercase text-xs tracking-widest shadow-lg active:scale-95 transition-transform">
+              <Link href="/checkout" className="flex-1 h-14 bg-brand-primary text-brand-accent rounded-xl flex items-center justify-center gap-2 font-black uppercase text-xs tracking-widest shadow-lg active:scale-95 focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2 transition-transform">
                 Thanh toán
                 <ArrowRight className="h-4 w-4" />
               </Link>

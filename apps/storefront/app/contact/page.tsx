@@ -72,7 +72,7 @@ export default async function ContactPage() {
               </div>
               <div>
                 <p className="text-xs font-bold text-slate-400 uppercase">Hệ thống cửa hàng</p>
-                <a href={settings.storeSystemUrl} target="_blank" rel="noopener noreferrer" className="text-lg font-bold text-brand-primary hover:text-orange-600 transition-colors underline">
+                <a href={settings.storeSystemUrl} target="_blank" rel="noopener noreferrer" className="text-lg font-bold text-brand-primary hover:text-orange-600 focus-visible:ring-2 focus-visible:ring-brand-primary/20 rounded transition-colors underline">
                   Xem danh sách cửa hàng
                 </a>
               </div>
