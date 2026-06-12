@@ -34,7 +34,7 @@ export function MobileBottomNav() {
             )}
           >
             <Icon className={cn('h-5 w-5', isActive && 'fill-current opacity-90')} />
-            <span className="text-[10px] font-bold uppercase tracking-tighter">{item.name}</span>
+            <span className="text-[10px] font-medium tracking-tight">{item.name}</span>
             {item.badge !== undefined && item.badge > 0 && (
               <span className="absolute right-3 top-1 flex h-4 w-4 items-center justify-center rounded-full bg-brand-danger text-[9px] font-bold text-white ring-2 ring-white animate-in zoom-in">
                 {item.badge}
