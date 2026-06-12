@@ -30,13 +30,13 @@ export function MobileBottomNav() {
             href={item.href}
             className={cn(
               'relative flex flex-col items-center gap-1 p-2 transition-colors',
-              isActive ? 'text-[#1A2B4C]' : 'text-slate-500 hover:text-[#1A2B4C]'
+              isActive ? 'text-brand-primary' : 'text-slate-500 hover:text-brand-primary'
             )}
           >
             <Icon className={cn('h-5 w-5', isActive && 'fill-current opacity-90')} />
             <span className="text-[10px] font-bold uppercase tracking-tighter">{item.name}</span>
             {item.badge !== undefined && item.badge > 0 && (
-              <span className="absolute right-3 top-1 flex h-4 w-4 items-center justify-center rounded-full bg-red-600 text-[9px] font-bold text-white ring-2 ring-white animate-in zoom-in">
+              <span className="absolute right-3 top-1 flex h-4 w-4 items-center justify-center rounded-full bg-brand-danger text-[9px] font-bold text-white ring-2 ring-white animate-in zoom-in">
                 {item.badge}
               </span>
             )}

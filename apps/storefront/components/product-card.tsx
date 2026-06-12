@@ -48,58 +48,60 @@ export function ProductCard({ product }: ProductCardProps) {
   };
 
   return (
-    <article className="group relative flex h-full flex-col overflow-hidden bg-white hover:shadow-xl transition-all duration-300 border border-slate-100 rounded-lg">
+    <article className="group relative flex h-full flex-col overflow-hidden rounded-card bg-surface transition-all duration-300 hover:shadow-card-hover">
       <Link href={`/products/${product.id}`} className="relative block aspect-square overflow-hidden bg-slate-50">
         <ProductImage
           src={image?.url}
           alt={product.name}
-          className="h-full w-full object-contain p-4 group-hover:scale-105 transition-transform duration-500"
+          className="h-full w-full object-contain p-6 transition-transform duration-500 group-hover:scale-105"
         />
-        
+
         {discount > 0 && (
-          <div className="absolute left-0 top-3 bg-[#D10024] text-white text-[11px] font-black px-2.5 py-1 rounded-r-full shadow-sm z-10">
+          <span className="absolute left-3 top-3 bg-brand-danger text-white text-[11px] font-semibold px-2.5 py-1 rounded-md">
             -{discount}%
-          </div>
+          </span>
         )}
       </Link>
 
-      <div className="flex flex-1 flex-col p-4 space-y-2">
-        <div className="flex items-center gap-1.5">
-           <span className="text-[10px] font-bold text-[#1A2B4C] bg-[#E5C37A]/20 px-2 py-0.5 rounded uppercase tracking-wider">
-             {product.brand}
-           </span>
-           <span className={`text-[10px] font-bold px-2 py-0.5 rounded ml-auto ${getStockTone(product.stock)}`}>
-             {getStockLabel(product.stock)}
-           </span>
+      <div className="flex flex-1 flex-col p-4 gap-2">
+        {/* Brand + Stock */}
+        <div className="flex items-center gap-2">
+          <span className="text-[10px] font-semibold text-brand-primary/70 bg-brand-accent/10 px-2 py-0.5 rounded">
+            {product.brand}
+          </span>
+          <span className={`text-[10px] font-medium px-2 py-0.5 rounded ml-auto ${getStockTone(product.stock)}`}>
+            {getStockLabel(product.stock)}
+          </span>
         </div>
 
-        <Link href={`/products/${product.id}`} className="block group-hover:text-[#1A2B4C] transition-colors">
-          <h3 className="line-clamp-2 min-h-[2.5rem] text-sm font-bold leading-snug text-slate-900">
+        {/* Product Name */}
+        <Link href={`/products/${product.id}`} className="group-hover:text-brand-primary transition-colors">
+          <h3 className="line-clamp-2 min-h-[2.5rem] text-sm font-medium leading-snug text-text-primary">
             {product.name}
           </h3>
         </Link>
 
-        <div className="flex flex-col gap-0.5 pt-1">
-          <div className="flex items-baseline gap-2">
-            <span className="text-lg font-black text-[#D10024]">{formatVnd(product.price)}</span>
-            {product.originalPrice && (
-              <span className="text-[11px] text-slate-400 line-through font-medium">
-                {formatVnd(product.originalPrice)}
-              </span>
-            )}
-          </div>
+        {/* Price */}
+        <div className="mt-auto pt-2 flex items-baseline gap-2">
+          <span className="text-base font-bold text-brand-danger">{formatVnd(product.price)}</span>
+          {product.originalPrice && (
+            <span className="text-xs text-text-tertiary line-through">
+              {formatVnd(product.originalPrice)}
+            </span>
+          )}
         </div>
 
-        <div className="mt-auto pt-4 flex gap-2 opacity-0 lg:group-hover:opacity-100 transition-opacity">
+        {/* Actions (show on hover - desktop) */}
+        <div className="mt-3 pt-3 border-t border-border flex gap-2 opacity-0 lg:group-hover:opacity-100 transition-opacity">
           <button
             onClick={handleAddToCart}
-            className="flex-1 h-9 bg-slate-100 text-slate-700 rounded font-bold text-[11px] uppercase hover:bg-slate-200 transition-colors flex items-center justify-center gap-2"
+            className="flex-1 h-9 bg-slate-100 text-text-secondary rounded-button text-xs font-medium hover:bg-slate-200 transition-colors flex items-center justify-center gap-1.5"
           >
             <ShoppingCart className="h-3.5 w-3.5" /> Thêm vào giỏ
           </button>
           <button
             onClick={handleBuyNow}
-            className="h-9 px-4 bg-[#1A2B4C] text-[#E5C37A] rounded font-bold text-[11px] uppercase hover:bg-[#253A66] transition-colors"
+            className="h-9 px-4 bg-brand-primary text-brand-accent rounded-button text-xs font-semibold hover:bg-brand-primary/90 transition-colors"
           >
             Mua ngay
           </button>

@@ -13,24 +13,22 @@ export function ProductGroupSection({ group }: ProductGroupSectionProps) {
   if (!group.items.length) return null;
 
   return (
-    <section className="py-10">
+    <section className="py-16 md:py-24">
       <div className="mx-auto max-w-7xl px-4">
-        <div className="flex items-center justify-between mb-8 border-b border-slate-100 pb-4">
-          <h2 
-            className="text-xl lg:text-2xl font-black uppercase tracking-tight flex items-center gap-3"
-            style={{ color: group.accent || '#1A2B4C' }}
-          >
-            <span className="w-2 h-8 rounded-sm" style={{ backgroundColor: group.accent || '#1A2B4C' }}></span>
+        <div className="mb-10">
+          <h2 className="text-2xl md:text-3xl font-bold text-text-primary tracking-tight">
             {group.title}
           </h2>
-          <Link 
-            href={`/collections/${group.slug}`} 
-            className="text-[11px] font-black text-slate-500 hover:text-[#1A2B4C] uppercase tracking-wider flex items-center gap-1 group"
-          >
-            Xem tất cả <span className="group-hover:translate-x-1 transition-transform font-bold">→</span>
-          </Link>
+          <p className="mt-2 text-sm text-text-secondary font-normal">
+            <Link
+              href={`/collections/${group.slug}`}
+              className="hover:text-brand-primary transition-colors inline-flex items-center gap-1 group"
+            >
+              Xem tất cả <span className="group-hover:translate-x-0.5 transition-transform">→</span>
+            </Link>
+          </p>
         </div>
-        
+
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 lg:gap-6">
           {group.items.map((item) => (
             <ProductCard key={item.product.id} product={item.product} />

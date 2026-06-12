@@ -3,17 +3,15 @@
 import React, { useEffect, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { 
-  Search, 
-  ShoppingCart, 
-  Phone, 
-  MapPin, 
-  LayoutGrid,
-  FileText,
-  Clock
+import {
+  Search,
+  ShoppingCart,
+  Menu,
+  ChevronDown,
 } from 'lucide-react';
 import { useCart } from '@/store/use-cart';
 import { API_BASE_URL } from '@/lib/api';
+import { cn } from '@/lib/utils';
 
 interface Category {
   id: string;
@@ -25,6 +23,8 @@ export function SiteHeader() {
   const itemCount = useCart((state) => state.items.reduce((total, item) => total + item.quantity, 0));
   const [searchQuery, setSearchQuery] = useState('');
   const [categories, setCategories] = useState<Category[]>([]);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
 
   useEffect(() => {
     fetch(`${API_BASE_URL}/categories`)
@@ -33,105 +33,121 @@ export function SiteHeader() {
       .catch(() => setCategories([]));
   }, []);
 
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 80);
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
+
   return (
-    <header className="z-50 w-full flex flex-col">
-      {/* Desktop Utility Bar */}
-      <div className="hidden lg:block bg-[#1A2B4C] text-[#E5C37A] text-[11px] py-1.5 border-b border-[#E5C37A]/10">
-        <div className="mx-auto max-w-7xl px-4 flex items-center justify-between">
-          <div className="flex items-center gap-6">
-            <span className="flex items-center gap-1.5"><Phone className="h-3 w-3" /> Hotline: 1900 xxxx</span>
-            <span className="flex items-center gap-1.5"><MapPin className="h-3 w-3" /> Hệ thống cửa hàng</span>
-            <span className="flex items-center gap-1.5"><Clock className="h-3 w-3" /> Mở cửa: 08:00 - 21:30</span>
-          </div>
-          <div className="flex items-center gap-6">
-            <Link href="/news" className="hover:text-white transition-colors uppercase font-bold">Tin tức</Link>
-            <Link href="/policy" className="hover:text-white transition-colors uppercase font-bold">Chính sách</Link>
-            <Link href="/contact" className="hover:text-white transition-colors uppercase font-bold">Liên hệ</Link>
-          </div>
-        </div>
-      </div>
+    <header
+      className={cn(
+        'sticky top-0 z-50 w-full transition-all duration-300',
+        scrolled
+          ? 'bg-white/80 backdrop-blur-md shadow-sm border-b border-slate-200/60'
+          : 'bg-white border-b border-transparent'
+      )}
+    >
+      <div className="mx-auto max-w-7xl px-4 flex h-16 items-center gap-4 lg:gap-8">
+        {/* Logo */}
+        <Link href="/" className="flex-shrink-0" aria-label="Hùng Hiền Điện Máy">
+          <Image
+            src="/logo.png"
+            alt="Hùng Hiền Điện Máy"
+            width={160}
+            height={54}
+            className={cn(
+              'h-9 lg:h-11 w-auto object-contain transition-all duration-300',
+              scrolled ? 'lg:h-9' : 'lg:h-11'
+            )}
+            priority
+          />
+        </Link>
 
-      {/* Main Header Row */}
-      <div className="bg-[#1A2B4C] lg:bg-white border-b border-slate-200">
-        <div className="mx-auto max-w-7xl px-4 flex h-16 lg:h-20 items-center gap-4 lg:gap-8">
-          {/* Logo */}
-          <Link href="/" className="flex-shrink-0" aria-label="Hùng Hiền Điện Máy">
-            <Image
-              src="/logo.png"
-              alt="Hùng Hiền Điện Máy"
-              width={160}
-              height={54}
-              className="h-10 lg:h-12 w-auto object-contain brightness-0 invert lg:brightness-100 lg:invert-0"
-              priority
-            />
-          </Link>
-
-          {/* Search Bar */}
-          <form action="/" className="flex-1 min-w-0">
-            <div className="relative group">
-              <input
-                name="search"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Bạn muốn tìm gì hôm nay?"
-                className="w-full h-10 lg:h-12 rounded-full lg:rounded-md border-0 lg:border border-slate-200 bg-white/10 lg:bg-slate-50 pl-10 pr-4 text-sm focus:bg-white focus:ring-2 focus:ring-[#1A2B4C] transition-all text-white lg:text-slate-900 placeholder:text-slate-300 lg:placeholder:text-slate-400 outline-none"
-              />
-              <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-300 lg:text-slate-400 group-focus-within:text-[#1A2B4C]" />
-              <button type="submit" className="hidden lg:block absolute right-1.5 top-1/2 -translate-y-1/2 h-9 px-4 bg-[#1A2B4C] text-[#E5C37A] text-xs font-bold rounded uppercase hover:bg-[#253A66] transition-colors">
-                Tìm kiếm
-              </button>
-            </div>
-          </form>
-
-          {/* Cart & Actions (Desktop) */}
-          <div className="hidden lg:flex items-center gap-6">
-            <Link href="/orders/tracking" className="flex items-center gap-2 text-slate-600 hover:text-[#1A2B4C] transition-colors">
-              <div className="p-2.5 bg-slate-100 rounded-full"><FileText className="h-5 w-5" /></div>
-              <div className="text-[10px] leading-tight font-bold uppercase whitespace-nowrap">Tra cứu<br />đơn hàng</div>
-            </Link>
-            <Link href="/cart" className="flex items-center gap-2 text-slate-600 hover:text-[#1A2B4C] transition-colors relative">
-              <div className="p-2.5 bg-slate-100 rounded-full relative">
-                <ShoppingCart className="h-5 w-5" />
-                {itemCount > 0 && (
-                  <span className="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full bg-[#D10024] text-[10px] font-bold text-white ring-2 ring-white">
-                    {itemCount}
-                  </span>
-                )}
+        {/* Danh mục dropdown (Desktop) */}
+        <div className="hidden lg:block relative">
+          <button
+            onClick={() => setMenuOpen(!menuOpen)}
+            className="flex items-center gap-2 px-4 h-10 rounded-button bg-brand-primary text-brand-accent font-semibold text-sm hover:bg-brand-primary/90 transition-colors"
+          >
+            <Menu className="h-4 w-4" /> Danh mục
+            <ChevronDown className={cn('h-3 w-3 transition-transform', menuOpen && 'rotate-180')} />
+          </button>
+          {menuOpen && (
+            <div className="absolute top-full left-0 mt-1 w-56 bg-surface rounded-card shadow-elevated border border-border py-2 z-50">
+              {categories.map(cat => (
+                <Link
+                  key={cat.id}
+                  href={`/categories/${cat.slug}`}
+                  onClick={() => setMenuOpen(false)}
+                  className="block px-4 py-2.5 text-sm font-medium text-text-primary hover:bg-slate-50 transition-colors"
+                >
+                  {cat.name}
+                </Link>
+              ))}
+              <div className="border-t border-border mt-1 pt-1">
+                <Link
+                  href="/deals"
+                  onClick={() => setMenuOpen(false)}
+                  className="block px-4 py-2.5 text-sm font-semibold text-brand-danger hover:bg-red-50 transition-colors"
+                >
+                  Khuyến mãi hot
+                </Link>
               </div>
-              <div className="text-[10px] leading-tight font-bold uppercase whitespace-nowrap">Giỏ hàng<br />của bạn</div>
-            </Link>
-          </div>
+            </div>
+          )}
+          {/* Overlay to close menu */}
+          {menuOpen && (
+            <div className="fixed inset-0 z-40" onClick={() => setMenuOpen(false)} />
+          )}
+        </div>
 
-          {/* Mobile Cart Button */}
-          <Link href="/cart" className="lg:hidden relative p-2 text-white">
-            <ShoppingCart className="h-6 w-6" />
+        {/* Search Bar */}
+        <form action="/" className="flex-1 min-w-0">
+          <div className="relative">
+            <input
+              name="search"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Tìm sản phẩm..."
+              className="w-full h-10 rounded-input border border-border bg-slate-50 pl-10 pr-4 text-sm focus:bg-white focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary transition-all text-text-primary placeholder:text-text-tertiary outline-none"
+            />
+            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-text-tertiary" />
+            <button
+              type="submit"
+              className="hidden lg:block absolute right-1.5 top-1/2 -translate-y-1/2 h-8 px-4 bg-brand-primary text-brand-accent text-xs font-semibold rounded-input hover:bg-brand-primary/90 transition-colors"
+            >
+              Tìm
+            </button>
+          </div>
+        </form>
+
+        {/* Cart (Desktop) */}
+        <Link
+          href="/cart"
+          className="hidden lg:flex items-center gap-2 text-text-secondary hover:text-brand-primary transition-colors relative"
+        >
+          <div className="p-2 rounded-full relative">
+            <ShoppingCart className="h-5 w-5" />
             {itemCount > 0 && (
-              <span className="absolute -right-0.5 -top-0.5 flex h-5 w-5 items-center justify-center rounded-full bg-red-600 text-[10px] font-bold text-white ring-1 ring-[#1A2B4C]">
+              <span className="absolute -right-0.5 -top-0.5 flex h-5 w-5 items-center justify-center rounded-full bg-brand-danger text-[10px] font-bold text-white ring-2 ring-white">
                 {itemCount}
               </span>
             )}
-          </Link>
-        </div>
-      </div>
-
-      {/* Product Navigation Row (Desktop) */}
-      <nav className="hidden lg:block bg-white border-b border-slate-200 shadow-sm overflow-x-auto no-scrollbar">
-        <div className="mx-auto max-w-7xl px-4 flex items-center h-12">
-          <button className="flex items-center gap-2 px-4 h-full bg-[#1A2B4C] text-[#E5C37A] font-bold text-sm uppercase">
-            <LayoutGrid className="h-4 w-4" /> Danh mục
-          </button>
-          <div className="flex items-center gap-1 ml-4 whitespace-nowrap">
-            {categories.map(cat => (
-              <Link key={cat.id} href={`/categories/${cat.slug}`} className="px-4 py-2 text-xs font-bold text-slate-700 hover:text-[#1A2B4C] hover:bg-slate-50 transition-colors uppercase tracking-tight">
-                {cat.name}
-              </Link>
-            ))}
-            <Link href="/deals" className="px-4 py-2 text-xs font-bold text-[#D10024] hover:bg-red-50 transition-colors uppercase tracking-tight flex items-center gap-1">
-              🔥 Khuyến mãi hot
-            </Link>
           </div>
-        </div>
-      </nav>
+          <span className="text-xs font-medium hidden xl:inline">Giỏ hàng</span>
+        </Link>
+
+        {/* Mobile Cart */}
+        <Link href="/cart" className="lg:hidden relative p-2">
+          <ShoppingCart className="h-5 w-5" />
+          {itemCount > 0 && (
+            <span className="absolute -right-0.5 -top-0.5 flex h-5 w-5 items-center justify-center rounded-full bg-brand-danger text-[10px] font-bold text-white ring-1 ring-white">
+              {itemCount}
+            </span>
+          )}
+        </Link>
+      </div>
     </header>
   );
 }

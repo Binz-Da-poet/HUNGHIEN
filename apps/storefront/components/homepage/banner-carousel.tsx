@@ -31,7 +31,7 @@ export function BannerCarousel({ banners }: BannerCarouselProps) {
 
   return (
     <div className="relative w-full aspect-[16/9] md:aspect-[21/9] lg:aspect-[3/1] overflow-hidden group bg-slate-200">
-      <div 
+      <div
         className="flex h-full transition-transform duration-500 ease-out"
         style={{ transform: `translateX(-${current * 100}%)` }}
       >
@@ -50,33 +50,33 @@ export function BannerCarousel({ banners }: BannerCarouselProps) {
                 </picture>
               </Link>
             ) : (
-              <div 
+              <div
                 className="w-full h-full flex items-center px-6 md:px-12 lg:px-24"
                 style={{ backgroundColor: banner.backgroundColor || '#1A2B4C' }}
               >
                 <div className="max-w-2xl text-white space-y-3 md:space-y-6">
-                   <h2 className="text-xl md:text-4xl lg:text-6xl font-black leading-tight uppercase tracking-tight">
-                     {banner.heading}
-                   </h2>
-                   <p className="text-xs md:text-lg text-[#E5C37A] font-bold uppercase tracking-wider">
-                     {banner.description}
-                   </p>
-                   {banner.ctaLabel && (
-                     <Link 
-                       href={banner.ctaUrl || '#'} 
-                       className="inline-block px-6 py-2 md:px-10 md:py-4 bg-[#E5C37A] text-[#1A2B4C] font-black rounded uppercase text-xs md:text-sm hover:bg-white transition-all shadow-lg"
-                     >
-                       {banner.ctaLabel}
-                     </Link>
-                   )}
+                  <h2 className="text-xl md:text-4xl lg:text-6xl font-bold leading-tight tracking-tight">
+                    {banner.heading}
+                  </h2>
+                  <p className="text-xs md:text-lg text-brand-accent font-medium tracking-wide">
+                    {banner.description}
+                  </p>
+                  {banner.ctaLabel && (
+                    <Link
+                      href={banner.ctaUrl || '#'}
+                      className="inline-block px-6 py-2 md:px-10 md:py-4 bg-brand-accent text-brand-primary font-semibold rounded-button text-xs md:text-sm hover:bg-white transition-all"
+                    >
+                      {banner.ctaLabel}
+                    </Link>
+                  )}
                 </div>
                 {banner.products && banner.products.length > 0 && (
                   <div className="hidden md:block ml-auto max-w-sm">
-                     <img 
-                       src={banner.products[0].product.images?.[0]?.url} 
-                       alt="" 
-                       className="w-full h-auto object-contain drop-shadow-2xl animate-in slide-in-from-right-8"
-                     />
+                    <img
+                      src={banner.products[0].product.images?.[0]?.url}
+                      alt=""
+                      className="w-full h-auto object-contain drop-shadow-2xl"
+                    />
                   </div>
                 )}
               </div>
@@ -87,29 +87,29 @@ export function BannerCarousel({ banners }: BannerCarouselProps) {
 
       {banners.length > 1 && (
         <>
-          <button 
+          <button
             onClick={(e) => { e.preventDefault(); prev(); }}
-            className="absolute left-4 top-1/2 -translate-y-1/2 p-2 bg-black/20 hover:bg-[#1A2B4C] text-white rounded-full opacity-0 group-hover:opacity-100 transition-all z-10"
+            className="absolute left-4 top-1/2 -translate-y-1/2 p-2 bg-black/20 hover:bg-brand-primary text-white rounded-full opacity-0 group-hover:opacity-100 transition-all z-10"
             aria-label="Previous slide"
           >
             <ChevronLeft className="h-6 w-6" />
           </button>
-          <button 
+          <button
             onClick={(e) => { e.preventDefault(); next(); }}
-            className="absolute right-4 top-1/2 -translate-y-1/2 p-2 bg-black/20 hover:bg-[#1A2B4C] text-white rounded-full opacity-0 group-hover:opacity-100 transition-all z-10"
+            className="absolute right-4 top-1/2 -translate-y-1/2 p-2 bg-black/20 hover:bg-brand-primary text-white rounded-full opacity-0 group-hover:opacity-100 transition-all z-10"
             aria-label="Next slide"
           >
             <ChevronRight className="h-6 w-6" />
           </button>
-          
-          <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-2.5 z-10">
+
+          <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-2 z-10">
             {banners.map((_, i) => (
               <button
                 key={i}
                 onClick={() => setCurrent(i)}
                 className={cn(
-                  "h-2 rounded-full transition-all border border-black/10 shadow-sm",
-                  current === i ? "w-10 bg-[#E5C37A]" : "w-2 bg-white/70 hover:bg-white"
+                  "h-2 rounded-full transition-all",
+                  current === i ? "w-8 bg-brand-accent" : "w-2 bg-white/60 hover:bg-white/80"
                 )}
                 aria-label={`Go to slide ${i + 1}`}
               />
