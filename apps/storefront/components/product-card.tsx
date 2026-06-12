@@ -4,6 +4,7 @@ import React from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { ShoppingCart } from 'lucide-react';
+import { motion } from 'motion/react';
 import { useCart } from '@/store/use-cart';
 import { formatVnd } from '@/lib/format';
 import { getPrimaryImage } from '@/lib/product-images';
@@ -48,7 +49,11 @@ export function ProductCard({ product }: ProductCardProps) {
   };
 
   return (
-    <article className="group relative flex h-full flex-col overflow-hidden rounded-card bg-surface transition-all duration-300 hover:shadow-card-hover">
+    <motion.article
+      whileHover={{ scale: 1.02 }}
+      transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
+      className="group relative flex h-full flex-col overflow-hidden rounded-card bg-surface transition-shadow duration-300 hover:shadow-card-hover"
+    >
       <Link href={`/products/${product.id}`} className="relative block aspect-square overflow-hidden bg-slate-50">
         <ProductImage
           src={image?.url}
@@ -107,6 +112,6 @@ export function ProductCard({ product }: ProductCardProps) {
           </button>
         </div>
       </div>
-    </article>
+    </motion.article>
   );
 }

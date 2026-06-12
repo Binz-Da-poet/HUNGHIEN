@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { motion, useReducedMotion } from 'motion/react';
 import { cn } from '@/lib/utils';
 import { HomepageBanner } from '@/lib/homepage';
 
@@ -12,6 +13,7 @@ interface BannerCarouselProps {
 
 export function BannerCarousel({ banners }: BannerCarouselProps) {
   const [current, setCurrent] = useState(0);
+  const reduce = useReducedMotion();
 
   const next = useCallback(() => {
     setCurrent((prev) => (prev + 1) % banners.length);
@@ -30,10 +32,16 @@ export function BannerCarousel({ banners }: BannerCarouselProps) {
   if (!banners.length) return null;
 
   return (
-    <div className="relative w-full aspect-[16/9] md:aspect-[21/9] lg:aspect-[3/1] overflow-hidden group bg-slate-200">
-      <div
-        className="flex h-full transition-transform duration-500 ease-out"
-        style={{ transform: `translateX(-${current * 100}%)` }}
+    <motion.div
+      initial={reduce ? false : { opacity: 0, y: 16 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
+      className="relative w-full aspect-[16/9] md:aspect-[21/9] lg:aspect-[3/1] overflow-hidden group bg-slate-200"
+    >
+      <motion.div
+        className="flex h-full"
+        animate={{ x: `-${current * 100}%` }}
+        transition={{ type: 'spring', stiffness: 300, damping: 30 }}
       >
         {banners.map((banner) => (
           <div key={banner.id} className="w-full h-full flex-shrink-0 relative">
@@ -83,7 +91,7 @@ export function BannerCarousel({ banners }: BannerCarouselProps) {
             )}
           </div>
         ))}
-      </div>
+      </motion.div>
 
       {banners.length > 1 && (
         <>
@@ -117,6 +125,6 @@ export function BannerCarousel({ banners }: BannerCarouselProps) {
           </div>
         </>
       )}
-    </div>
+    </motion.div>
   );
 }

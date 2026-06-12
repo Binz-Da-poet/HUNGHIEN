@@ -3,6 +3,7 @@
 import React from 'react';
 import Link from 'next/link';
 import { ProductCard } from '@/components/product-card';
+import { ScrollReveal } from '@/components/scroll-reveal';
 import { ProductGroup } from '@/lib/homepage';
 
 interface ProductGroupSectionProps {
@@ -30,8 +31,10 @@ export function ProductGroupSection({ group }: ProductGroupSectionProps) {
         </div>
 
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 lg:gap-6">
-          {group.items.map((item) => (
-            <ProductCard key={item.product.id} product={item.product} />
+          {group.items.map((item, i) => (
+            <ScrollReveal key={item.product.id} index={i}>
+              <ProductCard product={item.product} />
+            </ScrollReveal>
           ))}
         </div>
       </div>

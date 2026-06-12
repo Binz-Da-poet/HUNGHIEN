@@ -2,6 +2,7 @@
 
 import React from 'react';
 import Link from 'next/link';
+import { ScrollReveal } from '@/components/scroll-reveal';
 import { FeaturedBrand } from '@/lib/homepage';
 
 export function BrandStrip({ brands }: { brands: FeaturedBrand[] }) {
@@ -15,18 +16,20 @@ export function BrandStrip({ brands }: { brands: FeaturedBrand[] }) {
         </h2>
 
         <div className="flex items-center gap-4 lg:gap-10 overflow-x-auto no-scrollbar py-2">
-          {brands.map((brand) => (
-            <Link
-              key={brand.id}
-              href={brand.targetUrl || '#'}
-              className="flex-shrink-0 w-28 lg:w-40 h-14 lg:h-20 flex items-center justify-center p-4 grayscale hover:grayscale-0 transition-all border border-border rounded-card bg-slate-50/50 hover:bg-surface hover:shadow-card-hover"
-            >
-              <img
-                src={brand.logoUrl}
-                alt={brand.name}
-                className="max-h-full max-w-full object-contain"
-              />
-            </Link>
+          {brands.map((brand, i) => (
+            <ScrollReveal key={brand.id} index={i}>
+              <Link
+                key={brand.id}
+                href={brand.targetUrl || '#'}
+                className="flex-shrink-0 w-28 lg:w-40 h-14 lg:h-20 flex items-center justify-center p-4 grayscale hover:grayscale-0 transition-all border border-border rounded-card bg-slate-50/50 hover:bg-surface hover:shadow-card-hover"
+              >
+                <img
+                  src={brand.logoUrl}
+                  alt={brand.name}
+                  className="max-h-full max-w-full object-contain"
+                />
+              </Link>
+            </ScrollReveal>
           ))}
         </div>
       </div>
