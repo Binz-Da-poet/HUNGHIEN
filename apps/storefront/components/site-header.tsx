@@ -9,7 +9,7 @@ import {
   Menu,
   ChevronDown,
 } from 'lucide-react';
-import { motion, AnimatePresence } from 'motion/react';
+import { motion, AnimatePresence, useReducedMotion } from 'motion/react';
 import { useCart } from '@/store/use-cart';
 import { API_BASE_URL } from '@/lib/api';
 import { cn } from '@/lib/utils';
@@ -22,6 +22,7 @@ interface Category {
 
 export function SiteHeader() {
   const itemCount = useCart((state) => state.items.reduce((total, item) => total + item.quantity, 0));
+  const reduce = useReducedMotion();
   const [searchQuery, setSearchQuery] = useState('');
   const [categories, setCategories] = useState<Category[]>([]);
   const [menuOpen, setMenuOpen] = useState(false);
@@ -142,19 +143,27 @@ export function SiteHeader() {
         >
           <div className="p-2 rounded-full relative">
             <ShoppingCart className="h-5 w-5" />
-            <AnimatePresence>
-              {itemCount > 0 && (
-                <motion.span
-                  initial={{ scale: 0 }}
-                  animate={{ scale: 1 }}
-                  exit={{ scale: 0 }}
-                  transition={{ type: 'spring', stiffness: 500, damping: 30 }}
-                  className="absolute -right-0.5 -top-0.5 flex h-5 w-5 items-center justify-center rounded-full bg-brand-danger text-[10px] font-bold text-white ring-2 ring-white"
-                >
+            {reduce ? (
+              itemCount > 0 && (
+                <span className="absolute -right-0.5 -top-0.5 flex h-5 w-5 items-center justify-center rounded-full bg-brand-danger text-[10px] font-bold text-white ring-2 ring-white">
                   {itemCount}
-                </motion.span>
-              )}
-            </AnimatePresence>
+                </span>
+              )
+            ) : (
+              <AnimatePresence>
+                {itemCount > 0 && (
+                  <motion.span
+                    initial={{ scale: 0 }}
+                    animate={{ scale: 1 }}
+                    exit={{ scale: 0 }}
+                    transition={{ type: 'spring', stiffness: 500, damping: 30 }}
+                    className="absolute -right-0.5 -top-0.5 flex h-5 w-5 items-center justify-center rounded-full bg-brand-danger text-[10px] font-bold text-white ring-2 ring-white"
+                  >
+                    {itemCount}
+                  </motion.span>
+                )}
+              </AnimatePresence>
+            )}
           </div>
           <span className="text-xs font-medium hidden xl:inline">Giỏ hàng</span>
         </Link>
@@ -162,19 +171,27 @@ export function SiteHeader() {
         {/* Mobile Cart */}
         <Link href="/cart" className="lg:hidden relative p-2">
           <ShoppingCart className="h-5 w-5" />
-          <AnimatePresence>
-            {itemCount > 0 && (
-              <motion.span
-                initial={{ scale: 0 }}
-                animate={{ scale: 1 }}
-                exit={{ scale: 0 }}
-                transition={{ type: 'spring', stiffness: 500, damping: 30 }}
-                className="absolute -right-0.5 -top-0.5 flex h-5 w-5 items-center justify-center rounded-full bg-brand-danger text-[10px] font-bold text-white ring-1 ring-white"
-              >
+          {reduce ? (
+            itemCount > 0 && (
+              <span className="absolute -right-0.5 -top-0.5 flex h-5 w-5 items-center justify-center rounded-full bg-brand-danger text-[10px] font-bold text-white ring-1 ring-white">
                 {itemCount}
-              </motion.span>
-            )}
-          </AnimatePresence>
+              </span>
+            )
+          ) : (
+            <AnimatePresence>
+              {itemCount > 0 && (
+                <motion.span
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  exit={{ scale: 0 }}
+                  transition={{ type: 'spring', stiffness: 500, damping: 30 }}
+                  className="absolute -right-0.5 -top-0.5 flex h-5 w-5 items-center justify-center rounded-full bg-brand-danger text-[10px] font-bold text-white ring-1 ring-white"
+                >
+                  {itemCount}
+                </motion.span>
+              )}
+            </AnimatePresence>
+          )}
         </Link>
       </div>
     </header>

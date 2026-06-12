@@ -4,7 +4,7 @@ import React from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { ShoppingCart } from 'lucide-react';
-import { motion } from 'motion/react';
+import { motion, useReducedMotion } from 'motion/react';
 import { useCart } from '@/store/use-cart';
 import { formatVnd } from '@/lib/format';
 import { getPrimaryImage } from '@/lib/product-images';
@@ -25,6 +25,7 @@ export function ProductCard({ product }: ProductCardProps) {
   const router = useRouter();
   const { addItem, setBuyNowItem } = useCart();
   const { showToast } = useToast();
+  const reduce = useReducedMotion();
 
   const image = getPrimaryImage(product.images);
   const discount = getDiscountPercent(product);
@@ -50,7 +51,7 @@ export function ProductCard({ product }: ProductCardProps) {
 
   return (
     <motion.article
-      whileHover={{ scale: 1.02 }}
+      whileHover={reduce ? undefined : { scale: 1.02 }}
       transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
       className="group relative flex h-full flex-col overflow-hidden rounded-card bg-surface transition-shadow duration-300 hover:shadow-card-hover"
     >
