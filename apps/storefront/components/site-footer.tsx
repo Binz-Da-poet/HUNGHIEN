@@ -27,13 +27,13 @@ export function SiteFooter({ settings }: { settings: StoreSettings | null }) {
               {s.companySummary || 'Hùng Hiền Điện Máy - Hệ thống mua sắm điện tử, nội thất và gia dụng chính hãng uy tín hàng đầu.'}
             </p>
             <div className="flex gap-3">
-              <Link href="#" className="p-2.5 bg-white/5 rounded-full hover:bg-brand-accent hover:text-brand-primary transition-all border border-white/10">
+              <Link href="#" className="p-2.5 bg-white/5 rounded-full hover:bg-brand-accent hover:text-brand-primary transition-all border border-white/10" aria-label="Facebook">
                 <Facebook className="h-4 w-4" />
               </Link>
-              <Link href="#" className="p-2.5 bg-white/5 rounded-full hover:bg-brand-accent hover:text-brand-primary transition-all border border-white/10">
+              <Link href="#" className="p-2.5 bg-white/5 rounded-full hover:bg-brand-accent hover:text-brand-primary transition-all border border-white/10" aria-label="YouTube">
                 <Youtube className="h-4 w-4" />
               </Link>
-              <Link href="#" className="p-2.5 bg-white/5 rounded-full hover:bg-brand-accent hover:text-brand-primary transition-all border border-white/10">
+              <Link href="#" className="p-2.5 bg-white/5 rounded-full hover:bg-brand-accent hover:text-brand-primary transition-all border border-white/10" aria-label="Telegram">
                 <Send className="h-4 w-4" />
               </Link>
             </div>
@@ -61,14 +61,16 @@ export function SiteFooter({ settings }: { settings: StoreSettings | null }) {
             <p className="text-sm text-slate-300 leading-relaxed">
               Nhận thông tin khuyến mãi và sản phẩm mới.
             </p>
-            <form className="flex gap-2" onSubmit={(e) => e.preventDefault()}>
+            <form className="flex gap-2" onSubmit={(e) => e.preventDefault()} aria-label="Đăng ký nhận tin">
               <input
                 type="email"
                 placeholder="Email của bạn"
+                aria-label="Địa chỉ email"
                 className="flex-1 h-10 rounded-input border border-white/20 bg-white/5 px-4 text-sm text-white placeholder:text-slate-400 outline-none focus:border-brand-accent/50 focus:bg-white/10 transition-all"
               />
               <button
                 type="submit"
+                aria-label="Gửi đăng ký"
                 className="h-10 px-4 bg-brand-accent text-brand-primary rounded-input font-semibold text-sm hover:bg-white transition-colors flex items-center gap-1"
               >
                 <ArrowRight className="h-4 w-4" />

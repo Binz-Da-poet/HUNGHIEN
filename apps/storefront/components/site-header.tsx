@@ -39,6 +39,15 @@ export function SiteHeader() {
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
+  useEffect(() => {
+    if (!menuOpen) return;
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setMenuOpen(false);
+    };
+    document.addEventListener('keydown', onKeyDown);
+    return () => document.removeEventListener('keydown', onKeyDown);
+  }, [menuOpen]);
+
   return (
     <header
       className={cn(
@@ -68,6 +77,9 @@ export function SiteHeader() {
         <div className="hidden lg:block relative">
           <button
             onClick={() => setMenuOpen(!menuOpen)}
+            aria-expanded={menuOpen}
+            aria-haspopup="true"
+            aria-label="Danh mục sản phẩm"
             className="flex items-center gap-2 px-4 h-10 rounded-button bg-brand-primary text-brand-accent font-semibold text-sm hover:bg-brand-primary/90 transition-colors"
           >
             <Menu className="h-4 w-4" /> Danh mục
@@ -103,7 +115,7 @@ export function SiteHeader() {
         </div>
 
         {/* Search Bar */}
-        <form action="/" className="flex-1 min-w-0">
+        <form action="/" className="flex-1 min-w-0" aria-label="Tìm kiếm sản phẩm">
           <div className="relative">
             <input
               name="search"
